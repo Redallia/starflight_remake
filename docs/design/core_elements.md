@@ -2,21 +2,44 @@
 
 This document details the essential elements of Starflight that define its core gameplay experience.
 
+## Basic Interface
+### Key Aspects
+- Grid-based movement system
+- Keyboard-controlled directional movement
+    - Modern style WASD controls, instead of arrow keys
+- Different HUDs for different game interactions based from the starship
+    - Starship
+    - Trading
+    - Alien communication
+    - Planetary exploration
+- Simple side-scroller game interface for spaceport and location-based exploration 
+
+
 ## Space Navigation
 ### Key Aspects
 - Grid-based movement system
 - Keyboard-controlled directional movement
-- Varying travel speeds (cruise vs hyperspace)
 - Fuel consumption mechanics
-- Star system map interface
-- Ship position persistence
+    - Fuel use and availability should be the limiting factor for exploration
+- Sector map interface for trip planning
+- Hyperspace ship position persistence when moving between hyperspace and system space
 
 ### Critical Features
-- Clear visual feedback for movement
+- A rolling starfield in space for clear visual feedback for movement 
 - Intuitive controls
+    - Menu interactions should utilize the WASD design
 - Collision detection with celestial bodies
+    - stars and planets should have a ring of hit boxes, rather than exist as a single point
 - Navigation markers/waypoints
 - Emergency fuel management
+
+## Planetary Orbit
+### Key Aspects
+- Ability to scan planets
+    - Emulate the original game whenever possible
+- Starship HUD should reflect orbit, showing planet on the main screen, and a mini-map of the planet's topology in a minimap
+- Potential for scans to pinpoint individual locations on planets
+- Landing mechanic should be keyboard controlled
 
 ## Planet Exploration
 ### Key Aspects
@@ -40,6 +63,8 @@ This document details the essential elements of Starflight that define its core 
 - Skill-based role system
 - Training and improvement mechanics
 - Crew member attributes
+    - Skills
+    - Species
 - Role-specific actions/abilities
 
 ### Critical Features
