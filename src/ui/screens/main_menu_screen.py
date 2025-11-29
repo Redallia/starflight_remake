@@ -2,7 +2,7 @@
 Main menu screen
 """
 import pygame
-from src.core.screen_manager import Screen
+from core.screen_manager import Screen
 
 
 class MainMenuScreen(Screen):
@@ -35,7 +35,7 @@ class MainMenuScreen(Screen):
         width, height = screen.get_size()
 
         # Get renderer (we'll pass this properly later)
-        from src.ui.renderer import Renderer
+        from ui.renderer import Renderer
         renderer = Renderer(screen)
 
         # Clear screen

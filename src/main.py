@@ -3,9 +3,9 @@ Starflight Remake - Main Entry Point
 """
 import pygame
 import sys
-from src.core.input_handler import InputHandler
-from src.core.screen_manager import ScreenManager
-from src.ui.screens.main_menu_screen import MainMenuScreen
+from core.input_handler import InputHandler
+from core.screen_manager import ScreenManager
+from ui.screens.main_menu_screen import MainMenuScreen
 
 
 def main():
