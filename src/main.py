@@ -3,6 +3,9 @@ Starflight Remake - Main Entry Point
 """
 import pygame
 import sys
+from src.core.input_handler import InputHandler
+from src.core.screen_manager import ScreenManager
+from src.ui.screens.main_menu_screen import MainMenuScreen
 
 
 def main():
@@ -20,26 +23,47 @@ def main():
     pygame.display.set_caption("Starflight Remake")
     clock = pygame.time.Clock()
 
+    # Initialize systems
+    input_handler = InputHandler()
+    screen_manager = ScreenManager()
+
+    # Create and register screens
+    main_menu = MainMenuScreen(screen_manager)
+    screen_manager.add_screen("main_menu", main_menu)
+
+    # Start with main menu
+    screen_manager.change_screen("main_menu")
+
     # Main game loop
     running = True
     while running:
-        # Handle events
-        for event in pygame.event.get():
+        # Calculate delta time
+        delta_time = clock.tick(FPS) / 1000.0  # Convert to seconds
+
+        # Collect events
+        events = pygame.event.get()
+
+        # Handle quit events
+        for event in events:
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    running = False
+                    # Let screens handle ESC, or quit if at main menu
+                    if screen_manager.current_screen == main_menu:
+                        running = False
 
-        # Update (placeholder)
-        pass
+        # Update input
+        input_handler.update(events)
 
-        # Render
-        screen.fill((0, 0, 0))  # Black background
+        # Update current screen
+        screen_manager.update(delta_time, input_handler)
+
+        # Render current screen
+        screen_manager.render(screen)
+
+        # Update display
         pygame.display.flip()
-
-        # Maintain framerate
-        clock.tick(FPS)
 
     # Cleanup
     pygame.quit()
