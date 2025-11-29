@@ -8,8 +8,9 @@ from core.screen_manager import Screen
 class MainMenuScreen(Screen):
     """Simple main menu"""
 
-    def __init__(self, screen_manager):
+    def __init__(self, screen_manager, game_state):
         super().__init__(screen_manager)
+        self.game_state = game_state
         self.title = "STARFLIGHT REMAKE"
         self.options = ["New Game", "Load Game", "Quit"]
         self.selected_index = 0
@@ -77,6 +78,13 @@ class MainMenuScreen(Screen):
         if option == "Quit":
             pygame.event.post(pygame.event.Event(pygame.QUIT))
         elif option == "New Game":
-            print("New Game selected (not implemented yet)")
+            print("Starting new game!")
+            # Reset game state to new game
+            from core.game_state import GameState
+            new_state = GameState()
+            # Copy new state into existing game_state object
+            self.game_state.__dict__.update(new_state.__dict__)
+            # Go to starport
+            self.screen_manager.change_screen("starport")
         elif option == "Load Game":
             print("Load Game selected (not implemented yet)")

@@ -5,7 +5,10 @@ import pygame
 import sys
 from core.input_handler import InputHandler
 from core.screen_manager import ScreenManager
+from core.game_state import GameState
 from ui.screens.main_menu_screen import MainMenuScreen
+from ui.screens.starport_screen import StarportScreen
+from ui.screens.space_screen import SpaceScreen
 
 
 def main():
@@ -26,10 +29,16 @@ def main():
     # Initialize systems
     input_handler = InputHandler()
     screen_manager = ScreenManager()
+    game_state = GameState()
 
     # Create and register screens
-    main_menu = MainMenuScreen(screen_manager)
+    main_menu = MainMenuScreen(screen_manager, game_state)
+    starport = StarportScreen(screen_manager, game_state)
+    space = SpaceScreen(screen_manager, game_state)
+
     screen_manager.add_screen("main_menu", main_menu)
+    screen_manager.add_screen("starport", starport)
+    screen_manager.add_screen("space", space)
 
     # Start with main menu
     screen_manager.change_screen("main_menu")
