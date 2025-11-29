@@ -21,11 +21,27 @@ Create a playable loop where you can:
 - Save/load game
 - Launch into space
 
+### 1.5. Game Flow & Starport
+- New game initialization
+- Basic ship/game state (fuel, cargo capacity, credits, location)
+- Simple starport screen with menu
+  - View Ship Status
+  - Launch to Space
+  - Exit to Main Menu
+- Placeholder space screen (proves transitions work)
+  - Display basic status
+  - Return to Starport option
+- Screen transitions (menu → starport → space → starport)
+- Wire up "New Game" button to create game state and go to starport
+
 **Scope Limits:**
-- Single starport only
-- Basic text menus
-- Minimal ship customization (just fuel, maybe one upgrade type)
-- No crew training (yet)
+- No actual fuel purchases (deferred to Phase 5)
+- No upgrades (deferred to Phase 5)
+- No actual space movement (deferred to Phase 2)
+- No save/load (deferred to Phase 5)
+- No planets visible yet (deferred to Phase 2)
+- Basic text menus only
+- Focus on screen flow and basic state management only
 
 ### 2. Space Navigation
 - Grid-based movement in a single star system
@@ -154,6 +170,15 @@ The MVP is successful if a player can:
 - Input handling
 - Screen management system
 - Simple rendering framework
+- Working main menu
+
+### Phase 1.5: Game Flow & Starport (Week 2)
+- New game initialization
+- Basic ship/game state
+- Simple starport screen with menu
+- Launch button to transition to space
+- Return to starport functionality
+- Screen transitions (menu → starport → space → starport)
 
 ### Phase 2: Space Navigation (Week 3)
 - Grid-based movement
