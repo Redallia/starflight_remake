@@ -129,18 +129,24 @@ class SpaceScreen(Screen):
 
     def check_planet_proximity(self):
         """Check if ship is near any planet for docking"""
-        ship_coord = self.game_state.get_coordinate_position()
+        ship_x = self.game_state.ship_x
+        ship_y = self.game_state.ship_y
         old_near_planet = self.near_planet
         self.near_planet = None
 
         for planet in self.game_state.planets:
-            # Calculate distance in coordinate units
-            dx = ship_coord[0] - planet['coord_x']
-            dy = ship_coord[1] - planet['coord_y']
+            # Convert planet coordinates to movement grid
+            planet_x = planet['coord_x'] * 10
+            planet_y = planet['coord_y'] * 10
+            planet_radius = planet['radius'] * 10  # Convert to movement grid units
+
+            # Calculate distance from ship to planet center
+            dx = ship_x - planet_x
+            dy = ship_y - planet_y
             distance = (dx**2 + dy**2) ** 0.5
 
-            # Check if within docking range (planet radius + small buffer)
-            if distance <= planet['radius'] + 1:
+            # Check if within docking range (at planet collision radius)
+            if distance <= planet_radius:
                 self.near_planet = planet
                 break
 
