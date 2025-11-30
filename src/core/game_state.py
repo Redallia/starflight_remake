@@ -29,6 +29,19 @@ class GameState:
         self.starport_coord_x = 25  # Center of system for now
         self.starport_coord_y = 25
 
+        # Planets in current system (list of dicts)
+        # For now, just the starport planet
+        self.planets = [
+            {
+                'name': 'Starport',
+                'coord_x': 25,
+                'coord_y': 25,
+                'radius': 3,  # In coordinate units
+                'color': (150, 100, 200),  # Purple
+                'type': 'starport'
+            }
+        ]
+
     def can_launch(self):
         """Check if ship has enough fuel to launch"""
         return self.fuel > 0

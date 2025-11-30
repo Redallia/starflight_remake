@@ -22,6 +22,10 @@ class SpaceScreen(Screen):
         self.stars = []
         self.generate_starfield()
 
+        # Planet proximity tracking
+        self.near_planet = None  # Currently nearby planet (for docking prompt)
+        self.collision_counter = 0  # Track repeated collisions for wraparound
+
     def generate_starfield(self):
         """Generate random stars for background"""
         self.stars = []
@@ -42,7 +46,15 @@ class SpaceScreen(Screen):
 
     def update(self, delta_time, input_handler):
         """Update space screen"""
-        # Return to starport
+        # Check for docking at nearby planet
+        if self.near_planet and input_handler.is_confirm_pressed():
+            if self.near_planet['type'] == 'starport':
+                if self.game_state.return_to_starport():
+                    print("Docking at starport")
+                    self.screen_manager.change_screen("starport")
+                    return
+
+        # Return to starport (R key - backup method)
         if input_handler.is_key_just_pressed(pygame.K_r):
             if self.game_state.return_to_starport():
                 print("Returning to starport")
@@ -71,7 +83,10 @@ class SpaceScreen(Screen):
             # Move the ship (may be clamped at boundaries)
             self.game_state.move_ship(int(dx), int(dy))
 
-            # Calculate actual movement that occurred (after clamping)
+            # Check for planet collisions and handle
+            self.handle_planet_collision(old_x, old_y, dx, dy)
+
+            # Calculate actual movement that occurred (after clamping and collision)
             actual_dx = self.game_state.ship_x - old_x
             actual_dy = self.game_state.ship_y - old_y
 
@@ -83,6 +98,73 @@ class SpaceScreen(Screen):
             # Update starfield for parallax effect (stars drift opposite to movement)
             # Only scroll based on actual movement, not intended movement
             self.update_starfield(-actual_dx * 2, -actual_dy * 2)
+
+        # Check proximity to planets for docking prompt
+        self.check_planet_proximity()
+
+    def check_planet_proximity(self):
+        """Check if ship is near any planet for docking"""
+        ship_coord = self.game_state.get_coordinate_position()
+        self.near_planet = None
+
+        for planet in self.game_state.planets:
+            # Calculate distance in coordinate units
+            dx = ship_coord[0] - planet['coord_x']
+            dy = ship_coord[1] - planet['coord_y']
+            distance = (dx**2 + dy**2) ** 0.5
+
+            # Check if within docking range (planet radius + small buffer)
+            if distance <= planet['radius'] + 1:
+                self.near_planet = planet
+                break
+
+    def handle_planet_collision(self, old_x, old_y, intended_dx, intended_dy):
+        """Handle collision with planets - hard stop or wraparound"""
+        ship_x = self.game_state.ship_x
+        ship_y = self.game_state.ship_y
+
+        for planet in self.game_state.planets:
+            # Convert planet coordinates to movement grid
+            planet_x = planet['coord_x'] * 10
+            planet_y = planet['coord_y'] * 10
+            planet_radius = planet['radius'] * 10  # Convert to movement grid units
+
+            # Calculate distance from ship to planet center
+            dx = ship_x - planet_x
+            dy = ship_y - planet_y
+            distance = (dx**2 + dy**2) ** 0.5
+
+            # Check if ship is inside planet radius
+            if distance < planet_radius:
+                # Hard stop - push ship back to edge of planet
+                if distance > 0:
+                    # Normalize direction and push to edge
+                    norm_x = dx / distance
+                    norm_y = dy / distance
+                    self.game_state.ship_x = int(planet_x + norm_x * planet_radius)
+                    self.game_state.ship_y = int(planet_y + norm_y * planet_radius)
+                else:
+                    # Ship exactly at center, push in opposite direction of movement
+                    if intended_dx != 0 or intended_dy != 0:
+                        move_dist = (intended_dx**2 + intended_dy**2) ** 0.5
+                        if move_dist > 0:
+                            norm_x = -intended_dx / move_dist
+                            norm_y = -intended_dy / move_dist
+                            self.game_state.ship_x = int(planet_x + norm_x * planet_radius)
+                            self.game_state.ship_y = int(planet_y + norm_y * planet_radius)
+
+                # Check if player is trying to push through (collision counter)
+                self.collision_counter += 1
+                if self.collision_counter > 30:  # ~0.5 seconds at 60fps
+                    # Wraparound - teleport to opposite side
+                    self.game_state.ship_x = int(planet_x - norm_x * planet_radius)
+                    self.game_state.ship_y = int(planet_y - norm_y * planet_radius)
+                    self.collision_counter = 0
+                    print("Wrapping around planet")
+                break
+        else:
+            # No collision, reset counter
+            self.collision_counter = 0
 
     def update_starfield(self, dx, dy):
         """Move stars to create parallax effect"""
@@ -113,11 +195,18 @@ class SpaceScreen(Screen):
         # Draw starfield
         self.render_starfield(screen)
 
+        # Draw planets
+        self.render_planets(renderer, width, height)
+
         # Draw ship at center of screen
         self.render_ship(renderer, width, height)
 
         # Draw HUD
         self.render_hud(renderer, width, height)
+
+        # Draw docking prompt if near planet
+        if self.near_planet:
+            self.render_docking_prompt(renderer, width, height)
 
     def render_starfield(self, screen):
         """Render the starfield background"""
@@ -200,4 +289,67 @@ class SpaceScreen(Screen):
             height - 20,
             color=(150, 150, 150),
             font=renderer.small_font
+        )
+
+    def render_planets(self, renderer, width, height):
+        """Render planets relative to ship position"""
+        # Use movement grid for smooth rendering
+        ship_x = self.game_state.ship_x
+        ship_y = self.game_state.ship_y
+
+        for planet in self.game_state.planets:
+            # Convert planet coordinate position to movement grid
+            planet_x = planet['coord_x'] * 10
+            planet_y = planet['coord_y'] * 10
+
+            # Calculate planet position relative to ship (camera centered on ship)
+            # Use movement grid for smooth scrolling
+            movement_dx = planet_x - ship_x
+            movement_dy = planet_y - ship_y
+
+            # Scale to screen space (2 pixels per movement unit = 20 pixels per coordinate unit)
+            screen_x = width // 2 + movement_dx * 2
+            screen_y = height // 2 + movement_dy * 2  # Positive Y = down on screen
+
+            # Only draw if on screen (with margin)
+            margin = 100
+            if -margin < screen_x < width + margin and -margin < screen_y < height + margin:
+                # Draw planet
+                planet_radius = planet['radius'] * 20  # Scale radius to screen
+                pygame.draw.circle(
+                    renderer.screen,
+                    planet['color'],
+                    (int(screen_x), int(screen_y)),
+                    int(planet_radius)
+                )
+
+                # Draw outline
+                pygame.draw.circle(
+                    renderer.screen,
+                    (255, 255, 255),
+                    (int(screen_x), int(screen_y)),
+                    int(planet_radius),
+                    2
+                )
+
+                # Draw planet name
+                renderer.draw_text_centered(
+                    planet['name'],
+                    int(screen_x),
+                    int(screen_y - planet_radius - 15),
+                    color=(200, 200, 200),
+                    font=renderer.small_font
+                )
+
+    def render_docking_prompt(self, renderer, width, height):
+        """Render prompt to dock at nearby planet"""
+        prompt_text = f"Press SPACE to dock at {self.near_planet['name']}"
+
+        # Draw with highlighted background
+        renderer.draw_text_centered(
+            prompt_text,
+            width // 2,
+            height // 2 + 60,
+            color=(255, 255, 0),
+            font=renderer.default_font
         )
