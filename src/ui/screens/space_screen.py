@@ -346,7 +346,11 @@ class SpaceScreen(Screen):
 
     def render_docking_prompt(self, renderer, width, height):
         """Render prompt to dock at nearby planet"""
-        prompt_text = f"Press SPACE to dock at {self.near_planet['name']}"
+        # Different prompts for different planet types
+        if self.near_planet['type'] == 'starport':
+            prompt_text = f"Press SPACE to dock at {self.near_planet['name']}"
+        else:
+            prompt_text = f"Press SPACE to enter orbit around {self.near_planet['name']}"
 
         # Draw with highlighted background
         renderer.draw_text_centered(
