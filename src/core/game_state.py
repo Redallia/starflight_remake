@@ -21,6 +21,14 @@ class GameState:
         # Cargo holds (dictionary of resource type -> quantity)
         self.cargo = {}
 
+        # Ship position (movement grid: 500x500, only tracked in space)
+        self.ship_x = 0  # Movement grid position
+        self.ship_y = 0  # Movement grid position
+
+        # Starport location (coordinate grid: 50x50)
+        self.starport_coord_x = 25  # Center of system for now
+        self.starport_coord_y = 25
+
     def can_launch(self):
         """Check if ship has enough fuel to launch"""
         return self.fuel > 0
@@ -29,6 +37,9 @@ class GameState:
         """Launch from starport to space"""
         if self.location == "starport" and self.can_launch():
             self.location = "space"
+            # Initialize ship position at starport coordinates (converted to movement grid)
+            self.ship_x = self.starport_coord_x * 10
+            self.ship_y = self.starport_coord_y * 10
             return True
         return False
 
@@ -51,3 +62,23 @@ class GameState:
             "cargo": f"{self.cargo_used} / {self.cargo_capacity}",
             "location": self.location.replace("_", " ").title()
         }
+
+    def get_coordinate_position(self):
+        """Convert movement grid position to coordinate grid position"""
+        coord_x = self.ship_x // 10
+        coord_y = self.ship_y // 10
+        return (coord_x, coord_y)
+
+    def move_ship(self, dx, dy):
+        """Move ship on movement grid (internal coordinates)
+
+        Args:
+            dx: Change in x position (movement grid units)
+            dy: Change in y position (movement grid units)
+        """
+        self.ship_x += dx
+        self.ship_y += dy
+
+        # Clamp to grid boundaries (0-499 for movement grid)
+        self.ship_x = max(0, min(499, self.ship_x))
+        self.ship_y = max(0, min(499, self.ship_y))
