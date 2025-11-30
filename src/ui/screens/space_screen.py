@@ -5,6 +5,10 @@ Handles movement in space, starfield rendering, and navigation
 import pygame
 import random
 from core.screen_manager import Screen
+from ui.hud.hud_manager import HUDManager
+from ui.hud.status_panel import StatusPanel
+from ui.hud.minimap_panel import MiniMapPanel
+from ui.hud.message_log_panel import MessageLogPanel
 
 
 class SpaceScreen(Screen):
@@ -26,6 +30,27 @@ class SpaceScreen(Screen):
         self.near_planet = None  # Currently nearby planet (for docking prompt)
         self.collision_counter = 0  # Track repeated collisions for wraparound
 
+        # HUD system
+        self.hud_manager = HUDManager(800, 600)
+        self._setup_hud()
+
+    def _setup_hud(self):
+        """Set up HUD panels for space navigation"""
+        # Status panel (top-left)
+        status_panel = StatusPanel(10, 10, 250, 120)
+        self.hud_manager.set_status_panel(status_panel)
+
+        # Mini-map panel (upper-right)
+        minimap_panel = MiniMapPanel(490, 10, 300, 200)
+        self.hud_manager.set_info_panel(minimap_panel)
+
+        # Message log panel (bottom)
+        message_log = MessageLogPanel(0, 450, 800, 150)
+        self.hud_manager.set_message_log_panel(message_log)
+
+        # Set instructions
+        self.hud_manager.set_instructions("WASD: Move  |  R: Return to Starport")
+
     def generate_starfield(self):
         """Generate random stars for background"""
         self.stars = []
@@ -40,24 +65,28 @@ class SpaceScreen(Screen):
 
     def on_enter(self):
         """Called when entering space"""
-        print("Entered space")
         # Regenerate starfield for variety
         self.generate_starfield()
+        # Add welcome message
+        self.hud_manager.add_message("Entered space", (100, 200, 255))
 
     def update(self, delta_time, input_handler):
         """Update space screen"""
+        # Update HUD
+        self.hud_manager.update(delta_time, self.game_state)
+
         # Check for docking at nearby planet
         if self.near_planet and input_handler.is_confirm_pressed():
             if self.near_planet['type'] == 'starport':
                 if self.game_state.return_to_starport():
-                    print("Docking at starport")
+                    self.hud_manager.add_message(f"Docking at {self.near_planet['name']}", (100, 255, 100))
                     self.screen_manager.change_screen("starport")
                     return
 
         # Return to starport (R key - backup method)
         if input_handler.is_key_just_pressed(pygame.K_r):
             if self.game_state.return_to_starport():
-                print("Returning to starport")
+                self.hud_manager.add_message("Returning to starport", (100, 255, 100))
                 self.screen_manager.change_screen("starport")
                 return
 
@@ -201,15 +230,13 @@ class SpaceScreen(Screen):
         # Draw ship at center of screen
         self.render_ship(renderer, width, height)
 
-        # Draw HUD
-        self.render_hud(renderer, width, height)
-
-        # Draw mini-map
-        self.render_minimap(renderer, width, height)
-
         # Draw docking prompt if near planet
         if self.near_planet:
             self.render_docking_prompt(renderer, width, height)
+
+        # Draw HUD (on top of everything)
+        coordinates = self.game_state.get_coordinate_position()
+        self.hud_manager.render(screen, renderer, self.game_state, coordinates)
 
     def render_starfield(self, screen):
         """Render the starfield background"""
@@ -237,62 +264,6 @@ class SpaceScreen(Screen):
 
         # Outline
         pygame.draw.polygon(renderer.screen, (255, 255, 255), points, 1)
-
-    def render_hud(self, renderer, width, height):
-        """Render HUD with coordinates and status"""
-        # Get coordinate position
-        coord_x, coord_y = self.game_state.get_coordinate_position()
-
-        # Top-left HUD panel
-        hud_x = 10
-        hud_y = 10
-        line_height = 25
-
-        # Coordinates (most important)
-        renderer.draw_text(
-            f"Coordinates: {coord_x}, {coord_y}",
-            hud_x,
-            hud_y,
-            color=(255, 255, 100),
-            font=renderer.default_font
-        )
-
-        # Fuel
-        fuel_color = (255, 100, 100) if self.game_state.fuel < 20 else (200, 200, 200)
-        renderer.draw_text(
-            f"Fuel: {self.game_state.fuel:.1f}",
-            hud_x,
-            hud_y + line_height,
-            color=fuel_color,
-            font=renderer.small_font
-        )
-
-        # Credits
-        renderer.draw_text(
-            f"Credits: {self.game_state.credits}",
-            hud_x,
-            hud_y + line_height * 2,
-            color=(200, 200, 200),
-            font=renderer.small_font
-        )
-
-        # Cargo
-        renderer.draw_text(
-            f"Cargo: {self.game_state.cargo_used}/{self.game_state.cargo_capacity}",
-            hud_x,
-            hud_y + line_height * 3,
-            color=(200, 200, 200),
-            font=renderer.small_font
-        )
-
-        # Instructions at bottom
-        renderer.draw_text_centered(
-            "WASD: Move  |  R: Return to Starport",
-            width // 2,
-            height - 20,
-            color=(150, 150, 150),
-            font=renderer.small_font
-        )
 
     def render_planets(self, renderer, width, height):
         """Render planets relative to ship position"""
@@ -359,101 +330,4 @@ class SpaceScreen(Screen):
             height // 2 + 60,
             color=(255, 255, 0),
             font=renderer.default_font
-        )
-
-    def render_minimap(self, renderer, width, height):
-        """Render mini-map in upper-right corner"""
-        # Mini-map configuration
-        map_size = 120
-        margin = 10
-        map_x = width - map_size - margin
-        map_y = margin
-
-        # Draw background
-        pygame.draw.rect(
-            renderer.screen,
-            (0, 0, 20, 180),  # Semi-transparent dark blue
-            (map_x, map_y, map_size, map_size)
-        )
-
-        # Draw border
-        pygame.draw.rect(
-            renderer.screen,
-            (100, 150, 200),  # Light blue border
-            (map_x, map_y, map_size, map_size),
-            2
-        )
-
-        # Draw grid lines (every 10 coordinates)
-        grid_color = (40, 40, 60)
-        for i in range(0, 51, 10):
-            # Vertical lines
-            x = map_x + (i / 50) * map_size
-            pygame.draw.line(
-                renderer.screen,
-                grid_color,
-                (int(x), map_y),
-                (int(x), map_y + map_size),
-                1
-            )
-            # Horizontal lines
-            y = map_y + (i / 50) * map_size  # Grid lines are straightforward
-            pygame.draw.line(
-                renderer.screen,
-                grid_color,
-                (map_x, int(y)),
-                (map_x + map_size, int(y)),
-                1
-            )
-
-        # Draw planets
-        for planet in self.game_state.planets:
-            # Convert coordinate to mini-map position
-            planet_map_x = map_x + (planet['coord_x'] / 50) * map_size
-            planet_map_y = map_y + (planet['coord_y'] / 50) * map_size  # Flip Y - top is high coords
-
-            # Scale radius to mini-map (smaller)
-            planet_map_radius = max(2, int(planet['radius'] * 0.6))
-
-            # Draw planet
-            pygame.draw.circle(
-                renderer.screen,
-                planet['color'],
-                (int(planet_map_x), int(planet_map_y)),
-                planet_map_radius
-            )
-
-            # Draw outline
-            pygame.draw.circle(
-                renderer.screen,
-                (255, 255, 255),
-                (int(planet_map_x), int(planet_map_y)),
-                planet_map_radius,
-                1
-            )
-
-        # Draw ship position
-        ship_coord = self.game_state.get_coordinate_position()
-        ship_map_x = map_x + (ship_coord[0] / 50) * map_size
-        ship_map_y = map_y + map_size - (ship_coord[1] / 50) * map_size  # Flip Y - top is high coords
-
-        # Draw ship as bright triangle
-        ship_size = 3
-        ship_points = [
-            (ship_map_x, ship_map_y - ship_size),      # Top
-            (ship_map_x - ship_size, ship_map_y + ship_size),  # Bottom left
-            (ship_map_x + ship_size, ship_map_y + ship_size)   # Bottom right
-        ]
-        pygame.draw.polygon(
-            renderer.screen,
-            (255, 255, 0),  # Bright yellow
-            ship_points
-        )
-
-        # Draw ship outline
-        pygame.draw.polygon(
-            renderer.screen,
-            (255, 255, 255),
-            ship_points,
-            1
         )
