@@ -16,7 +16,7 @@ class SpaceScreen(Screen):
 
         # Movement configuration
         self.ship_speed = 1.0  # Movement grid units per frame when key held
-        self.fuel_consumption_rate = 0.1  # Fuel per movement grid unit traveled
+        self.fuel_consumption_rate = 0.01  # Fuel per movement grid unit traveled
 
         # Starfield for parallax effect
         self.stars = []
