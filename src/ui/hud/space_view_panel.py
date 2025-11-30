@@ -22,13 +22,17 @@ class SpaceViewPanel(HUDPanel):
         """
         super().__init__(x, y, width, height)
 
-        # Space view has no border or background (transparent to show starfield)
+        # Space view has no border (just pure background)
         self.border_width = 0
-        self.background_color = (0, 0, 0)  # Full black, not transparent
 
         # Starfield for parallax effect
         self.stars = []
         self.generate_starfield()
+
+    def render(self, screen, renderer):
+        """Override to render pure black background without HUD styling"""
+        # Fill with pure black (space!)
+        screen.fill((0, 0, 0))
 
     def generate_starfield(self):
         """Generate random stars for background"""
