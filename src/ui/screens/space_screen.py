@@ -204,6 +204,9 @@ class SpaceScreen(Screen):
         # Draw HUD
         self.render_hud(renderer, width, height)
 
+        # Draw mini-map
+        self.render_minimap(renderer, width, height)
+
         # Draw docking prompt if near planet
         if self.near_planet:
             self.render_docking_prompt(renderer, width, height)
@@ -352,4 +355,101 @@ class SpaceScreen(Screen):
             height // 2 + 60,
             color=(255, 255, 0),
             font=renderer.default_font
+        )
+
+    def render_minimap(self, renderer, width, height):
+        """Render mini-map in upper-right corner"""
+        # Mini-map configuration
+        map_size = 120
+        margin = 10
+        map_x = width - map_size - margin
+        map_y = margin
+
+        # Draw background
+        pygame.draw.rect(
+            renderer.screen,
+            (0, 0, 20, 180),  # Semi-transparent dark blue
+            (map_x, map_y, map_size, map_size)
+        )
+
+        # Draw border
+        pygame.draw.rect(
+            renderer.screen,
+            (100, 150, 200),  # Light blue border
+            (map_x, map_y, map_size, map_size),
+            2
+        )
+
+        # Draw grid lines (every 10 coordinates)
+        grid_color = (40, 40, 60)
+        for i in range(0, 51, 10):
+            # Vertical lines
+            x = map_x + (i / 50) * map_size
+            pygame.draw.line(
+                renderer.screen,
+                grid_color,
+                (int(x), map_y),
+                (int(x), map_y + map_size),
+                1
+            )
+            # Horizontal lines
+            y = map_y + (i / 50) * map_size  # Grid lines are straightforward
+            pygame.draw.line(
+                renderer.screen,
+                grid_color,
+                (map_x, int(y)),
+                (map_x + map_size, int(y)),
+                1
+            )
+
+        # Draw planets
+        for planet in self.game_state.planets:
+            # Convert coordinate to mini-map position
+            planet_map_x = map_x + (planet['coord_x'] / 50) * map_size
+            planet_map_y = map_y + (planet['coord_y'] / 50) * map_size  # Flip Y - top is high coords
+
+            # Scale radius to mini-map (smaller)
+            planet_map_radius = max(2, int(planet['radius'] * 0.6))
+
+            # Draw planet
+            pygame.draw.circle(
+                renderer.screen,
+                planet['color'],
+                (int(planet_map_x), int(planet_map_y)),
+                planet_map_radius
+            )
+
+            # Draw outline
+            pygame.draw.circle(
+                renderer.screen,
+                (255, 255, 255),
+                (int(planet_map_x), int(planet_map_y)),
+                planet_map_radius,
+                1
+            )
+
+        # Draw ship position
+        ship_coord = self.game_state.get_coordinate_position()
+        ship_map_x = map_x + (ship_coord[0] / 50) * map_size
+        ship_map_y = map_y + map_size - (ship_coord[1] / 50) * map_size  # Flip Y - top is high coords
+
+        # Draw ship as bright triangle
+        ship_size = 3
+        ship_points = [
+            (ship_map_x, ship_map_y - ship_size),      # Top
+            (ship_map_x - ship_size, ship_map_y + ship_size),  # Bottom left
+            (ship_map_x + ship_size, ship_map_y + ship_size)   # Bottom right
+        ]
+        pygame.draw.polygon(
+            renderer.screen,
+            (255, 255, 0),  # Bright yellow
+            ship_points
+        )
+
+        # Draw ship outline
+        pygame.draw.polygon(
+            renderer.screen,
+            (255, 255, 255),
+            ship_points,
+            1
         )
