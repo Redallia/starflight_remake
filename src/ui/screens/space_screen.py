@@ -36,15 +36,19 @@ class SpaceScreen(Screen):
         space_view = SpaceViewPanel(0, 0, 800, 600)
         self.hud_manager.set_view_panel(space_view)
 
-        # Status panel (top-left)
-        status_panel = StatusPanel(10, 10, 250, 120)
-        self.hud_manager.set_status_panel(status_panel)
+        # Right column width
+        right_column_width = 300
 
-        # Mini-map panel (upper-right)
-        minimap_panel = MiniMapPanel(490, 10, 300, 200)
+        # Mini-map panel (upper-right, flush with edge)
+        minimap_panel = MiniMapPanel(500, 0, right_column_width, 200)
         self.hud_manager.set_info_panel(minimap_panel)
 
-        # Message log panel (bottom)
+        # Status panel (right side, below mini-map, above message log)
+        # Extends from bottom of mini-map to top of message log
+        status_panel = StatusPanel(500, 200, right_column_width, 250)
+        self.hud_manager.set_status_panel(status_panel)
+
+        # Message log panel (bottom, full width)
         message_log = MessageLogPanel(0, 450, 800, 150)
         self.hud_manager.set_message_log_panel(message_log)
 
