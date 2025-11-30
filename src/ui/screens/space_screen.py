@@ -3,9 +3,9 @@ Space navigation screen
 Handles movement in space, starfield rendering, and navigation
 """
 import pygame
-import random
 from core.screen_manager import Screen
 from ui.hud.hud_manager import HUDManager
+from ui.hud.space_view_panel import SpaceViewPanel
 from ui.hud.status_panel import StatusPanel
 from ui.hud.minimap_panel import MiniMapPanel
 from ui.hud.message_log_panel import MessageLogPanel
@@ -22,10 +22,6 @@ class SpaceScreen(Screen):
         self.ship_speed = 1.0  # Movement grid units per frame when key held
         self.fuel_consumption_rate = 0.01  # Fuel per movement grid unit traveled
 
-        # Starfield for parallax effect
-        self.stars = []
-        self.generate_starfield()
-
         # Planet proximity tracking
         self.near_planet = None  # Currently nearby planet (for docking prompt)
         self.collision_counter = 0  # Track repeated collisions for wraparound
@@ -36,6 +32,10 @@ class SpaceScreen(Screen):
 
     def _setup_hud(self):
         """Set up HUD panels for space navigation"""
+        # Space view panel (fullscreen background)
+        space_view = SpaceViewPanel(0, 0, 800, 600)
+        self.hud_manager.set_view_panel(space_view)
+
         # Status panel (top-left)
         status_panel = StatusPanel(10, 10, 250, 120)
         self.hud_manager.set_status_panel(status_panel)
@@ -51,22 +51,11 @@ class SpaceScreen(Screen):
         # Set instructions
         self.hud_manager.set_instructions("WASD: Move  |  R: Return to Starport")
 
-    def generate_starfield(self):
-        """Generate random stars for background"""
-        self.stars = []
-        for _ in range(200):  # 200 stars
-            star = {
-                'x': random.randint(0, 800),
-                'y': random.randint(0, 600),
-                'brightness': random.randint(100, 255),
-                'size': random.choice([1, 1, 1, 2])  # Mostly small stars, some bigger
-            }
-            self.stars.append(star)
-
     def on_enter(self):
         """Called when entering space"""
         # Regenerate starfield for variety
-        self.generate_starfield()
+        if self.hud_manager.view_panel:
+            self.hud_manager.view_panel.regenerate_starfield()
         # Add welcome message
         self.hud_manager.add_message("Entered space", (100, 200, 255))
 
@@ -126,7 +115,8 @@ class SpaceScreen(Screen):
 
             # Update starfield for parallax effect (stars drift opposite to movement)
             # Only scroll based on actual movement, not intended movement
-            self.update_starfield(-actual_dx * 2, -actual_dy * 2)
+            if self.hud_manager.view_panel:
+                self.hud_manager.view_panel.update_starfield(-actual_dx * 2, -actual_dy * 2)
 
         # Check proximity to planets for docking prompt
         self.check_planet_proximity()
@@ -195,139 +185,19 @@ class SpaceScreen(Screen):
             # No collision, reset counter
             self.collision_counter = 0
 
-    def update_starfield(self, dx, dy):
-        """Move stars to create parallax effect"""
-        for star in self.stars:
-            star['x'] += dx
-            star['y'] += dy
-
-            # Wrap stars around screen edges
-            if star['x'] < 0:
-                star['x'] += 800
-            elif star['x'] > 800:
-                star['x'] -= 800
-
-            if star['y'] < 0:
-                star['y'] += 600
-            elif star['y'] > 600:
-                star['y'] -= 600
-
     def render(self, screen):
         """Render space screen"""
         from ui.renderer import Renderer
         renderer = Renderer(screen)
-        width, height = screen.get_size()
 
-        # Clear to black (space!)
-        renderer.clear((0, 0, 0))
-
-        # Draw starfield
-        self.render_starfield(screen)
-
-        # Draw planets
-        self.render_planets(renderer, width, height)
-
-        # Draw ship at center of screen
-        self.render_ship(renderer, width, height)
-
-        # Draw docking prompt if near planet
-        if self.near_planet:
-            self.render_docking_prompt(renderer, width, height)
-
-        # Draw HUD (on top of everything)
+        # Get current coordinates
         coordinates = self.game_state.get_coordinate_position()
-        self.hud_manager.render(screen, renderer, self.game_state, coordinates)
 
-    def render_starfield(self, screen):
-        """Render the starfield background"""
-        for star in self.stars:
-            brightness = star['brightness']
-            color = (brightness, brightness, brightness)
-            if star['size'] == 1:
-                screen.set_at((int(star['x']), int(star['y'])), color)
-            else:
-                pygame.draw.circle(screen, color, (int(star['x']), int(star['y'])), star['size'])
+        # Prepare view data for space view panel
+        view_data = {
+            'near_planet': self.near_planet
+        }
 
-    def render_ship(self, renderer, width, height):
-        """Render the player's ship at screen center"""
-        ship_x = width // 2
-        ship_y = height // 2
-
-        # Simple triangle ship pointing up
-        ship_color = (100, 200, 255)
-        points = [
-            (ship_x, ship_y - 10),      # Top point
-            (ship_x - 8, ship_y + 10),  # Bottom left
-            (ship_x + 8, ship_y + 10)   # Bottom right
-        ]
-        pygame.draw.polygon(renderer.screen, ship_color, points)
-
-        # Outline
-        pygame.draw.polygon(renderer.screen, (255, 255, 255), points, 1)
-
-    def render_planets(self, renderer, width, height):
-        """Render planets relative to ship position"""
-        # Use movement grid for smooth rendering
-        ship_x = self.game_state.ship_x
-        ship_y = self.game_state.ship_y
-
-        for planet in self.game_state.planets:
-            # Convert planet coordinate position to movement grid
-            planet_x = planet['coord_x'] * 10
-            planet_y = planet['coord_y'] * 10
-
-            # Calculate planet position relative to ship (camera centered on ship)
-            # Use movement grid for smooth scrolling
-            movement_dx = planet_x - ship_x
-            movement_dy = planet_y - ship_y
-
-            # Scale to screen space (2 pixels per movement unit = 20 pixels per coordinate unit)
-            screen_x = width // 2 + movement_dx * 2
-            screen_y = height // 2 + movement_dy * 2  # Positive Y = down on screen
-
-            # Only draw if on screen (with margin)
-            margin = 100
-            if -margin < screen_x < width + margin and -margin < screen_y < height + margin:
-                # Draw planet
-                planet_radius = planet['radius'] * 20  # Scale radius to screen
-                pygame.draw.circle(
-                    renderer.screen,
-                    planet['color'],
-                    (int(screen_x), int(screen_y)),
-                    int(planet_radius)
-                )
-
-                # Draw outline
-                pygame.draw.circle(
-                    renderer.screen,
-                    (255, 255, 255),
-                    (int(screen_x), int(screen_y)),
-                    int(planet_radius),
-                    2
-                )
-
-                # Draw planet name
-                renderer.draw_text_centered(
-                    planet['name'],
-                    int(screen_x),
-                    int(screen_y - planet_radius - 15),
-                    color=(200, 200, 200),
-                    font=renderer.small_font
-                )
-
-    def render_docking_prompt(self, renderer, width, height):
-        """Render prompt to dock at nearby planet"""
-        # Different prompts for different planet types
-        if self.near_planet['type'] == 'starport':
-            prompt_text = f"Press SPACE to dock at {self.near_planet['name']}"
-        else:
-            prompt_text = f"Press SPACE to enter orbit around {self.near_planet['name']}"
-
-        # Draw with highlighted background
-        renderer.draw_text_centered(
-            prompt_text,
-            width // 2,
-            height // 2 + 60,
-            color=(255, 255, 0),
-            font=renderer.default_font
-        )
+        # Render everything through HUD manager
+        # This will render: view panel (starfield, planets, ship) then HUD overlays
+        self.hud_manager.render(screen, renderer, self.game_state, coordinates, view_data)

@@ -1,6 +1,7 @@
 """
 HUD Manager - coordinates all HUD panels
 """
+import pygame
 
 
 class HUDManager:
@@ -17,7 +18,10 @@ class HUDManager:
         self.screen_width = screen_width
         self.screen_height = screen_height
 
-        # Panels (set by screens)
+        # Main view panel (renders behind HUD elements)
+        self.view_panel = None
+
+        # HUD overlay panels (set by screens)
         self.status_panel = None
         self.info_panel = None
         self.message_log_panel = None
@@ -25,6 +29,14 @@ class HUDManager:
         # Instructions text (bottom center, above message log)
         self.instructions_text = ""
         self.instructions_color = (150, 150, 150)
+
+        # Canvas border
+        self.border_color = (100, 150, 200)  # Light blue
+        self.border_width = 2
+
+    def set_view_panel(self, panel):
+        """Set the main view panel (background)"""
+        self.view_panel = panel
 
     def set_status_panel(self, panel):
         """Set the status panel (top-left)"""
@@ -57,6 +69,8 @@ class HUDManager:
             delta_time: Time since last frame
             game_state: Current game state
         """
+        if self.view_panel:
+            self.view_panel.update(delta_time, game_state)
         if self.status_panel:
             self.status_panel.update(delta_time, game_state)
         if self.info_panel:
@@ -64,7 +78,7 @@ class HUDManager:
         if self.message_log_panel:
             self.message_log_panel.update(delta_time, game_state)
 
-    def render(self, screen, renderer, game_state, coordinates=None):
+    def render(self, screen, renderer, game_state, coordinates=None, view_data=None):
         """
         Render all HUD panels
 
@@ -73,7 +87,14 @@ class HUDManager:
             renderer: Renderer instance
             game_state: Current game state
             coordinates: Optional coordinates to display in status panel
+            view_data: Optional data for view panel (e.g., near_planet)
         """
+        # Render main view panel first (background)
+        if self.view_panel:
+            self.view_panel.render(screen, renderer)
+            self.view_panel.render_content(screen, renderer, game_state, **(view_data or {}))
+
+        # Render HUD overlay panels on top
         # Render status panel (top-left)
         if self.status_panel:
             self.status_panel.render(screen, renderer)
@@ -105,6 +126,14 @@ class HUDManager:
                 color=self.instructions_color,
                 font=renderer.small_font
             )
+
+        # Draw canvas border (outermost edge)
+        pygame.draw.rect(
+            screen,
+            self.border_color,
+            (0, 0, self.screen_width, self.screen_height),
+            self.border_width
+        )
 
     def add_message(self, text, color=(200, 200, 200)):
         """
