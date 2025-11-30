@@ -30,7 +30,6 @@ class GameState:
         self.starport_coord_y = 25
 
         # Planets in current system (list of dicts)
-        # For now, just the starport planet
         self.planets = [
             {
                 'name': 'Starport',
@@ -39,6 +38,22 @@ class GameState:
                 'radius': 3,  # In coordinate units
                 'color': (150, 100, 200),  # Purple
                 'type': 'starport'
+            },
+            {
+                'name': 'Aqua',
+                'coord_x': 15,
+                'coord_y': 35,
+                'radius': 4,  # Slightly larger
+                'color': (80, 150, 220),  # Blue (water planet)
+                'type': 'water'
+            },
+            {
+                'name': 'Typhon',
+                'coord_x': 38,
+                'coord_y': 12,
+                'radius': 5,  # Largest (gas giant)
+                'color': (120, 80, 180),  # Purple (gas giant)
+                'type': 'gas_giant'
             }
         ]
 
