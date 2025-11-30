@@ -32,12 +32,14 @@ class SpaceScreen(Screen):
 
     def _setup_hud(self):
         """Set up HUD panels for space navigation"""
-        # Space view panel (fullscreen background)
-        space_view = SpaceViewPanel(0, 0, 800, 600)
-        self.hud_manager.set_view_panel(space_view)
-
-        # Right column width
+        # Layout dimensions
         right_column_width = 300
+        message_log_height = 150
+
+        # Space view panel (left side, above message log)
+        # Takes up the space not occupied by right column and message log
+        space_view = SpaceViewPanel(0, 0, 500, 450)
+        self.hud_manager.set_view_panel(space_view)
 
         # Mini-map panel (upper-right, flush with edge)
         minimap_panel = MiniMapPanel(500, 0, right_column_width, 200)
@@ -49,7 +51,7 @@ class SpaceScreen(Screen):
         self.hud_manager.set_status_panel(status_panel)
 
         # Message log panel (bottom, full width)
-        message_log = MessageLogPanel(0, 450, 800, 150)
+        message_log = MessageLogPanel(0, 450, 800, message_log_height)
         self.hud_manager.set_message_log_panel(message_log)
 
         # Set instructions
