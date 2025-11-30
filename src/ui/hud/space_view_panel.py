@@ -81,7 +81,7 @@ class SpaceViewPanel(HUDPanel):
             screen: Pygame screen surface
             renderer: Renderer instance
             game_state: Current game state
-            near_planet: Currently nearby planet (for docking prompt)
+            near_planet: Currently nearby planet (unused - prompts now in message log)
         """
         # Render starfield
         self.render_starfield(screen)
@@ -91,10 +91,6 @@ class SpaceViewPanel(HUDPanel):
 
         # Render ship at center
         self.render_ship(screen, renderer)
-
-        # Render docking prompt if near planet
-        if near_planet:
-            self.render_docking_prompt(screen, renderer, near_planet)
 
     def render_starfield(self, screen):
         """Render the starfield background"""
@@ -172,20 +168,3 @@ class SpaceViewPanel(HUDPanel):
                     color=(200, 200, 200),
                     font=renderer.small_font
                 )
-
-    def render_docking_prompt(self, screen, renderer, near_planet):
-        """Render prompt to dock at nearby planet"""
-        # Different prompts for different planet types
-        if near_planet['type'] == 'starport':
-            prompt_text = f"Press SPACE to dock at {near_planet['name']}"
-        else:
-            prompt_text = f"Press SPACE to enter orbit around {near_planet['name']}"
-
-        # Draw with highlighted background
-        renderer.draw_text_centered(
-            prompt_text,
-            self.width // 2,
-            self.height // 2 + 60,
-            color=(255, 255, 0),
-            font=renderer.default_font
-        )

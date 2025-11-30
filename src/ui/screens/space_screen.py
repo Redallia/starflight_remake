@@ -130,6 +130,7 @@ class SpaceScreen(Screen):
     def check_planet_proximity(self):
         """Check if ship is near any planet for docking"""
         ship_coord = self.game_state.get_coordinate_position()
+        old_near_planet = self.near_planet
         self.near_planet = None
 
         for planet in self.game_state.planets:
@@ -142,6 +143,19 @@ class SpaceScreen(Screen):
             if distance <= planet['radius'] + 1:
                 self.near_planet = planet
                 break
+
+        # Add message when entering planet proximity
+        if self.near_planet and self.near_planet != old_near_planet:
+            if self.near_planet['type'] == 'starport':
+                self.hud_manager.add_message(
+                    f"Press SPACE to dock at {self.near_planet['name']}",
+                    (255, 255, 0)
+                )
+            else:
+                self.hud_manager.add_message(
+                    f"Press SPACE to enter orbit around {self.near_planet['name']}",
+                    (255, 255, 0)
+                )
 
     def handle_planet_collision(self, old_x, old_y, intended_dx, intended_dy):
         """Handle collision with planets - hard stop or wraparound"""
