@@ -64,16 +64,25 @@ class SpaceScreen(Screen):
 
         # Apply movement if any
         if dx != 0 or dy != 0:
-            # Move the ship
+            # Store old position to calculate actual movement
+            old_x = self.game_state.ship_x
+            old_y = self.game_state.ship_y
+
+            # Move the ship (may be clamped at boundaries)
             self.game_state.move_ship(int(dx), int(dy))
 
-            # Consume fuel based on distance traveled
-            distance = (dx**2 + dy**2) ** 0.5
+            # Calculate actual movement that occurred (after clamping)
+            actual_dx = self.game_state.ship_x - old_x
+            actual_dy = self.game_state.ship_y - old_y
+
+            # Consume fuel based on actual distance traveled
+            distance = (actual_dx**2 + actual_dy**2) ** 0.5
             fuel_used = distance * self.fuel_consumption_rate
             self.game_state.fuel = max(0, self.game_state.fuel - fuel_used)
 
             # Update starfield for parallax effect (stars drift opposite to movement)
-            self.update_starfield(-dx * 2, -dy * 2)
+            # Only scroll based on actual movement, not intended movement
+            self.update_starfield(-actual_dx * 2, -actual_dy * 2)
 
     def update_starfield(self, dx, dy):
         """Move stars to create parallax effect"""

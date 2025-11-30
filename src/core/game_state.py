@@ -64,9 +64,13 @@ class GameState:
         }
 
     def get_coordinate_position(self):
-        """Convert movement grid position to coordinate grid position"""
+        """Convert movement grid position to coordinate grid position
+
+        Returns coordinates with 0,0 at bottom-left corner
+        """
         coord_x = self.ship_x // 10
-        coord_y = self.ship_y // 10
+        # Flip Y-axis so 0 is at bottom (49 - y gives us bottom-left origin)
+        coord_y = 49 - (self.ship_y // 10)
         return (coord_x, coord_y)
 
     def move_ship(self, dx, dy):
@@ -79,6 +83,7 @@ class GameState:
         self.ship_x += dx
         self.ship_y += dy
 
-        # Clamp to grid boundaries (0-499 for movement grid)
+        # Clamp to coordinate grid boundaries (0-49 coordinates = 0-499 movement grid)
+        # This keeps the ship within the playable coordinate system
         self.ship_x = max(0, min(499, self.ship_x))
         self.ship_y = max(0, min(499, self.ship_y))
