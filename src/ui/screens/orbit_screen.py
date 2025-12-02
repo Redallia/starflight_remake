@@ -7,7 +7,7 @@ from core.screen_manager import Screen
 from ui.hud.hud_manager import HUDManager
 from ui.hud.planet_view_panel import PlanetViewPanel
 from ui.hud.status_panel import StatusPanel
-from ui.hud.minimap_panel import MiniMapPanel
+from ui.hud.terrain_map_panel import TerrainMapPanel
 from ui.hud.message_log_panel import MessageLogPanel
 
 
@@ -28,15 +28,15 @@ class OrbitScreen(Screen):
         right_column_width = 300
         message_log_height = 150
 
-        # Planet view panel (left side, above message log)
+        # Planet view panel (left side, above message log) - leave empty for now
         planet_view = PlanetViewPanel(0, 0, 500, 450)
         self.hud_manager.set_view_panel(planet_view)
 
-        # Mini-map panel (upper-right, flush with edge)
-        minimap_panel = MiniMapPanel(500, 0, right_column_width, 200)
-        self.hud_manager.set_info_panel(minimap_panel)
+        # Terrain map panel (upper-right, replaces mini-map in orbit)
+        terrain_map = TerrainMapPanel(500, 0, right_column_width, 200)
+        self.hud_manager.set_info_panel(terrain_map)
 
-        # Status panel (right side, below mini-map, above message log)
+        # Status panel (right side, below terrain map, above message log)
         status_panel = StatusPanel(500, 200, right_column_width, 250)
         self.hud_manager.set_status_panel(status_panel)
 
