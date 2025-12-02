@@ -104,7 +104,7 @@ class PlanetSphereRenderer:
 
     def render_optimized(self, screen, center_x, center_y, terrain_grid, terrain_generator):
         """
-        Optimized version - draws filled circles in horizontal bands
+        Optimized sphere renderer with better coverage
 
         Args:
             screen: Pygame surface
@@ -121,61 +121,73 @@ class PlanetSphereRenderer:
         if grid_width == 0 or grid_height == 0:
             return
 
-        # Draw horizontal circles (latitude lines) from top to bottom
-        lat_steps = 80
+        # Draw using a pixel grid approach for better coverage
+        # Cover a square area around the sphere
+        diameter = self.radius * 2
+        start_x = int(center_x - self.radius)
+        start_y = int(center_y - self.radius)
 
-        for lat_i in range(lat_steps):
-            # Latitude from -90 to +90
-            lat = (lat_i / lat_steps) * 180 - 90
-            lat_rad = math.radians(lat)
+        for py in range(int(diameter) + 1):
+            for px in range(int(diameter) + 1):
+                # Calculate position relative to center
+                dx = px - self.radius
+                dy = py - self.radius
 
-            # Calculate radius of this latitude circle
-            circle_radius = self.radius * math.cos(lat_rad)
-            y_pos = int(center_y - self.radius * math.sin(lat_rad))
+                # Check if this pixel is within the sphere
+                distance_sq = dx * dx + dy * dy
+                if distance_sq > self.radius * self.radius:
+                    continue
 
-            if circle_radius <= 0:
-                continue
+                # Calculate 3D position on sphere
+                distance = math.sqrt(distance_sq)
 
-            # Calculate z-depth at front of circle (for shading)
-            z_front = self.radius * math.cos(lat_rad)
-            brightness_factor = 0.4 + 0.6 * (z_front / self.radius)
+                # Get the z coordinate (depth)
+                z_3d = math.sqrt(max(0, self.radius * self.radius - distance_sq))
 
-            # Sample points around this circle
-            circumference = 2 * math.pi * circle_radius
-            num_points = max(int(circumference / 2), 12)  # Sample every ~2 pixels
+                # Only render front half
+                if z_3d <= 0:
+                    continue
 
-            for i in range(num_points):
-                # Longitude angle including rotation
-                angle = (i / num_points) * 360 + self.rotation_angle
-                angle_rad = math.radians(angle)
+                # Calculate latitude (based on y position)
+                lat_rad = math.asin(dy / self.radius)
+                lat = math.degrees(lat_rad)
 
-                # Calculate 3D position
-                x_3d = circle_radius * math.sin(angle_rad)
-                z_3d = circle_radius * math.cos(angle_rad)
+                # Calculate longitude (based on x position and z depth)
+                if distance > 0:
+                    lon_rad = math.atan2(dx, z_3d)
+                    lon = math.degrees(lon_rad) + self.rotation_angle
+                else:
+                    lon = self.rotation_angle
 
-                # Only draw if facing forward
-                if z_3d > 0:
-                    x_pos = int(center_x + x_3d)
+                # Map to terrain coordinates
+                terrain_y = int(((lat + 90) / 180) * (grid_height - 1))
+                terrain_lon = lon % 360
+                terrain_x = int((terrain_lon / 360) * (grid_width - 1))
 
-                    # Map to terrain coordinates
-                    terrain_y = int(((lat + 90) / 180) * (grid_height - 1))
-                    # Normalize angle to 0-360 for terrain lookup
-                    terrain_lon = angle % 360
-                    terrain_x = int((terrain_lon / 360) * (grid_width - 1))
+                # Clamp
+                terrain_y = max(0, min(grid_height - 1, terrain_y))
+                terrain_x = max(0, min(grid_width - 1, terrain_x))
 
-                    # Clamp
-                    terrain_y = max(0, min(grid_height - 1, terrain_y))
-                    terrain_x = max(0, min(grid_width - 1, terrain_x))
+                # Get terrain color
+                terrain_type = terrain_grid[terrain_y][terrain_x]
+                color = terrain_generator.get_terrain_color(terrain_type)
 
-                    # Get color and shade it
-                    terrain_type = terrain_grid[terrain_y][terrain_x]
-                    color = terrain_generator.get_terrain_color(terrain_type)
+                # Apply shading based on depth and angle
+                # Light source from front-top
+                light_dir_z = 0.7
+                light_dir_y = -0.3
 
-                    # Local shading based on position around circle
-                    local_brightness = 0.5 + 0.5 * (z_3d / circle_radius)
-                    final_brightness = brightness_factor * local_brightness
-                    shaded_color = tuple(int(c * final_brightness) for c in color)
+                # Surface normal (pointing outward from sphere)
+                norm_x = dx / self.radius
+                norm_y = dy / self.radius
+                norm_z = z_3d / self.radius
 
-                    # Draw pixel
-                    if 0 <= x_pos < screen.get_width() and 0 <= y_pos < screen.get_height():
-                        screen.set_at((x_pos, y_pos), shaded_color)
+                # Simple diffuse shading
+                brightness = max(0.3, norm_z * light_dir_z + norm_y * light_dir_y)
+                shaded_color = tuple(int(c * brightness) for c in color)
+
+                # Draw the pixel
+                screen_x = start_x + px
+                screen_y = start_y + py
+                if 0 <= screen_x < screen.get_width() and 0 <= screen_y < screen.get_height():
+                    screen.set_at((int(screen_x), int(screen_y)), shaded_color)
