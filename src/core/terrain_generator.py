@@ -105,9 +105,11 @@ class TerrainGenerator:
         for y in range(height):
             row = []
             for x in range(width):
+                nx = (x * 0.707 - y * 0.707*2) / scale
+                ny = (x * 0.707 + y * 0.707*2) / scale
                 value = pnoise2(
-                    x / scale,
-                    y / scale,
+                    nx + 100,
+                    ny + 100,
                     octaves=3,
                     persistence=0.5,
                     lacunarity=2.0,
