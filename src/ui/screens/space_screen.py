@@ -70,12 +70,19 @@ class SpaceScreen(Screen):
         # Update HUD
         self.hud_manager.update(delta_time, self.game_state)
 
-        # Check for docking at nearby planet
+        # Check for docking/orbit entry at nearby planet
         if self.near_planet and input_handler.is_confirm_pressed():
             if self.near_planet['type'] == 'starport':
+                # Dock at starport
                 if self.game_state.return_to_starport():
                     self.hud_manager.add_message(f"Docking at {self.near_planet['name']}", (100, 255, 100))
                     self.screen_manager.change_screen("starport")
+                    return
+            else:
+                # Enter orbit around planet
+                if self.game_state.enter_orbit(self.near_planet):
+                    self.hud_manager.add_message(f"Entering orbit around {self.near_planet['name']}", (100, 255, 100))
+                    self.screen_manager.change_screen("orbit")
                     return
 
         # Return to starport (R key - backup method)

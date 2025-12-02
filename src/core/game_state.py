@@ -30,6 +30,9 @@ class GameState:
         # Current system
         self.current_system = system_name
 
+        # Orbit state
+        self.orbiting_planet = None  # Which planet we're currently orbiting
+
         # Load system data
         self._load_system_data(system_name)
 
@@ -99,6 +102,22 @@ class GameState:
         """Return to starport from space"""
         if self.location == "space":
             self.location = "starport"
+            return True
+        return False
+
+    def enter_orbit(self, planet):
+        """Enter orbit around a planet"""
+        if self.location == "space":
+            self.location = "orbit"
+            self.orbiting_planet = planet
+            return True
+        return False
+
+    def exit_orbit(self):
+        """Exit orbit and return to space"""
+        if self.location == "orbit":
+            self.location = "space"
+            self.orbiting_planet = None
             return True
         return False
 

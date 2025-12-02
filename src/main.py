@@ -9,6 +9,7 @@ from core.game_state import GameState
 from ui.screens.main_menu_screen import MainMenuScreen
 from ui.screens.starport_screen import StarportScreen
 from ui.screens.space_screen import SpaceScreen
+from ui.screens.orbit_screen import OrbitScreen
 
 
 def main():
@@ -35,10 +36,12 @@ def main():
     main_menu = MainMenuScreen(screen_manager, game_state)
     starport = StarportScreen(screen_manager, game_state)
     space = SpaceScreen(screen_manager, game_state)
+    orbit = OrbitScreen(screen_manager, game_state)
 
     screen_manager.add_screen("main_menu", main_menu)
     screen_manager.add_screen("starport", starport)
     screen_manager.add_screen("space", space)
+    screen_manager.add_screen("orbit", orbit)
 
     # Start with main menu
     screen_manager.change_screen("main_menu")
