@@ -71,16 +71,18 @@ class TerrainGenerator:
     def _generate_elevation_map(self, width, height):
         """Generate elevation using Perlin noise"""
         elevation_map = []
-        scale = 20.0  # Lower = smoother terrain
-        octaves = 4   # More = more detail
+        scale = 100.0  # Lower = smoother terrain
+        octaves = 5   # More = more detail
 
         for y in range(height):
             row = []
             for x in range(width):
                 # Generate Perlin noise value (-1 to 1)
+                nx = (x * 0.707 - y * 0.707*2) / scale
+                ny = (x * 0.707 + y * 0.707*2) / scale
                 value = pnoise2(
-                    x / scale,
-                    y / scale,
+                    nx + 100,
+                    ny + 100,
                     octaves=octaves,
                     persistence=0.5,
                     lacunarity=2.0,
