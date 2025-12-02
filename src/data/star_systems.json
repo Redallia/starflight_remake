@@ -1,0 +1,31 @@
+{
+  "default_system": {
+    "name": "Home System",
+    "planets": [
+      {
+        "name": "Starport",
+        "coord_x": 25,
+        "coord_y": 25,
+        "radius": 3,
+        "color": [150, 100, 200],
+        "type": "starport"
+      },
+      {
+        "name": "Aqua",
+        "coord_x": 15,
+        "coord_y": 35,
+        "radius": 4,
+        "color": [80, 150, 220],
+        "type": "water"
+      },
+      {
+        "name": "Typhon",
+        "coord_x": 38,
+        "coord_y": 12,
+        "radius": 5,
+        "color": [120, 80, 180],
+        "type": "gas_giant"
+      }
+    ]
+  }
+}

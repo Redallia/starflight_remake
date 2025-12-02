@@ -2,12 +2,14 @@
 Game state management
 Holds the current state of the game (ship, location, resources)
 """
+import json
+import os
 
 
 class GameState:
     """Manages overall game state"""
 
-    def __init__(self):
+    def __init__(self, system_name="default_system"):
         # Ship resources
         self.fuel = 100.0  # Starting fuel
         self.max_fuel = 100.0
@@ -25,37 +27,59 @@ class GameState:
         self.ship_x = 0  # Movement grid position
         self.ship_y = 0  # Movement grid position
 
-        # Starport location (coordinate grid: 50x50)
-        self.starport_coord_x = 25  # Center of system for now
-        self.starport_coord_y = 25
+        # Current system
+        self.current_system = system_name
 
-        # Planets in current system (list of dicts)
-        self.planets = [
-            {
-                'name': 'Starport',
-                'coord_x': 25,
-                'coord_y': 25,
-                'radius': 3,  # In coordinate units
-                'color': (150, 100, 200),  # Purple
-                'type': 'starport'
-            },
-            {
-                'name': 'Aqua',
-                'coord_x': 15,
-                'coord_y': 35,
-                'radius': 4,  # Slightly larger
-                'color': (80, 150, 220),  # Blue (water planet)
-                'type': 'water'
-            },
-            {
-                'name': 'Typhon',
-                'coord_x': 38,
-                'coord_y': 12,
-                'radius': 5,  # Largest (gas giant)
-                'color': (120, 80, 180),  # Purple (gas giant)
-                'type': 'gas_giant'
-            }
-        ]
+        # Load system data
+        self._load_system_data(system_name)
+
+        # Starport location (coordinate grid: 50x50)
+        # Find starport planet to set coordinates
+        starport_planet = next((p for p in self.planets if p['type'] == 'starport'), None)
+        if starport_planet:
+            self.starport_coord_x = starport_planet['coord_x']
+            self.starport_coord_y = starport_planet['coord_y']
+        else:
+            # Fallback if no starport found
+            self.starport_coord_x = 25
+            self.starport_coord_y = 25
+
+    def _load_system_data(self, system_name):
+        """Load star system data from JSON file"""
+        # Get path to data file
+        data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+        systems_file = os.path.join(data_dir, 'star_systems.json')
+
+        try:
+            with open(systems_file, 'r') as f:
+                systems_data = json.load(f)
+
+            # Get the requested system
+            system_data = systems_data.get(system_name)
+            if not system_data:
+                raise ValueError(f"System '{system_name}' not found in star_systems.json")
+
+            # Load planets and convert color arrays to tuples
+            self.planets = []
+            for planet_data in system_data['planets']:
+                planet = planet_data.copy()
+                # Convert color from list to tuple for pygame
+                planet['color'] = tuple(planet['color'])
+                self.planets.append(planet)
+
+        except FileNotFoundError:
+            print(f"Warning: Could not find {systems_file}, using default planets")
+            # Fallback to hardcoded planets if file not found
+            self.planets = [
+                {
+                    'name': 'Starport',
+                    'coord_x': 25,
+                    'coord_y': 25,
+                    'radius': 3,
+                    'color': (150, 100, 200),
+                    'type': 'starport'
+                }
+            ]
 
     def can_launch(self):
         """Check if ship has enough fuel to launch"""
