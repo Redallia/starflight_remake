@@ -8,7 +8,11 @@
         "coord_y": 25,
         "radius": 3,
         "color": [150, 100, 200],
-        "type": "starport"
+        "type": "starport",
+        "seed": 1001,
+        "terrain_params": {
+          "has_surface": false
+        }
       },
       {
         "name": "Aqua",
@@ -16,7 +20,15 @@
         "coord_y": 35,
         "radius": 4,
         "color": [80, 150, 220],
-        "type": "water"
+        "type": "water",
+        "seed": 2001,
+        "terrain_params": {
+          "has_surface": true,
+          "water_coverage": 0.6,
+          "elevation_scale": 0.3,
+          "temperature": 0.5,
+          "mineral_richness": 0.3
+        }
       },
       {
         "name": "Typhon",
@@ -24,7 +36,11 @@
         "coord_y": 12,
         "radius": 5,
         "color": [120, 80, 180],
-        "type": "gas_giant"
+        "type": "gas_giant",
+        "seed": 3001,
+        "terrain_params": {
+          "has_surface": false
+        }
       }
     ]
   }
