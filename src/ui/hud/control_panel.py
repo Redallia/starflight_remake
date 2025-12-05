@@ -1,16 +1,16 @@
 """
-Status panel for displaying ship status (fuel, credits, cargo, coordinates)
-Top-left of screen
+Control panel for displaying ship status (fuel, credits, cargo, coordinates)
+Right side, middle section of screen
 """
 from ui.hud.hud_panel import HUDPanel
 
 
-class StatusPanel(HUDPanel):
-    """Ship status display panel"""
+class ControlPanel(HUDPanel):
+    """Ship status control panel"""
 
     def __init__(self, x, y, width, height):
         """
-        Initialize status panel
+        Initialize control panel
 
         Args:
             x: X position on screen

@@ -1,17 +1,17 @@
 """
-Mini-map panel for space navigation
-Shows planetary system overview
+Auxiliary view for space navigation
+Shows planetary system overview (mini-map)
 """
 import pygame
 from ui.hud.info_panel import InfoPanel
 
 
-class MiniMapPanel(InfoPanel):
-    """Mini-map display for space navigation"""
+class AuxiliaryView(InfoPanel):
+    """Auxiliary view - displays mini-map for space navigation"""
 
     def __init__(self, x, y, width, height):
         """
-        Initialize mini-map panel
+        Initialize auxiliary view
 
         Args:
             x: X position on screen

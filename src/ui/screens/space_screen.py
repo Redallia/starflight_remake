@@ -6,8 +6,8 @@ import pygame
 from core.screen_manager import Screen
 from ui.hud.hud_manager import HUDManager
 from ui.hud.space_view_panel import SpaceViewPanel
-from ui.hud.status_panel import StatusPanel
-from ui.hud.minimap_panel import MiniMapPanel
+from ui.hud.control_panel import ControlPanel
+from ui.hud.auxiliary_view import AuxiliaryView
 from ui.hud.message_log_panel import MessageLogPanel
 
 
@@ -40,13 +40,13 @@ class SpaceScreen(Screen):
         space_view = SpaceViewPanel(0, 0, 500, 450)
         self.hud_manager.set_view_panel(space_view)
 
-        # Auxiliary Panel - Mini-map (upper-right)
-        minimap_panel = MiniMapPanel(500, 0, right_column_width, 200)
-        self.hud_manager.set_auxiliary_panel(minimap_panel)
+        # Auxiliary View - Mini-map (upper-right)
+        auxiliary_view = AuxiliaryView(500, 0, right_column_width, 200)
+        self.hud_manager.set_auxiliary_panel(auxiliary_view)
 
-        # Control Panel - Status panel (right side, below mini-map, above message log)
-        status_panel = StatusPanel(500, 200, right_column_width, 250)
-        self.hud_manager.set_control_panel(status_panel)
+        # Control Panel - Ship status (right side, below mini-map, above message log)
+        control_panel = ControlPanel(500, 200, right_column_width, 250)
+        self.hud_manager.set_control_panel(control_panel)
 
         # Message Log (bottom, full width)
         message_log = MessageLogPanel(0, 450, 800, message_log_height)
