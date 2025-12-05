@@ -48,53 +48,68 @@ class PlanetViewPanel(HUDPanel):
             self.terrain_generator = None
             return
 
-        # Check if planet has a surface
-        terrain_params = self.planet.get('terrain_params', {})
-        has_surface = terrain_params.get('has_surface', True)
-
-        if not has_surface:
-            self.terrain_grid = None
-            self.terrain_generator = None
-            return
-
-        # Generate terrain (500x200 for sphere mapping)
+        # Generate terrain for all planets (200x100 for sphere mapping - optimized)
+        # Gas giants and non-landable planets still get terrain, but landing is prevented elsewhere
         self.terrain_generator = TerrainGenerator(self.planet)
-        self.terrain_grid = self.terrain_generator.generate(500, 200)
+        self.terrain_grid = self.terrain_generator.generate(200, 100)
 
     def render_content(self, screen, renderer, game_state, **kwargs):
         """Render the planet view content"""
+        # Check if we're in loading state
+        loading = kwargs.get('loading', False)
+
         # Get planet from game_state
         planet = game_state.orbiting_planet
 
         if not planet:
             return
 
-        # Draw rotating planet sphere if we have terrain
-        if self.terrain_grid and self.terrain_generator:
-            # Center of panel
+        # Show loading message if still generating terrain
+        if loading:
             center_x = self.x + self.width // 2
             center_y = self.y + self.height // 2
 
-            # Render the sphere
-            self.sphere_renderer.render_optimized(
-                screen,
-                center_x,
-                center_y,
-                self.terrain_grid,
-                self.terrain_generator
-            )
-
-            # Draw planet name at top
             renderer.draw_text_centered(
-                planet['name'],
+                f"Scanning {planet['name']}...",
                 center_x,
-                self.y + 20,
-                color=(255, 255, 255),
+                center_y - 20,
+                color=(100, 200, 255),
                 font=renderer.large_font
             )
-        else:
-            # No surface - draw static sphere
-            self._render_planet_sphere(screen, renderer, planet)
+            renderer.draw_text_centered(
+                "Generating planetary data",
+                center_x,
+                center_y + 20,
+                color=(150, 150, 150),
+                font=renderer.default_font
+            )
+            return
+
+        # Draw rotating planet sphere (all planets now have terrain)
+        if not self.terrain_grid or not self.terrain_generator:
+            return
+
+        # Center of panel
+        center_x = self.x + self.width // 2
+        center_y = self.y + self.height // 2
+
+        # Render the sphere
+        self.sphere_renderer.render_optimized(
+            screen,
+            center_x,
+            center_y,
+            self.terrain_grid,
+            self.terrain_generator
+        )
+
+        # Draw planet name at top
+        renderer.draw_text_centered(
+            planet['name'],
+            center_x,
+            self.y + 20,
+            color=(255, 255, 255),
+            font=renderer.large_font
+        )
 
     def _render_terrain(self, screen, renderer):
         """Render terrain grid"""

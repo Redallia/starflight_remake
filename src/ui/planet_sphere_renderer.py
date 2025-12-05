@@ -14,6 +14,11 @@ class PlanetSphereRenderer:
         self.rotation_angle = 0.0  # Current rotation in degrees
         self.rotation_speed = 10.0  # Degrees per second
 
+        # Frame caching for performance
+        self.cached_frames = []  # List of pre-rendered frames
+        self.num_cached_frames = 18  # 18 frames = 20 degree steps
+        self.current_terrain_id = None  # Track which terrain we've cached
+
     def update(self, delta_time):
         """Update rotation animation"""
         self.rotation_angle += self.rotation_speed * delta_time
@@ -102,9 +107,82 @@ class PlanetSphereRenderer:
             if 0 <= x < screen.get_width() and 0 <= y < screen.get_height():
                 pygame.draw.circle(screen, color, (x, y), 2)
 
+    def _generate_cached_frames(self, terrain_grid, terrain_generator):
+        """Pre-render all rotation frames for smooth performance"""
+        self.cached_frames = []
+        diameter = int(self.radius * 2)
+
+        for frame_idx in range(self.num_cached_frames):
+            # Calculate rotation angle for this frame
+            angle = (frame_idx / self.num_cached_frames) * 360
+
+            # Create a surface for this frame
+            frame_surface = pygame.Surface((diameter + 2, diameter + 2), pygame.SRCALPHA)
+
+            # Render this rotation angle to the surface
+            self._render_frame_to_surface(frame_surface, self.radius + 1, self.radius + 1,
+                                          angle, terrain_grid, terrain_generator)
+
+            # Store the frame
+            self.cached_frames.append(frame_surface)
+
+        # Mark this terrain as cached
+        self.current_terrain_id = id(terrain_grid)
+
+    def _render_frame_to_surface(self, surface, center_x, center_y, angle, terrain_grid, terrain_generator):
+        """Render a single frame at a specific rotation angle to a surface"""
+        grid_height = len(terrain_grid)
+        grid_width = len(terrain_grid[0]) if grid_height > 0 else 0
+
+        if grid_width == 0 or grid_height == 0:
+            return
+
+        # Same pixel rendering logic as render_optimized, but to a surface
+        diameter = self.radius * 2
+
+        for py in range(int(diameter) + 1):
+            for px in range(int(diameter) + 1):
+                dx = px - self.radius
+                dy = py - self.radius
+
+                distance_sq = dx * dx + dy * dy
+                if distance_sq > self.radius * self.radius:
+                    continue
+
+                distance = math.sqrt(distance_sq)
+                z_3d = math.sqrt(max(0, self.radius * self.radius - distance_sq))
+
+                if z_3d <= 0:
+                    continue
+
+                lat_rad = math.asin(dy / self.radius)
+                lat = math.degrees(lat_rad)
+
+                if distance > 0:
+                    lon_rad = math.atan2(dx, z_3d)
+                    lon = math.degrees(lon_rad) + angle
+                else:
+                    lon = angle
+
+                terrain_y = int(((lat + 90) / 180) * (grid_height - 1))
+                terrain_lon = lon % 360
+                terrain_x = int((terrain_lon / 360) * (grid_width - 1))
+
+                terrain_y = max(0, min(grid_height - 1, terrain_y))
+                terrain_x = max(0, min(grid_width - 1, terrain_x))
+
+                terrain_type = terrain_grid[terrain_y][terrain_x]
+                color = terrain_generator.get_terrain_color(terrain_type)
+
+                # Simple shading based on depth
+                shade_factor = (z_3d / self.radius) * 0.5 + 0.5
+                shaded_color = tuple(int(c * shade_factor) for c in color)
+
+                surface.set_at((int(px), int(py)), shaded_color)
+
     def render_optimized(self, screen, center_x, center_y, terrain_grid, terrain_generator):
         """
-        Optimized sphere renderer with better coverage
+        Optimized sphere renderer using cached frames
 
         Args:
             screen: Pygame surface
@@ -115,79 +193,21 @@ class PlanetSphereRenderer:
         if not terrain_grid or not terrain_generator:
             return
 
-        grid_height = len(terrain_grid)
-        grid_width = len(terrain_grid[0]) if grid_height > 0 else 0
+        # Check if we need to generate cached frames
+        terrain_id = id(terrain_grid)
+        if not self.cached_frames or self.current_terrain_id != terrain_id:
+            self._generate_cached_frames(terrain_grid, terrain_generator)
 
-        if grid_width == 0 or grid_height == 0:
-            return
+        # Determine which cached frame to use based on rotation angle
+        # Each frame represents 20 degrees (360 / 18)
+        frame_index = int((self.rotation_angle % 360) / 20)
+        frame_index = min(frame_index, len(self.cached_frames) - 1)
 
-        # Draw using a pixel grid approach for better coverage
-        # Cover a square area around the sphere
-        diameter = self.radius * 2
-        start_x = int(center_x - self.radius)
-        start_y = int(center_y - self.radius)
+        # Blit the cached frame to screen
+        frame_surface = self.cached_frames[frame_index]
 
-        for py in range(int(diameter) + 1):
-            for px in range(int(diameter) + 1):
-                # Calculate position relative to center
-                dx = px - self.radius
-                dy = py - self.radius
+        # Calculate top-left position to center the frame
+        frame_x = int(center_x - self.radius - 1)
+        frame_y = int(center_y - self.radius - 1)
 
-                # Check if this pixel is within the sphere
-                distance_sq = dx * dx + dy * dy
-                if distance_sq > self.radius * self.radius:
-                    continue
-
-                # Calculate 3D position on sphere
-                distance = math.sqrt(distance_sq)
-
-                # Get the z coordinate (depth)
-                z_3d = math.sqrt(max(0, self.radius * self.radius - distance_sq))
-
-                # Only render front half
-                if z_3d <= 0:
-                    continue
-
-                # Calculate latitude (based on y position)
-                lat_rad = math.asin(dy / self.radius)
-                lat = math.degrees(lat_rad)
-
-                # Calculate longitude (based on x position and z depth)
-                if distance > 0:
-                    lon_rad = math.atan2(dx, z_3d)
-                    lon = math.degrees(lon_rad) + self.rotation_angle
-                else:
-                    lon = self.rotation_angle
-
-                # Map to terrain coordinates
-                terrain_y = int(((lat + 90) / 180) * (grid_height - 1))
-                terrain_lon = lon % 360
-                terrain_x = int((terrain_lon / 360) * (grid_width - 1))
-
-                # Clamp
-                terrain_y = max(0, min(grid_height - 1, terrain_y))
-                terrain_x = max(0, min(grid_width - 1, terrain_x))
-
-                # Get terrain color
-                terrain_type = terrain_grid[terrain_y][terrain_x]
-                color = terrain_generator.get_terrain_color(terrain_type)
-
-                # Apply shading based on depth and angle
-                # Light source from front-top
-                light_dir_z = 0.7
-                light_dir_y = -0.3
-
-                # Surface normal (pointing outward from sphere)
-                norm_x = dx / self.radius
-                norm_y = dy / self.radius
-                norm_z = z_3d / self.radius
-
-                # Simple diffuse shading
-                brightness = max(0.3, norm_z * light_dir_z + norm_y * light_dir_y)
-                shaded_color = tuple(int(c * brightness) for c in color)
-
-                # Draw the pixel
-                screen_x = start_x + px
-                screen_y = start_y + py
-                if 0 <= screen_x < screen.get_width() and 0 <= screen_y < screen.get_height():
-                    screen.set_at((int(screen_x), int(screen_y)), shaded_color)
+        screen.blit(frame_surface, (frame_x, frame_y))

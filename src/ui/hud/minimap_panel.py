@@ -28,7 +28,7 @@ class MiniMapPanel(InfoPanel):
         self.map_x = x + (width - self.map_size) // 2
         self.map_y = y + (height - self.map_size) // 2
 
-    def render_content(self, screen, renderer, game_state):
+    def render_content(self, screen, renderer, game_state, **kwargs):
         """
         Render mini-map content
 
@@ -36,6 +36,7 @@ class MiniMapPanel(InfoPanel):
             screen: Pygame screen surface
             renderer: Renderer instance
             game_state: Current game state
+            **kwargs: Additional optional arguments (ignored)
         """
         # Draw grid lines (every 10 coordinates)
         grid_color = (40, 40, 60)

@@ -98,12 +98,16 @@ class HUDManager:
         # Render status panel (top-left)
         if self.status_panel:
             self.status_panel.render(screen, renderer)
-            self.status_panel.render_content(screen, renderer, game_state, coordinates)
+            # Pass view_data to status panel for additional context (e.g., selected_role_index)
+            if view_data and hasattr(self.status_panel, 'render_content_with_view_data'):
+                self.status_panel.render_content_with_view_data(screen, renderer, game_state, coordinates, view_data)
+            else:
+                self.status_panel.render_content(screen, renderer, game_state, coordinates)
 
         # Render info panel (upper-right)
         if self.info_panel:
             self.info_panel.render(screen, renderer)
-            self.info_panel.render_content(screen, renderer, game_state)
+            self.info_panel.render_content(screen, renderer, game_state, **(view_data or {}))
 
         # Render message log (bottom)
         if self.message_log_panel:

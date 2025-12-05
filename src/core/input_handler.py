@@ -46,6 +46,7 @@ class InputHandler:
         return key in self.keys_just_released
 
     # Convenience methods for common actions
+    # Movement (continuous - for space navigation)
     def is_up_pressed(self):
         return self.is_key_pressed(pygame.K_w)
 
@@ -57,6 +58,17 @@ class InputHandler:
 
     def is_right_pressed(self):
         return self.is_key_pressed(pygame.K_d)
+
+    # Menu navigation (single press - for menus and UI)
+    def is_menu_up_pressed(self):
+        """W or Up Arrow for menu navigation (single press)"""
+        return self.is_key_just_pressed(pygame.K_w) or \
+               self.is_key_just_pressed(pygame.K_UP)
+
+    def is_menu_down_pressed(self):
+        """S or Down Arrow for menu navigation (single press)"""
+        return self.is_key_just_pressed(pygame.K_s) or \
+               self.is_key_just_pressed(pygame.K_DOWN)
 
     def is_confirm_pressed(self):
         """Enter or Space to confirm"""
