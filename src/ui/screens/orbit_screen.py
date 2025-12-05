@@ -20,6 +20,7 @@ class OrbitScreen(Screen):
 
         # Crew role selection
         self.selected_role_index = 0  # Start with first role (Captain) selected
+        self.selected_menu_index = 0  # Selected option in role menu
 
         # Loading state
         self.terrain_loaded = False
@@ -69,21 +70,63 @@ class OrbitScreen(Screen):
                 self.terrain_loaded = True
             return
 
-        # Get bridge panel to check number of roles
+        # Get bridge panel
         bridge_panel = self.hud_manager.status_panel
-        num_roles = len(bridge_panel.roles) if bridge_panel else 0
+        if not bridge_panel:
+            return
 
-        # Navigate crew roles with W/S keys (exactly like main menu)
+        # Check if we're in a role menu or on the bridge
+        if bridge_panel.is_menu_active():
+            # Handle role menu navigation
+            self._handle_role_menu_input(input_handler, bridge_panel)
+        else:
+            # Handle bridge role selection
+            self._handle_bridge_input(input_handler, bridge_panel)
+
+        # Update HUD after handling input
+        self.hud_manager.update(delta_time, self.game_state)
+
+    def _handle_bridge_input(self, input_handler, bridge_panel):
+        """Handle input when on the Bridge (role selection)"""
+        num_roles = len(bridge_panel.roles)
+
+        # Navigate crew roles with W/S keys
         if input_handler.is_key_just_pressed(pygame.K_w):
             self.selected_role_index = (self.selected_role_index - 1) % num_roles
         elif input_handler.is_key_just_pressed(pygame.K_s):
             self.selected_role_index = (self.selected_role_index + 1) % num_roles
 
-        # TODO: Implement Navigator-specific orbit exit behavior
-        # (Exit orbit functionality will be handled through Navigator menu)
+        # Open role menu with Space/Enter
+        if input_handler.is_confirm_pressed():
+            bridge_panel.open_role_menu(self.selected_role_index)
+            self.selected_menu_index = 0  # Reset menu selection
 
-        # Update HUD after handling input
-        self.hud_manager.update(delta_time, self.game_state)
+    def _handle_role_menu_input(self, input_handler, bridge_panel):
+        """Handle input when in a role menu"""
+        menu_options = bridge_panel.get_active_menu_options()
+        num_options = len(menu_options)
+
+        if num_options == 0:
+            return
+
+        # Navigate menu options with W/S keys
+        if input_handler.is_key_just_pressed(pygame.K_w):
+            self.selected_menu_index = (self.selected_menu_index - 1) % num_options
+        elif input_handler.is_key_just_pressed(pygame.K_s):
+            self.selected_menu_index = (self.selected_menu_index + 1) % num_options
+
+        # Confirm selection with Space/Enter
+        if input_handler.is_confirm_pressed():
+            self._execute_menu_action(bridge_panel, menu_options[self.selected_menu_index])
+
+        # ESC to return to Bridge
+        if input_handler.is_cancel_pressed():
+            bridge_panel.close_role_menu()
+
+    def _execute_menu_action(self, bridge_panel, action):
+        """Execute the selected menu action"""
+        if action == "Return to Bridge":
+            bridge_panel.close_role_menu()
 
     def render(self, screen):
         """Render orbit screen"""
@@ -93,9 +136,10 @@ class OrbitScreen(Screen):
         # Get current coordinates (ship position in space)
         coordinates = self.game_state.get_coordinate_position()
 
-        # Prepare view data including selected role index and loading state
+        # Prepare view data including selected role index, menu index, and loading state
         view_data = {
             'selected_role_index': self.selected_role_index,
+            'selected_menu_index': self.selected_menu_index,
             'loading': not self.terrain_loaded
         }
 
