@@ -79,12 +79,8 @@ class OrbitScreen(Screen):
         elif input_handler.is_key_just_pressed(pygame.K_s):
             self.selected_role_index = (self.selected_role_index + 1) % num_roles
 
-        # Exit orbit with SPACE key
-        if input_handler.is_confirm_pressed():
-            if self.game_state.exit_orbit():
-                self.hud_manager.add_message("Exiting orbit", (100, 255, 100))
-                self.screen_manager.change_screen("space")
-                return
+        # TODO: Implement Navigator-specific orbit exit behavior
+        # (Exit orbit functionality will be handled through Navigator menu)
 
         # Update HUD after handling input
         self.hud_manager.update(delta_time, self.game_state)
