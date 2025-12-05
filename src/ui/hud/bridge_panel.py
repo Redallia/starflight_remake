@@ -37,10 +37,9 @@ class BridgePanel(HUDPanel):
 
     def _initialize_role_menus(self):
         """Initialize menu options for each role"""
-        # For now, all roles have the same single option
         return {
             "Captain": ["Return to Bridge"],
-            "Navigator": ["Return to Bridge"],
+            "Navigator": ["Leave Orbit", "Return to Bridge"],
             "Engineer": ["Return to Bridge"],
             "Science": ["Return to Bridge"],
             "Communications": ["Return to Bridge"],

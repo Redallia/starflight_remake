@@ -127,6 +127,12 @@ class OrbitScreen(Screen):
         """Execute the selected menu action"""
         if action == "Return to Bridge":
             bridge_panel.close_role_menu()
+        elif action == "Leave Orbit":
+            # Exit orbit and return to space
+            if self.game_state.exit_orbit():
+                self.hud_manager.add_message("Exiting orbit", (100, 255, 100))
+                self.screen_manager.change_screen("space")
+                bridge_panel.close_role_menu()  # Clean up menu state
 
     def render(self, screen):
         """Render orbit screen"""
