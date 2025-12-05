@@ -29,6 +29,7 @@ class TerrainGenerator:
         self.planet_data = planet_data
         self.seed = planet_data.get('seed', 0)
         self.params = planet_data.get('terrain_params', {})
+        self.planet_type = planet_data.get('type', 'water')  # Default to water/terran
 
         # Default terrain parameters
         self.water_coverage = self.params.get('water_coverage', 0.3)
@@ -254,7 +255,7 @@ class TerrainGenerator:
 
     def get_terrain_color(self, terrain_type):
         """
-        Get RGB color for a terrain type
+        Get RGB color for a terrain type based on planet type
 
         Args:
             terrain_type: TerrainType constant
@@ -262,13 +263,27 @@ class TerrainGenerator:
         Returns:
             RGB tuple
         """
-        colors = {
-            TerrainType.DEEP_WATER: (20, 50, 120),
-            TerrainType.SHALLOW_WATER: (60, 100, 180),
-            TerrainType.SAND: (210, 180, 140),
-            TerrainType.GRASS: (80, 140, 60),
-            TerrainType.ROCK: (100, 100, 100),
-            TerrainType.MOUNTAIN: (150, 150, 150),
-            TerrainType.MINERAL: (180, 140, 60),  # Gold/bronze color
-        }
+        # Gas giants use purple/pink palette (like original Starflight)
+        if self.planet_type == 'gas_giant':
+            colors = {
+                TerrainType.DEEP_WATER: (80, 40, 100),       # Deep purple
+                TerrainType.SHALLOW_WATER: (120, 60, 140),   # Medium purple
+                TerrainType.SAND: (180, 120, 200),           # Light purple
+                TerrainType.GRASS: (140, 80, 160),           # Purple-pink
+                TerrainType.ROCK: (100, 50, 120),            # Dark purple
+                TerrainType.MOUNTAIN: (160, 100, 180),       # Bright purple
+                TerrainType.MINERAL: (200, 140, 220),        # Pink-purple
+            }
+        # Water/Terran planets use green/blue palette
+        else:
+            colors = {
+                TerrainType.DEEP_WATER: (20, 50, 120),
+                TerrainType.SHALLOW_WATER: (60, 100, 180),
+                TerrainType.SAND: (210, 180, 140),
+                TerrainType.GRASS: (80, 140, 60),
+                TerrainType.ROCK: (100, 100, 100),
+                TerrainType.MOUNTAIN: (150, 150, 150),
+                TerrainType.MINERAL: (180, 140, 60),  # Gold/bronze color
+            }
+
         return colors.get(terrain_type, (128, 128, 128))
