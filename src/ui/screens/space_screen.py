@@ -111,11 +111,20 @@ class SpaceScreen(Screen):
             old_x = self.game_state.ship_x
             old_y = self.game_state.ship_y
 
-            # Move the ship (may be clamped at boundaries)
-            self.game_state.move_ship(int(dx), int(dy))
+            # Check if movement would cause collision and modify movement accordingly
+            allowed_dx, allowed_dy = self.check_movement_collision(dx, dy)
 
-            # Check for planet collisions and handle
-            self.handle_planet_collision(old_x, old_y, dx, dy)
+            # Move the ship with allowed movement (may be clamped at boundaries)
+            if allowed_dx != 0 or allowed_dy != 0:
+                self.game_state.move_ship(int(allowed_dx), int(allowed_dy))
+
+            # Handle collision counter for wraparound (when trying to push through)
+            if allowed_dx == 0 and allowed_dy == 0 and (dx != 0 or dy != 0):
+                # Player is trying to move but collision blocked it
+                self.handle_wraparound_counter(dx, dy)
+            else:
+                # No collision or moved successfully, reset counter
+                self.collision_counter = 0
 
             # Calculate actual movement that occurred (after clamping and collision)
             actual_dx = self.game_state.ship_x - old_x
@@ -152,8 +161,10 @@ class SpaceScreen(Screen):
             dy = ship_y - planet_y
             distance = (dx**2 + dy**2) ** 0.5
 
-            # Check if within docking range (at planet collision radius)
-            if distance <= planet_radius:
+            # Check if within docking range (at or very close to planet collision radius)
+            # Add small buffer to catch ships at edge due to collision detection
+            proximity_threshold = planet_radius + 2  # Small buffer for collision edge
+            if distance <= proximity_threshold:
                 self.near_planet = planet
                 break
 
@@ -170,8 +181,39 @@ class SpaceScreen(Screen):
                     (255, 255, 0)
                 )
 
-    def handle_planet_collision(self, old_x, old_y, intended_dx, intended_dy):
-        """Handle collision with planets - hard stop or wraparound"""
+    def check_movement_collision(self, dx, dy):
+        """Check if intended movement would collide with a planet, return allowed movement"""
+        ship_x = self.game_state.ship_x
+        ship_y = self.game_state.ship_y
+
+        # Calculate new position
+        new_x = ship_x + dx
+        new_y = ship_y + dy
+
+        for planet in self.game_state.planets:
+            # Convert planet coordinates to movement grid
+            planet_x = planet['coord_x'] * 10
+            planet_y = planet['coord_y'] * 10
+            planet_radius = planet['radius'] * 10  # Convert to movement grid units
+
+            # Calculate current distance from ship to planet center
+            current_distance = ((ship_x - planet_x)**2 + (ship_y - planet_y)**2) ** 0.5
+
+            # Calculate distance from new position to planet center
+            new_distance = ((new_x - planet_x)**2 + (new_y - planet_y)**2) ** 0.5
+
+            # Only block movement if:
+            # 1. New position would be inside planet AND
+            # 2. We're moving closer to the planet (not moving away)
+            if new_distance < planet_radius and new_distance <= current_distance:
+                # Movement would cause collision or push further in - block it entirely
+                return (0, 0)
+
+        # No collision, allow full movement
+        return (dx, dy)
+
+    def handle_wraparound_counter(self, intended_dx, intended_dy):
+        """Handle wraparound teleport when player persistently pushes into planet"""
         ship_x = self.game_state.ship_x
         ship_y = self.game_state.ship_y
 
@@ -186,37 +228,31 @@ class SpaceScreen(Screen):
             dy = ship_y - planet_y
             distance = (dx**2 + dy**2) ** 0.5
 
-            # Check if ship is inside planet radius
-            if distance < planet_radius:
-                # Hard stop - push ship back to edge of planet
-                if distance > 0:
-                    # Normalize direction and push to edge
-                    norm_x = dx / distance
-                    norm_y = dy / distance
-                    self.game_state.ship_x = int(planet_x + norm_x * planet_radius)
-                    self.game_state.ship_y = int(planet_y + norm_y * planet_radius)
-                else:
-                    # Ship exactly at center, push in opposite direction of movement
-                    if intended_dx != 0 or intended_dy != 0:
+            # Check if ship is at planet edge (within collision range)
+            if abs(distance - planet_radius) < 5:  # Small tolerance for "at edge"
+                # Increment collision counter
+                self.collision_counter += 1
+
+                if self.collision_counter > 30:  # ~0.5 seconds at 60fps
+                    # Calculate normalized direction from planet to ship
+                    if distance > 0:
+                        norm_x = dx / distance
+                        norm_y = dy / distance
+                    else:
+                        # Edge case: use opposite of intended movement
                         move_dist = (intended_dx**2 + intended_dy**2) ** 0.5
                         if move_dist > 0:
                             norm_x = -intended_dx / move_dist
                             norm_y = -intended_dy / move_dist
-                            self.game_state.ship_x = int(planet_x + norm_x * planet_radius)
-                            self.game_state.ship_y = int(planet_y + norm_y * planet_radius)
+                        else:
+                            return  # Can't determine direction
 
-                # Check if player is trying to push through (collision counter)
-                self.collision_counter += 1
-                if self.collision_counter > 30:  # ~0.5 seconds at 60fps
                     # Wraparound - teleport to opposite side
                     self.game_state.ship_x = int(planet_x - norm_x * planet_radius)
                     self.game_state.ship_y = int(planet_y - norm_y * planet_radius)
                     self.collision_counter = 0
-                    print("Wrapping around planet")
+                    self.hud_manager.add_message("Warped around planet", (255, 200, 100))
                 break
-        else:
-            # No collision, reset counter
-            self.collision_counter = 0
 
     def render(self, screen):
         """Render space screen"""
