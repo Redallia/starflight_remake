@@ -24,11 +24,11 @@ class BridgePanel(HUDPanel):
         # Define the six crew roles
         self.roles = [
             "Captain",
+            "Science Officer",
             "Navigator",
             "Engineer",
-            "Science",
             "Communications",
-            "Medic"
+            "Doctor"
         ]
 
         # Role menu state
@@ -41,9 +41,9 @@ class BridgePanel(HUDPanel):
             "Captain": ["Return to Bridge"],
             "Navigator": ["Leave Orbit", "Return to Bridge"],
             "Engineer": ["Return to Bridge"],
-            "Science": ["Return to Bridge"],
+            "Science Officer": ["Sensors", "Return to Bridge"],
             "Communications": ["Return to Bridge"],
-            "Medic": ["Return to Bridge"]
+            "Doctor": ["Return to Bridge"]
         }
 
     def open_role_menu(self, role_index):

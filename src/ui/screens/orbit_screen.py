@@ -35,19 +35,19 @@ class OrbitScreen(Screen):
         right_column_width = 300
         message_log_height = 150
 
-        # Planet view panel (left side, above message log) - leave empty for now
+        # Main View - Planet view panel (left side, above message log)
         planet_view = PlanetViewPanel(0, 0, 500, 450)
         self.hud_manager.set_view_panel(planet_view)
 
-        # Terrain map panel (upper-right, replaces mini-map in orbit)
+        # Auxiliary Panel - Terrain map (upper-right, replaces mini-map in orbit)
         terrain_map = TerrainMapPanel(500, 0, right_column_width, 200)
-        self.hud_manager.set_info_panel(terrain_map)
+        self.hud_manager.set_auxiliary_panel(terrain_map)
 
-        # Bridge panel (right side, below terrain map, above message log)
+        # Control Panel - Bridge (right side, below terrain map, above message log)
         bridge_panel = BridgePanel(500, 200, right_column_width, 250)
-        self.hud_manager.set_status_panel(bridge_panel)
+        self.hud_manager.set_control_panel(bridge_panel)
 
-        # Message log panel (bottom, full width)
+        # Message Log (bottom, full width)
         message_log = MessageLogPanel(0, 450, 800, message_log_height)
         self.hud_manager.set_message_log_panel(message_log)
 
@@ -70,8 +70,8 @@ class OrbitScreen(Screen):
                 self.terrain_loaded = True
             return
 
-        # Get bridge panel
-        bridge_panel = self.hud_manager.status_panel
+        # Get bridge panel from control panel
+        bridge_panel = self.hud_manager.control_panel
         if not bridge_panel:
             return
 

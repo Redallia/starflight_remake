@@ -22,8 +22,12 @@ class HUDManager:
         self.view_panel = None
 
         # HUD overlay panels (set by screens)
-        self.status_panel = None
-        self.info_panel = None
+        # Using Starflight terminology:
+        # - Control Panel (right side, middle)
+        # - Auxiliary Panel (right side, top)
+        # - Message Log (bottom)
+        self.control_panel = None
+        self.auxiliary_panel = None
         self.message_log_panel = None
 
         # Instructions text (bottom center, above message log)
@@ -38,13 +42,13 @@ class HUDManager:
         """Set the main view panel (background)"""
         self.view_panel = panel
 
-    def set_status_panel(self, panel):
-        """Set the status panel (top-left)"""
-        self.status_panel = panel
+    def set_control_panel(self, panel):
+        """Set the control panel (right side, middle)"""
+        self.control_panel = panel
 
-    def set_info_panel(self, panel):
-        """Set the info panel (upper-right)"""
-        self.info_panel = panel
+    def set_auxiliary_panel(self, panel):
+        """Set the auxiliary panel (right side, top)"""
+        self.auxiliary_panel = panel
 
     def set_message_log_panel(self, panel):
         """Set the message log panel (bottom)"""
@@ -71,10 +75,10 @@ class HUDManager:
         """
         if self.view_panel:
             self.view_panel.update(delta_time, game_state)
-        if self.status_panel:
-            self.status_panel.update(delta_time, game_state)
-        if self.info_panel:
-            self.info_panel.update(delta_time, game_state)
+        if self.control_panel:
+            self.control_panel.update(delta_time, game_state)
+        if self.auxiliary_panel:
+            self.auxiliary_panel.update(delta_time, game_state)
         if self.message_log_panel:
             self.message_log_panel.update(delta_time, game_state)
 
@@ -95,19 +99,19 @@ class HUDManager:
             self.view_panel.render_content(screen, renderer, game_state, **(view_data or {}))
 
         # Render HUD overlay panels on top
-        # Render status panel (top-left)
-        if self.status_panel:
-            self.status_panel.render(screen, renderer)
-            # Pass view_data to status panel for additional context (e.g., selected_role_index)
-            if view_data and hasattr(self.status_panel, 'render_content_with_view_data'):
-                self.status_panel.render_content_with_view_data(screen, renderer, game_state, coordinates, view_data)
+        # Render control panel (right side, middle)
+        if self.control_panel:
+            self.control_panel.render(screen, renderer)
+            # Pass view_data to control panel for additional context (e.g., selected_role_index)
+            if view_data and hasattr(self.control_panel, 'render_content_with_view_data'):
+                self.control_panel.render_content_with_view_data(screen, renderer, game_state, coordinates, view_data)
             else:
-                self.status_panel.render_content(screen, renderer, game_state, coordinates)
+                self.control_panel.render_content(screen, renderer, game_state, coordinates)
 
-        # Render info panel (upper-right)
-        if self.info_panel:
-            self.info_panel.render(screen, renderer)
-            self.info_panel.render_content(screen, renderer, game_state, **(view_data or {}))
+        # Render auxiliary panel (right side, top)
+        if self.auxiliary_panel:
+            self.auxiliary_panel.render(screen, renderer)
+            self.auxiliary_panel.render_content(screen, renderer, game_state, **(view_data or {}))
 
         # Render message log (bottom)
         if self.message_log_panel:
