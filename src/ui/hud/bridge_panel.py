@@ -1,16 +1,16 @@
 """
-Crew roles panel for displaying ship crew positions
+Bridge panel for displaying ship crew positions
 Shows: Captain, Navigator, Engineer, Science, Communications, Medic
 """
 from ui.hud.hud_panel import HUDPanel
 
 
-class CrewRolesPanel(HUDPanel):
-    """Crew roles display panel"""
+class BridgePanel(HUDPanel):
+    """Bridge display panel - shows crew role stations"""
 
     def __init__(self, x, y, width, height):
         """
-        Initialize crew roles panel
+        Initialize bridge panel
 
         Args:
             x: X position on screen

@@ -6,7 +6,7 @@ import pygame
 from core.screen_manager import Screen
 from ui.hud.hud_manager import HUDManager
 from ui.hud.planet_view_panel import PlanetViewPanel
-from ui.hud.crew_roles_panel import CrewRolesPanel
+from ui.hud.bridge_panel import BridgePanel
 from ui.hud.terrain_map_panel import TerrainMapPanel
 from ui.hud.message_log_panel import MessageLogPanel
 
@@ -42,9 +42,9 @@ class OrbitScreen(Screen):
         terrain_map = TerrainMapPanel(500, 0, right_column_width, 200)
         self.hud_manager.set_info_panel(terrain_map)
 
-        # Crew roles panel (right side, below terrain map, above message log)
-        crew_roles_panel = CrewRolesPanel(500, 200, right_column_width, 250)
-        self.hud_manager.set_status_panel(crew_roles_panel)
+        # Bridge panel (right side, below terrain map, above message log)
+        bridge_panel = BridgePanel(500, 200, right_column_width, 250)
+        self.hud_manager.set_status_panel(bridge_panel)
 
         # Message log panel (bottom, full width)
         message_log = MessageLogPanel(0, 450, 800, message_log_height)
@@ -69,9 +69,9 @@ class OrbitScreen(Screen):
                 self.terrain_loaded = True
             return
 
-        # Get crew roles panel to check number of roles
-        crew_panel = self.hud_manager.status_panel
-        num_roles = len(crew_panel.roles) if crew_panel else 0
+        # Get bridge panel to check number of roles
+        bridge_panel = self.hud_manager.status_panel
+        num_roles = len(bridge_panel.roles) if bridge_panel else 0
 
         # Navigate crew roles with W/S keys (exactly like main menu)
         if input_handler.is_key_just_pressed(pygame.K_w):
