@@ -6,7 +6,7 @@ import pygame
 from core.screen_manager import Screen
 from ui.hud.hud_manager import HUDManager
 from ui.hud.planet_view_panel import PlanetViewPanel
-from ui.hud.status_panel import StatusPanel
+from ui.hud.crew_roles_panel import CrewRolesPanel
 from ui.hud.terrain_map_panel import TerrainMapPanel
 from ui.hud.message_log_panel import MessageLogPanel
 
@@ -36,9 +36,9 @@ class OrbitScreen(Screen):
         terrain_map = TerrainMapPanel(500, 0, right_column_width, 200)
         self.hud_manager.set_info_panel(terrain_map)
 
-        # Status panel (right side, below terrain map, above message log)
-        status_panel = StatusPanel(500, 200, right_column_width, 250)
-        self.hud_manager.set_status_panel(status_panel)
+        # Crew roles panel (right side, below terrain map, above message log)
+        crew_roles_panel = CrewRolesPanel(500, 200, right_column_width, 250)
+        self.hud_manager.set_status_panel(crew_roles_panel)
 
         # Message log panel (bottom, full width)
         message_log = MessageLogPanel(0, 450, 800, message_log_height)
