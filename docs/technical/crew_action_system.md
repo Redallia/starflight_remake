@@ -175,6 +175,7 @@ class CrewMemberState(Enum):
     BUSY = "busy"             # Currently executing action
     INJURED = "injured"       # Injured, reduced effectiveness
     INCAPACITATED = "incapacitated"  # Cannot perform actions
+    DECEASED = "deceased" # Cannot be revived
 
 @dataclass
 class CrewMember:
