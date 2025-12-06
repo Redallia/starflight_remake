@@ -33,6 +33,9 @@ class GameState:
         # Orbit state
         self.orbiting_planet = None  # Which planet we're currently orbiting
 
+        # Sensor scan data cache
+        self.scanned_planets = {}  # Dictionary: planet_name -> SensorData
+
         # Load system data
         self._load_system_data(system_name)
 

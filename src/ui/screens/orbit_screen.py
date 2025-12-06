@@ -4,6 +4,7 @@ Handles planetary orbit interface
 """
 import pygame
 from core.screen_manager import Screen
+from core.sensor_data_generator import generate_sensor_data
 from ui.hud.hud_manager import HUDManager
 from ui.hud.planet_view_panel import PlanetViewPanel
 from ui.hud.bridge_panel import BridgePanel
@@ -133,6 +134,44 @@ class OrbitScreen(Screen):
                 self.hud_manager.add_message("Exiting orbit", (100, 255, 100))
                 self.screen_manager.change_screen("space")
                 bridge_panel.close_role_menu()  # Clean up menu state
+        elif action == "Sensors":
+            # Science Officer sensor scan
+            self._perform_sensor_scan()
+            bridge_panel.close_role_menu()
+
+    def _perform_sensor_scan(self):
+        """Perform sensor scan of current planet"""
+        if not self.game_state.orbiting_planet:
+            return
+
+        planet = self.game_state.orbiting_planet
+        planet_name = planet['name']
+
+        # Check if already scanned, otherwise generate
+        if planet_name not in self.game_state.scanned_planets:
+            sensor_data = generate_sensor_data(planet)
+            self.game_state.scanned_planets[planet_name] = sensor_data
+        else:
+            sensor_data = self.game_state.scanned_planets[planet_name]
+
+        # Display scan results in message log
+        self.hud_manager.add_message(f"Scanning {planet_name}...", (100, 200, 255))
+
+        # Atmosphere composition
+        atmo_str = ", ".join(sensor_data.atmosphere)
+        self.hud_manager.add_message(f"Atmosphere: {atmo_str}", (180, 180, 180))
+
+        # Hydrosphere composition
+        hydro_str = ", ".join(sensor_data.hydrosphere)
+        self.hud_manager.add_message(f"Hydrosphere: {hydro_str}", (180, 180, 180))
+
+        # Lithosphere composition
+        litho_str = ", ".join(sensor_data.lithosphere)
+        self.hud_manager.add_message(f"Lithosphere: {litho_str}", (180, 180, 180))
+
+        # Update auxiliary panel with sensor data
+        if self.hud_manager.auxiliary_panel:
+            self.hud_manager.auxiliary_panel.set_sensor_data(sensor_data)
 
     def render(self, screen):
         """Render orbit screen"""

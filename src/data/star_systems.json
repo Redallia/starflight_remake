@@ -20,7 +20,7 @@
         "coord_y": 35,
         "radius": 4,
         "color": [80, 150, 220],
-        "type": "water",
+        "type": "liquid",
         "seed": 2001,
         "terrain_params": {
           "has_surface": true,

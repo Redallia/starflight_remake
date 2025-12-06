@@ -18,12 +18,18 @@ class TerrainMapPanel(HUDPanel):
         self.grid_width = 200  # Planet terrain width (reduced from 500)
         self.grid_height = 100  # Planet terrain height (reduced from 200)
         self.cached_surface = None  # Cached rendered terrain surface
+        self.sensor_data = None  # Sensor scan data (Mass/Bio/Min)
 
     def set_planet(self, planet):
         """Set the planet and generate terrain"""
         if planet != self.planet:
             self.planet = planet
+            self.sensor_data = None  # Clear sensor data when planet changes
             self._generate_terrain()
+
+    def set_sensor_data(self, sensor_data):
+        """Set sensor data from scan"""
+        self.sensor_data = sensor_data
 
     def _generate_terrain(self):
         """Generate terrain for current planet and cache it as a surface"""
@@ -99,5 +105,31 @@ class TerrainMapPanel(HUDPanel):
             )
             return
 
-        # Blit the cached surface - super fast!
-        screen.blit(self.cached_surface, (self.x, self.y))
+        # Draw sensor data readouts if available
+        if self.sensor_data:
+            text_y = self.y + 10
+            text_color = (200, 200, 200)
+
+            # Mass (in scientific notation)
+            mass_str = f"Mass: {self.sensor_data.mass:,.0f} tons"
+            renderer.draw_text(mass_str, self.x + 10, text_y, color=text_color)
+            text_y += 18
+
+            # Bio density
+            bio_str = f"Bio: {self.sensor_data.bio_density:.1f}%"
+            renderer.draw_text(bio_str, self.x + 10, text_y, color=text_color)
+            text_y += 18
+
+            # Mineral density
+            min_str = f"Min: {self.sensor_data.mineral_density:.1f}%"
+            renderer.draw_text(min_str, self.x + 10, text_y, color=text_color)
+            text_y += 25
+
+            # Blit the cached terrain surface below the sensor data
+            terrain_y_offset = text_y - self.y
+            # Create a subsurface or adjust blit position
+            screen.blit(self.cached_surface, (self.x, text_y),
+                       (0, terrain_y_offset, self.width, self.height - terrain_y_offset))
+        else:
+            # No sensor data - show full terrain map
+            screen.blit(self.cached_surface, (self.x, self.y))
