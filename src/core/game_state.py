@@ -5,6 +5,9 @@ Holds the current state of the game (ship, location, resources)
 import json
 import os
 from entities.crew import CrewRoster
+from entities.star_system import StarSystem
+from entities.planet import Planet
+from entities.starport import Starport
 
 
 class GameState:
@@ -28,11 +31,14 @@ class GameState:
         self.ship_x = 0  # Movement grid position
         self.ship_y = 0  # Movement grid position
 
-        # Current system
-        self.current_system = system_name
+        # Current system (star system entity)
+        self.current_star_system: StarSystem = None  # Set in _load_system_data
 
         # Orbit state
-        self.orbiting_planet = None  # Which planet we're currently orbiting
+        self.orbiting_planet = None  # Which planet we're currently orbiting (Planet entity or dict for backward compat)
+
+        # Backward compatibility: Keep planets as dict list
+        self.planets = []  # Will be populated from star_system.bodies
 
         # Sensor scan data cache
         self.scanned_planets = {}  # Dictionary: planet_name -> SensorData
@@ -70,27 +76,25 @@ class GameState:
             if not system_data:
                 raise ValueError(f"System '{system_name}' not found in star_systems.json")
 
-            # Load planets and convert color arrays to tuples
-            self.planets = []
-            for planet_data in system_data['planets']:
-                planet = planet_data.copy()
-                # Convert color from list to tuple for pygame
-                planet['color'] = tuple(planet['color'])
-                self.planets.append(planet)
+            # Load as StarSystem entity
+            self.current_star_system = StarSystem.from_dict(system_name, system_data)
+
+            # Maintain backward compatibility: populate planets list with dicts
+            self.planets = [body.to_dict() for body in self.current_star_system.bodies]
 
         except FileNotFoundError:
             print(f"Warning: Could not find {systems_file}, using default planets")
-            # Fallback to hardcoded planets if file not found
-            self.planets = [
-                {
-                    'name': 'Starport',
-                    'coord_x': 25,
-                    'coord_y': 25,
-                    'radius': 3,
-                    'color': (150, 100, 200),
-                    'type': 'starport'
-                }
-            ]
+            # Fallback to hardcoded starport
+            starport = Starport(
+                name='Starport',
+                coord_x=25,
+                coord_y=25,
+                radius=3,
+                color=(150, 100, 200),
+                seed=1000
+            )
+            self.current_star_system = StarSystem(name="Default System", bodies=[starport])
+            self.planets = [starport.to_dict()]
 
     def can_launch(self):
         """Check if ship has enough fuel to launch"""
