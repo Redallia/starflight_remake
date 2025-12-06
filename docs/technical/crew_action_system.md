@@ -4,6 +4,15 @@
 
 The crew action system provides a centralized, extensible framework for defining and executing crew member actions across all game screens. This separates game logic from UI code and enables reusable, testable action implementations.
 
+**Current Implementation Status (MVP):**
+- ✅ Action system architecture fully implemented
+- ✅ Crew roles and basic crew member entities
+- ✅ Hybrid action registration pattern
+- ⚠️ **Crew entity system is STUBBED** - simplified to support actions only
+- ⏳ Skills, health, progression deferred until crew management features are implemented
+
+This document describes both the current implementation AND the planned full system for reference.
+
 ## Problem Statement
 
 ### Current Issues
@@ -133,13 +142,7 @@ src/
 
 ### 1. CrewMember Entity (`src/entities/crew.py`)
 
-Represents an individual crew member with skills and state. Crew members are generic - they can be assigned to any ship role based on their skills.
-
-**Design Philosophy:**
-- Crew members are **people**, not job titles
-- Ship roles are **positions** that crew members fill
-- Any crew member can work any station (with varying effectiveness based on skills)
-- Better crew management: hire specialists, cross-train generalists, handle casualties
+**MVP STUB**: Currently simplified to support basic crew actions only. Full crew management (skills, health, progression) will be added later.
 
 ```python
 from enum import Enum
@@ -156,120 +159,55 @@ class ShipRole(Enum):
     DOCTOR = "Doctor"
 
 @dataclass
-class CrewSkills:
-    """Crew member skill levels (0-100)"""
-    science: int = 50
-    navigation: int = 50
-    engineering: int = 50
-    communications: int = 50
-    medical: int = 50
-    combat: int = 50
-
-    def get_skill(self, skill_name: str) -> int:
-        """Get skill value by name"""
-        return getattr(self, skill_name, 0)
-
-class CrewMemberState(Enum):
-    """Current state of crew member"""
-    READY = "ready"           # Available for duty
-    BUSY = "busy"             # Currently executing action
-    INJURED = "injured"       # Injured, reduced effectiveness
-    INCAPACITATED = "incapacitated"  # Cannot perform actions
-    DECEASED = "deceased" # Cannot be revived
-
-@dataclass
 class CrewMember:
     """
-    Represents a crew member - a generic person who can fill ship roles
+    Represents a crew member assigned to a ship role
 
-    Crew members are NOT tied to specific roles. They're individuals with
-    skills who can be assigned to any station. A skilled scientist can work
-    the helm in an emergency (just not as well as a trained navigator).
+    MVP Stub: Simplified crew member for basic crew action support.
+    Skills, health, and progression will be implemented when needed.
     """
     name: str
-    skills: CrewSkills
-    state: CrewMemberState = CrewMemberState.READY
-    health: int = 100  # 0-100
-    fatigue: int = 0   # 0-100, higher = more tired
     assigned_role: Optional[ShipRole] = None  # Current station assignment
 
     def can_perform_action(self) -> bool:
-        """Check if crew member is available to act"""
-        return self.state in (CrewMemberState.READY, CrewMemberState.BUSY)
-
-    def get_skill_for_role(self, role: ShipRole) -> int:
-        """Get skill level relevant to a ship role"""
-        skill_map = {
-            ShipRole.SCIENCE_OFFICER: self.skills.science,
-            ShipRole.NAVIGATOR: self.skills.navigation,
-            ShipRole.ENGINEER: self.skills.engineering,
-            ShipRole.COMMUNICATIONS: self.skills.communications,
-            ShipRole.DOCTOR: self.skills.medical,
-            ShipRole.CAPTAIN: max(self.skills.science, self.skills.navigation,
-                                 self.skills.engineering, self.skills.communications)
-        }
-        return skill_map.get(role, 50)
-
-    def get_effectiveness(self, role: ShipRole) -> float:
-        """
-        Get effectiveness multiplier for performing a role (0.0-1.0)
-
-        Accounts for:
-        - Skill level
-        - Health
-        - Fatigue
-        - State (injured, etc.)
-        """
-        base_skill = self.get_skill_for_role(role) / 100.0
-        health_factor = self.health / 100.0
-        fatigue_factor = 1.0 - (self.fatigue / 200.0)  # Fatigue has less impact
-
-        # State penalties
-        state_factor = 1.0
-        if self.state == CrewMemberState.INJURED:
-            state_factor = 0.5
-        elif self.state == CrewMemberState.INCAPACITATED:
-            state_factor = 0.0
-
-        return base_skill * health_factor * fatigue_factor * state_factor
+        """Check if crew member is available to act (MVP stub: always True)"""
+        return True
 
 class CrewRoster:
-    """Manages the ship's crew roster and station assignments"""
+    """Manages the ship's crew roster and station assignments
+
+    MVP Stub: Simplified to support crew actions only.
+    Full crew management will be implemented when needed.
+    """
 
     def __init__(self):
-        self.crew_members: list[CrewMember] = []
         self.station_assignments: dict[ShipRole, Optional[CrewMember]] = {
             role: None for role in ShipRole
         }
-
-    def add_crew_member(self, crew_member: CrewMember):
-        """Add a crew member to the roster"""
-        self.crew_members.append(crew_member)
-
-    def assign_to_station(self, crew_member: CrewMember, role: ShipRole):
-        """Assign crew member to a ship station"""
-        # Remove from old assignment
-        if crew_member.assigned_role:
-            self.station_assignments[crew_member.assigned_role] = None
-
-        # Remove whoever was at this station
-        old_crew = self.station_assignments.get(role)
-        if old_crew:
-            old_crew.assigned_role = None
-
-        # Assign to new station
-        crew_member.assigned_role = role
-        self.station_assignments[role] = crew_member
 
     def get_crew_at_station(self, role: ShipRole) -> Optional[CrewMember]:
         """Get crew member currently assigned to a station"""
         return self.station_assignments.get(role)
 
-    def get_available_crew(self) -> list[CrewMember]:
-        """Get crew members not currently assigned to stations"""
-        assigned = set(self.station_assignments.values())
-        return [c for c in self.crew_members if c not in assigned and c.can_perform_action()]
+    def initialize_default_crew(self):
+        """Initialize default crew at stations (MVP stub)"""
+        # For MVP: Just create placeholder crew members at each station
+        # Real crew management will be implemented later
+        for role in ShipRole:
+            crew = CrewMember(
+                name=f"{role.value}",  # e.g., "Science Officer"
+                assigned_role=role
+            )
+            self.station_assignments[role] = crew
 ```
+
+**Future Enhancements** (not yet implemented):
+- Skills (science, navigation, engineering, etc.) with progression
+- Health and fatigue tracking
+- Crew states (injured, incapacitated, deceased)
+- Effectiveness calculations based on skill/health/fatigue
+- Crew roster management (hiring, firing, reassignment)
+- Species-specific traits and bonuses
 
 ### 2. Action Context (`src/systems/crew_action_system.py`)
 
