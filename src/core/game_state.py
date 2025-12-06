@@ -4,6 +4,7 @@ Holds the current state of the game (ship, location, resources)
 """
 import json
 import os
+from entities.crew import CrewRoster
 
 
 class GameState:
@@ -35,6 +36,10 @@ class GameState:
 
         # Sensor scan data cache
         self.scanned_planets = {}  # Dictionary: planet_name -> SensorData
+
+        # Crew roster
+        self.crew_roster = CrewRoster()
+        self.crew_roster.initialize_default_crew()
 
         # Load system data
         self._load_system_data(system_name)

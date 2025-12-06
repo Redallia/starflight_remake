@@ -4,7 +4,8 @@ Handles planetary orbit interface
 """
 import pygame
 from core.screen_manager import Screen
-from core.sensor_data_generator import generate_sensor_data
+from systems.crew_action_system import ActionContext
+from entities.crew import ShipRole
 from ui.hud.hud_manager import HUDManager
 from ui.hud.planet_view_panel import PlanetViewPanel
 from ui.hud.bridge_panel import BridgePanel
@@ -15,9 +16,23 @@ from ui.hud.message_log_panel import MessageLogPanel
 class OrbitScreen(Screen):
     """Orbital interface screen"""
 
-    def __init__(self, screen_manager, game_state):
+    # Define which actions are available in orbit for each role
+    AVAILABLE_ACTIONS = {
+        ShipRole.SCIENCE_OFFICER: ['science.sensor_scan'],
+        ShipRole.NAVIGATOR: ['navigation.leave_orbit'],
+        ShipRole.ENGINEER: [],
+        ShipRole.COMMUNICATIONS: [],
+        ShipRole.DOCTOR: [],
+        ShipRole.CAPTAIN: [],
+    }
+
+    def __init__(self, screen_manager, game_state, action_system):
         super().__init__(screen_manager)
         self.game_state = game_state
+        self.action_system = action_system
+
+        # Register orbit-specific actions
+        self._register_orbit_actions()
 
         # Crew role selection
         self.selected_role_index = 0  # Start with first role (Captain) selected
@@ -29,6 +44,17 @@ class OrbitScreen(Screen):
         # HUD system
         self.hud_manager = HUDManager(800, 600)
         self._setup_hud()
+
+    def _register_orbit_actions(self):
+        """Register actions needed for orbit screen"""
+        from systems.crew_actions.science_actions import SensorScanAction
+        from systems.crew_actions.navigation_actions import LeaveOrbitAction
+
+        # Only register if not already registered
+        if not self.action_system._actions.get('science.sensor_scan'):
+            self.action_system.register_action(SensorScanAction())
+        if not self.action_system._actions.get('navigation.leave_orbit'):
+            self.action_system.register_action(LeaveOrbitAction())
 
     def _setup_hud(self):
         """Set up HUD panels for orbit view"""
@@ -126,52 +152,54 @@ class OrbitScreen(Screen):
 
     def _execute_menu_action(self, bridge_panel, action):
         """Execute the selected menu action"""
+        # Special case: Return to Bridge is UI-only
         if action == "Return to Bridge":
             bridge_panel.close_role_menu()
-        elif action == "Leave Orbit":
-            # Exit orbit and return to space
-            if self.game_state.exit_orbit():
-                self.hud_manager.add_message("Exiting orbit", (100, 255, 100))
-                self.screen_manager.change_screen("space")
-                bridge_panel.close_role_menu()  # Clean up menu state
-        elif action == "Sensors":
-            # Science Officer sensor scan
-            self._perform_sensor_scan()
-            bridge_panel.close_role_menu()
-
-    def _perform_sensor_scan(self):
-        """Perform sensor scan of current planet"""
-        if not self.game_state.orbiting_planet:
             return
 
-        planet = self.game_state.orbiting_planet
-        planet_name = planet['name']
+        # Get current crew member for the selected role
+        current_role = bridge_panel.roles[self.selected_role_index]
+        crew_member = self._get_crew_for_role(current_role)
 
-        # Check if already scanned, otherwise generate
-        if planet_name not in self.game_state.scanned_planets:
-            sensor_data = generate_sensor_data(planet)
-            self.game_state.scanned_planets[planet_name] = sensor_data
-        else:
-            sensor_data = self.game_state.scanned_planets[planet_name]
+        # Create action context
+        context = ActionContext(
+            game_state=self.game_state,
+            screen_manager=self.screen_manager,
+            hud_manager=self.hud_manager,
+            initiating_crew=crew_member
+        )
 
-        # Display scan results in message log
-        self.hud_manager.add_message(f"Scanning {planet_name}...", (100, 200, 255))
+        # Map UI action text to action ID
+        action_map = {
+            "Sensors": "science.sensor_scan",
+            "Leave Orbit": "navigation.leave_orbit"
+        }
 
-        # Atmosphere composition
-        atmo_str = ", ".join(sensor_data.atmosphere)
-        self.hud_manager.add_message(f"Atmosphere: {atmo_str}", (180, 180, 180))
+        action_id = action_map.get(action)
+        if action_id:
+            result = self.action_system.execute_action(action_id, context)
 
-        # Hydrosphere composition
-        hydro_str = ", ".join(sensor_data.hydrosphere)
-        self.hud_manager.add_message(f"Hydrosphere: {hydro_str}", (180, 180, 180))
+            # Show result message if action failed
+            if not result.success and self.hud_manager:
+                self.hud_manager.add_message(result.message, (255, 100, 100))
 
-        # Lithosphere composition
-        litho_str = ", ".join(sensor_data.lithosphere)
-        self.hud_manager.add_message(f"Lithosphere: {litho_str}", (180, 180, 180))
+        bridge_panel.close_role_menu()
 
-        # Update auxiliary panel with sensor data
-        if self.hud_manager.auxiliary_panel:
-            self.hud_manager.auxiliary_panel.set_sensor_data(sensor_data)
+    def _get_crew_for_role(self, role_name: str):
+        """Get crew member assigned to a ship station"""
+        # Map UI role name to ShipRole
+        role_map = {
+            "Science Officer": ShipRole.SCIENCE_OFFICER,
+            "Navigator": ShipRole.NAVIGATOR,
+            "Engineer": ShipRole.ENGINEER,
+            "Communications": ShipRole.COMMUNICATIONS,
+            "Doctor": ShipRole.DOCTOR,
+            "Captain": ShipRole.CAPTAIN
+        }
+        ship_role = role_map.get(role_name, ShipRole.CAPTAIN)
+
+        # Get crew member assigned to this station
+        return self.game_state.crew_roster.get_crew_at_station(ship_role)
 
     def render(self, screen):
         """Render orbit screen"""

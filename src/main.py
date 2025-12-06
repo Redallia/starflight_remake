@@ -6,6 +6,7 @@ import sys
 from core.input_handler import InputHandler
 from core.screen_manager import ScreenManager
 from core.game_state import GameState
+from systems.crew_action_system import CrewActionSystem
 from ui.screens.main_menu_screen import MainMenuScreen
 from ui.screens.starport_screen import StarportScreen
 from ui.screens.space_screen import SpaceScreen
@@ -32,11 +33,14 @@ def main():
     screen_manager = ScreenManager()
     game_state = GameState()
 
+    # Initialize crew action system
+    action_system = CrewActionSystem()
+
     # Create and register screens
     main_menu = MainMenuScreen(screen_manager, game_state)
     starport = StarportScreen(screen_manager, game_state)
     space = SpaceScreen(screen_manager, game_state)
-    orbit = OrbitScreen(screen_manager, game_state)
+    orbit = OrbitScreen(screen_manager, game_state, action_system)
 
     screen_manager.add_screen("main_menu", main_menu)
     screen_manager.add_screen("starport", starport)

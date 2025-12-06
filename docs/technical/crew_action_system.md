@@ -723,33 +723,105 @@ def on_action_success(crew_member, action):
             crew_member.skills[action.skill_check] += 1
 ```
 
+## Action Registration Architecture
+
+### Hybrid Approach (Implemented)
+
+The system uses a **hybrid approach** for action registration to keep `main.py` clean while allowing screens to own their specific actions:
+
+**Design:**
+- Actions are registered globally in `CrewActionSystem` (single source of truth)
+- Each screen declares which actions it uses via `AVAILABLE_ACTIONS` catalog
+- Screens register their actions lazily when initialized
+- Duplicate registration is prevented via existence checks
+
+**Benefits:**
+- `main.py` stays minimal - just creates empty `CrewActionSystem()`
+- Screens own their action dependencies (clear encapsulation)
+- No action bloat as more screens/actions are added
+- Actions registered once globally, reused across screens if needed
+
+**Example Implementation (OrbitScreen):**
+
+```python
+class OrbitScreen(Screen):
+    # Declare which actions are available in orbit for each role
+    AVAILABLE_ACTIONS = {
+        ShipRole.SCIENCE_OFFICER: ['science.sensor_scan'],
+        ShipRole.NAVIGATOR: ['navigation.leave_orbit'],
+        ShipRole.ENGINEER: [],
+        ShipRole.COMMUNICATIONS: [],
+        ShipRole.DOCTOR: [],
+        ShipRole.CAPTAIN: [],
+    }
+
+    def __init__(self, screen_manager, game_state, action_system):
+        super().__init__(screen_manager)
+        self.game_state = game_state
+        self.action_system = action_system
+
+        # Register orbit-specific actions
+        self._register_orbit_actions()
+
+    def _register_orbit_actions(self):
+        """Register actions needed for orbit screen"""
+        from systems.crew_actions.science_actions import SensorScanAction
+        from systems.crew_actions.navigation_actions import LeaveOrbitAction
+
+        # Only register if not already registered (prevents duplicates)
+        if not self.action_system._actions.get('science.sensor_scan'):
+            self.action_system.register_action(SensorScanAction())
+        if not self.action_system._actions.get('navigation.leave_orbit'):
+            self.action_system.register_action(LeaveOrbitAction())
+```
+
+**Main.py Simplification:**
+
+```python
+# Initialize crew action system (empty, screens will populate)
+action_system = CrewActionSystem()
+
+# Create and register screens
+orbit = OrbitScreen(screen_manager, game_state, action_system)
+# OrbitScreen registers its own actions in __init__
+```
+
+### Alternative Approaches Considered
+
+1. **Global Registration (Rejected)** - All actions registered in `main.py`
+   - Problem: Would bloat `main.py` as actions grow
+
+2. **Per-Role Lazy Loading (Future)** - Load actions only when role menu opens
+   - Benefit: Even more granular, loads only what's needed
+   - Trade-off: More complexity, only worth it if we have hundreds of actions
+
 ## Implementation Plan
 
-### Phase 1: Foundation (Immediate)
+### Phase 1: Foundation ✓ (Complete)
 
-1. **Create entity classes**
+1. **Create entity classes** ✓
    - `src/entities/crew.py` with CrewMember, CrewRole, CrewSkills
    - Add crew roster to GameState
 
-2. **Create action system core**
+2. **Create action system core** ✓
    - `src/systems/crew_action_system.py` with CrewActionSystem, ActionContext
    - `src/systems/crew_actions/base_action.py` with BaseAction, ActionResult
 
-3. **Create action modules**
+3. **Create action modules** ✓
    - `src/systems/crew_actions/science_actions.py` with SensorScanAction
    - `src/systems/crew_actions/navigation_actions.py` with LeaveOrbitAction
 
-### Phase 2: Migration (Next)
+### Phase 2: Migration ✓ (Complete)
 
-4. **Refactor OrbitScreen**
+4. **Refactor OrbitScreen** ✓
    - Remove `_perform_sensor_scan()` method
    - Update `_execute_menu_action()` to use action system
    - Inject action_system dependency
 
-5. **Initialize action system**
-   - Create and populate action system in main.py
-   - Register all initial actions
-   - Pass to screens that need it
+5. **Initialize action system** ✓
+   - Create empty action system in main.py
+   - Screens register their own actions
+   - Hybrid approach prevents bloat
 
 ### Phase 3: Expansion (Future)
 
