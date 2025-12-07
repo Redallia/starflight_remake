@@ -350,7 +350,7 @@ class OrbitScreen(Screen):
 
     def _enter_gas_giant_warning(self):
         """Enter gas giant warning mode - show warning panel"""
-        from ui.hud.gas_giant_warning_panel import GasGiantWarningPanel
+        from ui.hud.generic_menu_panel import GenericMenuPanel, MenuConfig
 
         planet = self.game_state.orbiting_planet
         planet_name = planet['name']
@@ -358,8 +358,23 @@ class OrbitScreen(Screen):
         self.gas_giant_warning_mode = True
         self.selected_warning_option = 1  # Default to "Abort"
 
+        # Create warning config
+        warning_config = MenuConfig(
+            title="WARNING",
+            title_color=(255, 100, 100),  # Red title
+            items=["Proceed", "Abort"],
+            warning_lines=[
+                f"Attempting to land on {planet_name}",
+                "is inadvisable.",
+                "",
+                "Gas giants have no solid surface.",
+                "Ship destruction is likely."
+            ],
+            danger_items=["Proceed"]  # Mark "Proceed" as dangerous
+        )
+
         # Swap control panel to gas giant warning panel
-        warning_panel = GasGiantWarningPanel(500, 200, 300, 250, planet_name)
+        warning_panel = GenericMenuPanel(500, 200, 300, 250, warning_config)
         self.hud_manager.set_control_panel(warning_panel)
 
     def _exit_gas_giant_warning(self):
@@ -375,14 +390,20 @@ class OrbitScreen(Screen):
 
     def _enter_landing_mode(self):
         """Enter landing mode - swap control panel to landing interface"""
-        from ui.hud.landing_control_panel import LandingControlPanel
+        from ui.hud.generic_menu_panel import GenericMenuPanel, MenuConfig
 
         self.landing_mode = True
         self.selected_landing_option = 0
         self.selected_landing_site = None  # Reset landing site selection
 
+        # Create landing config
+        landing_config = MenuConfig(
+            title="Landing Interface",
+            items=["Site Select", "Descend", "Abort"]
+        )
+
         # Swap control panel to landing control panel
-        landing_panel = LandingControlPanel(500, 200, 300, 250)
+        landing_panel = GenericMenuPanel(500, 200, 300, 250, landing_config)
         self.hud_manager.set_control_panel(landing_panel)
 
     def _exit_landing_mode(self):
@@ -404,14 +425,20 @@ class OrbitScreen(Screen):
         # Get current coordinates (ship position in space)
         coordinates = self.game_state.get_coordinate_position()
 
-        # Prepare view data including selected role index, menu index, and loading state
+        # Prepare view data including selected indices based on current mode
         view_data = {
-            'selected_role_index': self.selected_role_index,
-            'selected_menu_index': self.selected_menu_index,
-            'selected_landing_option': self.selected_landing_option,
-            'selected_warning_option': self.selected_warning_option,
             'loading': not self.terrain_loaded
         }
+
+        # Add appropriate selection index based on current mode
+        if self.gas_giant_warning_mode:
+            view_data['selected_warning_option'] = self.selected_warning_option
+        elif self.landing_mode:
+            view_data['selected_landing_option'] = self.selected_landing_option
+        else:
+            # Bridge mode (role list or role menu)
+            view_data['selected_role_index'] = self.selected_role_index
+            view_data['selected_menu_index'] = self.selected_menu_index
 
         # Render everything through HUD manager
         # This will render: planet view panel, minimap, status, message log

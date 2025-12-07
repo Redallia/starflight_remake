@@ -61,6 +61,50 @@ class HUDPanel:
             self.border_width
         )
 
+    def render_title(self, screen, renderer, title, title_color=(100, 200, 255)):
+        """
+        Render panel title in the top border
+
+        Args:
+            screen: Pygame screen surface
+            renderer: Renderer instance
+            title: Title text to display
+            title_color: RGB color tuple for title
+        """
+        if not title:
+            return
+
+        # Calculate title box position (centered in top border area)
+        title_surface = renderer.default_font.render(title, True, title_color)
+        title_width = title_surface.get_width() + 10
+        title_height = 20
+        title_x = self.x + (self.width - title_width) // 2
+        title_y = self.y - 10
+
+        # Draw title background box
+        pygame.draw.rect(
+            screen,
+            (20, 20, 40),
+            (title_x, title_y, title_width, title_height)
+        )
+
+        # Draw title border
+        pygame.draw.rect(
+            screen,
+            self.border_color,
+            (title_x, title_y, title_width, title_height),
+            1
+        )
+
+        # Draw title text
+        renderer.draw_text(
+            title,
+            title_x + 5,
+            title_y + 2,
+            color=title_color,
+            font=renderer.default_font
+        )
+
     def render_content(self, screen, renderer, *args, **kwargs):
         """
         Render panel-specific content
