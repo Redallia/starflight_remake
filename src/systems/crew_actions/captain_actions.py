@@ -38,18 +38,32 @@ class LandOnPlanetAction(BaseAction):
         """Initiate landing sequence - enters landing mode"""
         planet = context.game_state.orbiting_planet
         planet_name = planet['name']
+        planet_type = planet.get('type', 'unknown')
+
+        # Check if this is a gas giant - requires warning
+        is_gas_giant = planet_type == 'gas_giant'
 
         # Notify user
         if context.hud_manager:
-            context.hud_manager.add_message(
-                f"Initiating landing sequence for {planet_name}",
-                (100, 255, 100)
-            )
+            if is_gas_giant:
+                context.hud_manager.add_message(
+                    f"WARNING: {planet_name} is a gas giant",
+                    (255, 150, 100)
+                )
+            else:
+                context.hud_manager.add_message(
+                    f"Initiating landing sequence for {planet_name}",
+                    (100, 255, 100)
+                )
 
         # Return data indicating landing mode should be entered
         # The orbit screen will handle the UI transition
         return ActionResult(
             success=True,
             message=f"Entering landing mode",
-            data={'enter_landing_mode': True, 'planet': planet}
+            data={
+                'enter_landing_mode': True,
+                'planet': planet,
+                'gas_giant_warning': is_gas_giant
+            }
         )

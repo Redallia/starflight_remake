@@ -36,6 +36,10 @@ class OrbitScreen(Screen):
         self.selected_landing_option = 0  # Selected option in landing menu (Site Select/Descend/Abort)
         self.selected_landing_site = None  # Selected landing site (None = not yet selected)
 
+        # Gas giant warning state
+        self.gas_giant_warning_mode = False  # Are we showing gas giant warning?
+        self.selected_warning_option = 1  # Selected option (0=Proceed, 1=Abort) - default to Abort
+
         # HUD system
         self.hud_manager = HUDManager(800, 600)
         self._setup_hud()
@@ -98,8 +102,11 @@ class OrbitScreen(Screen):
                 self.terrain_loaded = True
             return
 
+        # Check if we're in gas giant warning mode
+        if self.gas_giant_warning_mode:
+            self._handle_gas_giant_warning_input(input_handler)
         # Check if we're in landing mode
-        if self.landing_mode:
+        elif self.landing_mode:
             self._handle_landing_input(input_handler)
         else:
             # Get bridge panel from control panel
@@ -117,6 +124,39 @@ class OrbitScreen(Screen):
 
         # Update HUD after handling input
         self.hud_manager.update(delta_time, self.game_state)
+
+    def _handle_gas_giant_warning_input(self, input_handler):
+        """Handle input when in gas giant warning mode"""
+        # Navigate warning options with W/S keys (Proceed/Abort)
+        if input_handler.is_key_just_pressed(pygame.K_w):
+            self.selected_warning_option = (self.selected_warning_option - 1) % 2
+        elif input_handler.is_key_just_pressed(pygame.K_s):
+            self.selected_warning_option = (self.selected_warning_option + 1) % 2
+
+        # Execute selected warning option with Space/Enter
+        if input_handler.is_confirm_pressed():
+            self._execute_warning_option()
+
+    def _execute_warning_option(self):
+        """Execute the selected gas giant warning option"""
+        options = ["Proceed", "Abort"]
+        selected = options[self.selected_warning_option]
+
+        if selected == "Abort":
+            # Exit both warning mode and landing mode, return to bridge
+            self._exit_gas_giant_warning()
+            if self.hud_manager:
+                self.hud_manager.add_message("Landing aborted", (255, 150, 100))
+
+        elif selected == "Proceed":
+            # User accepts the risk - exit warning mode and continue to landing
+            self._exit_gas_giant_warning()
+            self._enter_landing_mode()
+            if self.hud_manager:
+                self.hud_manager.add_message(
+                    "Proceeding with landing sequence - USE CAUTION",
+                    (255, 150, 100)
+                )
 
     def _handle_landing_input(self, input_handler):
         """Handle input when in landing mode"""
@@ -248,7 +288,11 @@ class OrbitScreen(Screen):
 
             # Check if action wants to enter landing mode
             if result.success and result.data.get('enter_landing_mode'):
-                self._enter_landing_mode()
+                # Check if this is a gas giant requiring warning
+                if result.data.get('gas_giant_warning'):
+                    self._enter_gas_giant_warning()
+                else:
+                    self._enter_landing_mode()
 
             # Show result message if action failed
             if not result.success and self.hud_manager:
@@ -304,6 +348,31 @@ class OrbitScreen(Screen):
             # Set menu on bridge panel
             bridge_panel.set_role_menu(role_name, menu_options)
 
+    def _enter_gas_giant_warning(self):
+        """Enter gas giant warning mode - show warning panel"""
+        from ui.hud.gas_giant_warning_panel import GasGiantWarningPanel
+
+        planet = self.game_state.orbiting_planet
+        planet_name = planet['name']
+
+        self.gas_giant_warning_mode = True
+        self.selected_warning_option = 1  # Default to "Abort"
+
+        # Swap control panel to gas giant warning panel
+        warning_panel = GasGiantWarningPanel(500, 200, 300, 250, planet_name)
+        self.hud_manager.set_control_panel(warning_panel)
+
+    def _exit_gas_giant_warning(self):
+        """Exit gas giant warning mode - return to bridge view"""
+        self.gas_giant_warning_mode = False
+
+        # Swap control panel back to bridge panel
+        bridge_panel = BridgePanel(500, 200, 300, 250)
+        self.hud_manager.set_control_panel(bridge_panel)
+
+        # Rebuild bridge menus
+        self._build_role_menus()
+
     def _enter_landing_mode(self):
         """Enter landing mode - swap control panel to landing interface"""
         from ui.hud.landing_control_panel import LandingControlPanel
@@ -340,6 +409,7 @@ class OrbitScreen(Screen):
             'selected_role_index': self.selected_role_index,
             'selected_menu_index': self.selected_menu_index,
             'selected_landing_option': self.selected_landing_option,
+            'selected_warning_option': self.selected_warning_option,
             'loading': not self.terrain_loaded
         }
 

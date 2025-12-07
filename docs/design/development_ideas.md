@@ -54,6 +54,8 @@ This could provide a further sense of depth and distance and increase the sense 
 **Gas Giants**
 Gas giants themselves could act as their own enterable system. The gas giant would take the place of the star, while its moons would be the giant's "planets". Any planet with a moon could be handled in this way.
 
+Gas giants, normally not landable, could provide unique signal events and provide distinct "landable" locations. These could take the form of orbiting platforms, derelict ships, or other locations that show up as specific coordinates, allowing player to select targeted points where they can "land/dock" on an otherwise inhospitable planet.
+
 ### New locations
 The original games had a small number of special story-related locations. 
 Starflight seemed to only have had planet-based locations. 
@@ -111,3 +113,6 @@ The idea is not to code specific stories into the game, but to allow certain sto
 Obviously, this is something that goes well beyond the intent and purpose of the original games, which had hard coded storylines and mysteries that the player would uncover.
 
 **TO BE POPULATED AS THE STORIES COME TO ME**
+
+
+    
