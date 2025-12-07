@@ -54,17 +54,6 @@ class HUDManager:
         """Set the message log panel (bottom)"""
         self.message_log_panel = panel
 
-    def set_instructions(self, text, color=(150, 150, 150)):
-        """
-        Set instructions text (shown above message log)
-
-        Args:
-            text: Instructions text
-            color: RGB color tuple
-        """
-        self.instructions_text = text
-        self.instructions_color = color
-
     def update(self, delta_time, game_state):
         """
         Update all panels

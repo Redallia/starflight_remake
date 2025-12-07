@@ -52,9 +52,6 @@ class SpaceScreen(Screen):
         message_log = MessageLogPanel(0, 450, 800, message_log_height)
         self.hud_manager.set_message_log_panel(message_log)
 
-        # Set instructions
-        # self.hud_manager.set_instructions("WASD: Move  |  R: Return to Starport")
-
     def on_enter(self):
         """Called when entering space"""
         # Regenerate starfield for variety
