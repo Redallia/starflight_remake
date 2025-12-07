@@ -31,6 +31,11 @@ class OrbitScreen(Screen):
         # Loading state
         self.terrain_loaded = False
 
+        # Landing mode state
+        self.landing_mode = False  # Are we in landing mode?
+        self.selected_landing_option = 0  # Selected option in landing menu (Site Select/Descend/Abort)
+        self.selected_landing_site = None  # Selected landing site (None = not yet selected)
+
         # HUD system
         self.hud_manager = HUDManager(800, 600)
         self._setup_hud()
@@ -93,21 +98,83 @@ class OrbitScreen(Screen):
                 self.terrain_loaded = True
             return
 
-        # Get bridge panel from control panel
-        bridge_panel = self.hud_manager.control_panel
-        if not bridge_panel:
-            return
-
-        # Check if we're in a role menu or on the bridge
-        if bridge_panel.is_menu_active():
-            # Handle role menu navigation
-            self._handle_role_menu_input(input_handler, bridge_panel)
+        # Check if we're in landing mode
+        if self.landing_mode:
+            self._handle_landing_input(input_handler)
         else:
-            # Handle bridge role selection
-            self._handle_bridge_input(input_handler, bridge_panel)
+            # Get bridge panel from control panel
+            bridge_panel = self.hud_manager.control_panel
+            if not bridge_panel:
+                return
+
+            # Check if we're in a role menu or on the bridge
+            if bridge_panel.is_menu_active():
+                # Handle role menu navigation
+                self._handle_role_menu_input(input_handler, bridge_panel)
+            else:
+                # Handle bridge role selection
+                self._handle_bridge_input(input_handler, bridge_panel)
 
         # Update HUD after handling input
         self.hud_manager.update(delta_time, self.game_state)
+
+    def _handle_landing_input(self, input_handler):
+        """Handle input when in landing mode"""
+        # Navigate landing options with W/S keys
+        if input_handler.is_key_just_pressed(pygame.K_w):
+            self.selected_landing_option = (self.selected_landing_option - 1) % 3
+        elif input_handler.is_key_just_pressed(pygame.K_s):
+            self.selected_landing_option = (self.selected_landing_option + 1) % 3
+
+        # Execute selected landing option with Space/Enter
+        if input_handler.is_confirm_pressed():
+            self._execute_landing_option()
+
+    def _execute_landing_option(self):
+        """Execute the selected landing option"""
+        options = ["Site Select", "Descend", "Abort"]
+        selected = options[self.selected_landing_option]
+
+        if selected == "Abort":
+            # Exit landing mode
+            self._exit_landing_mode()
+            if self.hud_manager:
+                self.hud_manager.add_message("Landing aborted", (255, 150, 100))
+
+        elif selected == "Descend":
+            # Check if landing site has been selected
+            if self.selected_landing_site is None:
+                if self.hud_manager:
+                    self.hud_manager.add_message(
+                        "Please choose landing coordinates before descending",
+                        (255, 200, 100)
+                    )
+                return
+
+            # Land at selected site
+            planet = self.game_state.orbiting_planet
+            planet_name = planet['name']
+
+            # Update game state
+            self.game_state.location = "planet_surface"
+
+            if self.hud_manager:
+                self.hud_manager.add_message(
+                    f"Descending to {planet_name} surface...",
+                    (100, 255, 100)
+                )
+
+            # TODO: Transition to planet surface screen when implemented
+            # For now, just exit landing mode
+            self._exit_landing_mode()
+
+        elif selected == "Site Select":
+            # TODO: Enter site selection mode (Phase 4)
+            if self.hud_manager:
+                self.hud_manager.add_message(
+                    "Site selection not yet implemented",
+                    (200, 200, 100)
+                )
 
     def _handle_bridge_input(self, input_handler, bridge_panel):
         """Handle input when on the Bridge (role selection)"""
@@ -179,6 +246,10 @@ class OrbitScreen(Screen):
         if action_to_execute:
             result = self.action_system.execute_action(action_to_execute.action_id, context)
 
+            # Check if action wants to enter landing mode
+            if result.success and result.data.get('enter_landing_mode'):
+                self._enter_landing_mode()
+
             # Show result message if action failed
             if not result.success and self.hud_manager:
                 self.hud_manager.add_message(result.message, (255, 100, 100))
@@ -233,6 +304,29 @@ class OrbitScreen(Screen):
             # Set menu on bridge panel
             bridge_panel.set_role_menu(role_name, menu_options)
 
+    def _enter_landing_mode(self):
+        """Enter landing mode - swap control panel to landing interface"""
+        from ui.hud.landing_control_panel import LandingControlPanel
+
+        self.landing_mode = True
+        self.selected_landing_option = 0
+        self.selected_landing_site = None  # Reset landing site selection
+
+        # Swap control panel to landing control panel
+        landing_panel = LandingControlPanel(500, 200, 300, 250)
+        self.hud_manager.set_control_panel(landing_panel)
+
+    def _exit_landing_mode(self):
+        """Exit landing mode - return to bridge view"""
+        self.landing_mode = False
+
+        # Swap control panel back to bridge panel
+        bridge_panel = BridgePanel(500, 200, 300, 250)
+        self.hud_manager.set_control_panel(bridge_panel)
+
+        # Rebuild bridge menus
+        self._build_role_menus()
+
     def render(self, screen):
         """Render orbit screen"""
         from ui.renderer import Renderer
@@ -245,6 +339,7 @@ class OrbitScreen(Screen):
         view_data = {
             'selected_role_index': self.selected_role_index,
             'selected_menu_index': self.selected_menu_index,
+            'selected_landing_option': self.selected_landing_option,
             'loading': not self.terrain_loaded
         }
 

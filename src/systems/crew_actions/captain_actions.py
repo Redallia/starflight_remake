@@ -35,27 +35,21 @@ class LandOnPlanetAction(BaseAction):
         return True, ""
 
     def execute(self, context: ActionContext) -> ActionResult:
-        """Initiate landing sequence"""
+        """Initiate landing sequence - enters landing mode"""
         planet = context.game_state.orbiting_planet
         planet_name = planet['name']
-
-        # Update game state to planet surface
-        context.game_state.location = "planet_surface"
 
         # Notify user
         if context.hud_manager:
             context.hud_manager.add_message(
-                f"Landing on {planet_name}...",
+                f"Initiating landing sequence for {planet_name}",
                 (100, 255, 100)
             )
 
-        # TODO: When planet surface screen is implemented, transition to it
-        # For now, we'll just change the location state
-        # if context.screen_manager:
-        #     context.screen_manager.change_screen("planet_surface")
-
+        # Return data indicating landing mode should be entered
+        # The orbit screen will handle the UI transition
         return ActionResult(
             success=True,
-            message=f"Landed on {planet_name}",
-            data={'planet': planet}
+            message=f"Entering landing mode",
+            data={'enter_landing_mode': True, 'planet': planet}
         )
