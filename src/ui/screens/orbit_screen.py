@@ -23,7 +23,7 @@ class OrbitScreen(Screen):
         ShipRole.ENGINEER: [],
         ShipRole.COMMUNICATIONS: [],
         ShipRole.DOCTOR: [],
-        ShipRole.CAPTAIN: [],
+        ShipRole.CAPTAIN: ['captain.land_on_planet'],
     }
 
     def __init__(self, screen_manager, game_state, action_system):
@@ -49,12 +49,15 @@ class OrbitScreen(Screen):
         """Register actions needed for orbit screen"""
         from systems.crew_actions.science_actions import SensorScanAction
         from systems.crew_actions.navigation_actions import LeaveOrbitAction
+        from systems.crew_actions.captain_actions import LandOnPlanetAction
 
         # Only register if not already registered
         if not self.action_system._actions.get('science.sensor_scan'):
             self.action_system.register_action(SensorScanAction())
         if not self.action_system._actions.get('navigation.leave_orbit'):
             self.action_system.register_action(LeaveOrbitAction())
+        if not self.action_system._actions.get('captain.land_on_planet'):
+            self.action_system.register_action(LandOnPlanetAction())
 
     def _setup_hud(self):
         """Set up HUD panels for orbit view"""
@@ -172,7 +175,8 @@ class OrbitScreen(Screen):
         # Map UI action text to action ID
         action_map = {
             "Sensors": "science.sensor_scan",
-            "Leave Orbit": "navigation.leave_orbit"
+            "Leave Orbit": "navigation.leave_orbit",
+            "Land": "captain.land_on_planet"
         }
 
         action_id = action_map.get(action)
