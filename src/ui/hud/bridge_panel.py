@@ -33,18 +33,17 @@ class BridgePanel(HUDPanel):
 
         # Role menu state
         self.active_role = None  # Which role's menu is active (None = showing role list)
-        self.role_menus = self._initialize_role_menus()
+        self.role_menus = {}  # Will be populated dynamically by the screen
 
-    def _initialize_role_menus(self):
-        """Initialize menu options for each role"""
-        return {
-            "Captain": ["Return to Bridge"],
-            "Navigator": ["Leave Orbit", "Return to Bridge"],
-            "Engineer": ["Return to Bridge"],
-            "Science Officer": ["Sensors", "Return to Bridge"],
-            "Communications": ["Return to Bridge"],
-            "Doctor": ["Return to Bridge"]
-        }
+    def set_role_menu(self, role_name, menu_options):
+        """
+        Set menu options for a specific role
+
+        Args:
+            role_name: Name of the role (e.g., "Captain", "Navigator")
+            menu_options: List of menu option strings
+        """
+        self.role_menus[role_name] = menu_options
 
     def open_role_menu(self, role_index):
         """Open the menu for a specific role"""

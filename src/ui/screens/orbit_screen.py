@@ -16,16 +16,6 @@ from ui.hud.message_log_panel import MessageLogPanel
 class OrbitScreen(Screen):
     """Orbital interface screen"""
 
-    # Define which actions are available in orbit for each role
-    AVAILABLE_ACTIONS = {
-        ShipRole.SCIENCE_OFFICER: ['science.sensor_scan'],
-        ShipRole.NAVIGATOR: ['navigation.leave_orbit'],
-        ShipRole.ENGINEER: [],
-        ShipRole.COMMUNICATIONS: [],
-        ShipRole.DOCTOR: [],
-        ShipRole.CAPTAIN: ['captain.land_on_planet'],
-    }
-
     def __init__(self, screen_manager, game_state, action_system):
         super().__init__(screen_manager)
         self.game_state = game_state
@@ -88,6 +78,9 @@ class OrbitScreen(Screen):
 
         # Reset loading state
         self.terrain_loaded = False
+
+        # Build dynamic menus from action system
+        self._build_role_menus()
 
     def update(self, delta_time, input_handler):
         """Update orbit screen"""
@@ -153,16 +146,17 @@ class OrbitScreen(Screen):
         if input_handler.is_cancel_pressed():
             bridge_panel.close_role_menu()
 
-    def _execute_menu_action(self, bridge_panel, action):
+    def _execute_menu_action(self, bridge_panel, action_display_name):
         """Execute the selected menu action"""
         # Special case: Return to Bridge is UI-only
-        if action == "Return to Bridge":
+        if action_display_name == "Return to Bridge":
             bridge_panel.close_role_menu()
             return
 
         # Get current crew member for the selected role
         current_role = bridge_panel.roles[self.selected_role_index]
         crew_member = self._get_crew_for_role(current_role)
+        ship_role = self._map_role_name_to_ship_role(current_role)
 
         # Create action context
         context = ActionContext(
@@ -172,16 +166,18 @@ class OrbitScreen(Screen):
             initiating_crew=crew_member
         )
 
-        # Map UI action text to action ID
-        action_map = {
-            "Sensors": "science.sensor_scan",
-            "Leave Orbit": "navigation.leave_orbit",
-            "Land": "captain.land_on_planet"
-        }
+        # Get actions for this role and find the one matching the display name
+        actions = self.action_system.get_actions_for_role(ship_role, context)
+        action_to_execute = None
 
-        action_id = action_map.get(action)
-        if action_id:
-            result = self.action_system.execute_action(action_id, context)
+        for action in actions:
+            if action.get_display_name(context) == action_display_name:
+                action_to_execute = action
+                break
+
+        # Execute the action if found
+        if action_to_execute:
+            result = self.action_system.execute_action(action_to_execute.action_id, context)
 
             # Show result message if action failed
             if not result.success and self.hud_manager:
@@ -189,9 +185,8 @@ class OrbitScreen(Screen):
 
         bridge_panel.close_role_menu()
 
-    def _get_crew_for_role(self, role_name: str):
-        """Get crew member assigned to a ship station"""
-        # Map UI role name to ShipRole
+    def _map_role_name_to_ship_role(self, role_name: str) -> ShipRole:
+        """Map UI role name to ShipRole enum"""
         role_map = {
             "Science Officer": ShipRole.SCIENCE_OFFICER,
             "Navigator": ShipRole.NAVIGATOR,
@@ -200,10 +195,43 @@ class OrbitScreen(Screen):
             "Doctor": ShipRole.DOCTOR,
             "Captain": ShipRole.CAPTAIN
         }
-        ship_role = role_map.get(role_name, ShipRole.CAPTAIN)
+        return role_map.get(role_name, ShipRole.CAPTAIN)
 
-        # Get crew member assigned to this station
+    def _get_crew_for_role(self, role_name: str):
+        """Get crew member assigned to a ship station"""
+        ship_role = self._map_role_name_to_ship_role(role_name)
         return self.game_state.crew_roster.get_crew_at_station(ship_role)
+
+    def _build_role_menus(self):
+        """Build role menus dynamically from action system"""
+        bridge_panel = self.hud_manager.control_panel
+        if not bridge_panel:
+            return
+
+        # Build menu for each role
+        for role_name in bridge_panel.roles:
+            ship_role = self._map_role_name_to_ship_role(role_name)
+            crew_member = self._get_crew_for_role(role_name)
+
+            # Create context for this role
+            context = ActionContext(
+                game_state=self.game_state,
+                screen_manager=self.screen_manager,
+                hud_manager=self.hud_manager,
+                initiating_crew=crew_member
+            )
+
+            # Get available actions from action system
+            actions = self.action_system.get_actions_for_role(ship_role, context)
+
+            # Build menu from action display names
+            menu_options = [action.get_display_name(context) for action in actions]
+
+            # Always add "Return to Bridge" at the end
+            menu_options.append("Return to Bridge")
+
+            # Set menu on bridge panel
+            bridge_panel.set_role_menu(role_name, menu_options)
 
     def render(self, screen):
         """Render orbit screen"""
