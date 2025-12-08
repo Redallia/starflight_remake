@@ -32,10 +32,6 @@ class HUDManager:
         # - Message Log (bottom)
         self.message_log_panel = None
 
-        # Instructions text (bottom center, above message log)
-        self.instructions_text = ""
-        self.instructions_color = (150, 150, 150)
-
         # Canvas border
         self.border_color = (100, 150, 200)  # Light blue
         self.border_width = 2
@@ -108,23 +104,6 @@ class HUDManager:
         if self.message_log_panel:
             self.message_log_panel.render(screen, renderer)
             self.message_log_panel.render_content(screen, renderer)
-
-        # Render instructions (above message log if present, otherwise at very bottom)
-        if self.instructions_text:
-            if self.message_log_panel:
-                # Position above message log
-                y_pos = self.message_log_panel.y - 25
-            else:
-                # Position at bottom of screen
-                y_pos = self.screen_height - 20
-
-            renderer.draw_text_centered(
-                self.instructions_text,
-                self.screen_width // 2,
-                y_pos,
-                color=self.instructions_color,
-                font=renderer.small_font
-            )
 
         # Draw canvas border (outermost edge)
         pygame.draw.rect(
