@@ -116,4 +116,19 @@ Obviously, this is something that goes well beyond the intent and purpose of the
 
 ### Crew is captured
 The crew is captured and their ship is taken. They are abandoned on a planet near an outpost. The player must make it to the outpost, repair it, discovering a servicable terrain vehicle and starship. They must explore the local environment to find materials so the ship can be repaired, allowing them to leave the planet. While in orbit, their new ship's sensors pick up a signal from their old ship, giving them an opportunity to re-take over their original ship, and bring their captors to justice.
-    
+
+### Early Game/First load
+Player is treated to some degree of pomp and circumstance as they launch for the first time. It's humanity's first foray out into the wider universe and player is at the helm.
+Player is allowed freedom to explore the planets of the inner system, scanning, landing, etc. Planets here will be rocky and introduction-friendly.
+Player will have a chance to use the different interfaces for the first time: science, navigation, communication, etc. 
+A scripted event will injure one of the crew members, necessitating said crew member to visit the doctor.
+A separate event might introduce them to the side-scroller game interface, as well as other interface types.
+
+At some point, player will hit the outer boundary of the inner system and enter the outer system. Planets here will be gas giants. 
+This is where they'll learn how to navigate into and out of different systems, whether inner orbits or gas giant systems. 
+
+Eventually player will push past the outer system boundary and enter interstellar space.
+Here they'll learn about flying between star systems, using the star map.
+This is also where they'll have humanity's "first contact" event, and set the stage/premise for the game.
+
+At this point, the "tutorial" will be over, and the player will be treated to a chance to customize their crew, their ship, and have a chance to experience the actual game
