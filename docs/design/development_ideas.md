@@ -114,5 +114,6 @@ Obviously, this is something that goes well beyond the intent and purpose of the
 
 **TO BE POPULATED AS THE STORIES COME TO ME**
 
-
+### Crew is captured
+The crew is captured and their ship is taken. They are abandoned on a planet near an outpost. The player must make it to the outpost, repair it, discovering a servicable terrain vehicle and starship. They must explore the local environment to find materials so the ship can be repaired, allowing them to leave the planet. While in orbit, their new ship's sensors pick up a signal from their old ship, giving them an opportunity to re-take over their original ship, and bring their captors to justice.
     
