@@ -8,6 +8,7 @@ from entities.crew import CrewRoster
 from entities.star_system import StarSystem
 from entities.planet import Planet
 from entities.starport import Starport
+from ui.hud.hud_manager import HUDManager
 
 
 class GameState:
@@ -46,6 +47,9 @@ class GameState:
         # Crew roster
         self.crew_roster = CrewRoster()
         self.crew_roster.initialize_default_crew()
+
+        # HUD Manager (shared across screens)
+        self.hud_manager = HUDManager(800, 600)
 
         # Load system data
         self._load_system_data(system_name)

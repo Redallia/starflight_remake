@@ -17,17 +17,19 @@ class HUDManager:
         """
         self.screen_width = screen_width
         self.screen_height = screen_height
-
+        
+        # HUD overlay panels (set by screens)
+        # Using Starflight terminology:
         # Main view panel (renders behind HUD elements)
         self.view_panel = None
 
-        # HUD overlay panels (set by screens)
-        # Using Starflight terminology:
         # - Control Panel (right side, middle)
-        # - Auxiliary Panel (right side, top)
-        # - Message Log (bottom)
         self.control_panel = None
+
+         # - Auxiliary Panel (right side, top)
         self.auxiliary_panel = None
+
+        # - Message Log (bottom)
         self.message_log_panel = None
 
         # Instructions text (bottom center, above message log)

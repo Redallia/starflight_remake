@@ -6,7 +6,6 @@ import pygame
 from core.screen_manager import Screen
 from systems.crew_action_system import ActionContext
 from entities.crew import ShipRole
-from ui.hud.hud_manager import HUDManager
 from ui.hud.planet_view_panel import PlanetViewPanel
 from ui.hud.bridge_panel import BridgePanel
 from ui.hud.terrain_map_panel import TerrainMapPanel
@@ -40,9 +39,8 @@ class OrbitScreen(Screen):
         self.gas_giant_warning_mode = False  # Are we showing gas giant warning?
         self.selected_warning_option = 1  # Selected option (0=Proceed, 1=Abort) - default to Abort
 
-        # HUD system
-        self.hud_manager = HUDManager(800, 600)
-        self._setup_hud()
+        # Use shared HUD manager from game state
+        self.hud_manager = game_state.hud_manager
 
     def _register_orbit_actions(self):
         """Register actions needed for orbit screen"""
@@ -76,12 +74,16 @@ class OrbitScreen(Screen):
         bridge_panel = BridgePanel(500, 200, right_column_width, 250)
         self.hud_manager.set_control_panel(bridge_panel)
 
-        # Message Log (bottom, full width)
-        message_log = MessageLogPanel(0, 450, 800, message_log_height)
-        self.hud_manager.set_message_log_panel(message_log)
+        # Message Log (bottom, full width) - only create if it doesn't exist yet
+        if not self.hud_manager.message_log_panel:
+            message_log = MessageLogPanel(0, 450, 800, message_log_height)
+            self.hud_manager.set_message_log_panel(message_log)
 
     def on_enter(self):
         """Called when entering orbit"""
+        # Set up HUD panels for this screen
+        self._setup_hud()
+
         planet_name = self.game_state.orbiting_planet['name'] if self.game_state.orbiting_planet else "Unknown"
         self.hud_manager.add_message(f"Entered orbit around {planet_name}", (100, 200, 255))
 
