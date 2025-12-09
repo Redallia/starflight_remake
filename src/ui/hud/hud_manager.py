@@ -4,6 +4,8 @@ HUD Manager - coordinates all HUD panels and areas
 import pygame
 from ui.hud.message_log_area import MessageLogArea
 from ui.hud.main_view_area import MainViewArea
+from ui.hud.auxiliary_view_area import AuxiliaryViewArea
+from ui.hud.control_panel_area import ControlPanelArea
 
 
 class HUDManager:
@@ -20,23 +22,22 @@ class HUDManager:
         self.screen_width = screen_width
         self.screen_height = screen_height
 
-        # HUD overlay panels (set by screens) - TO BE MIGRATED TO AREAS
-        # Using Starflight terminology:
-        # Main view panel (renders behind HUD elements)
+        # LEGACY: HUD overlay panels (set by screens) - DEPRECATED
+        # These are kept temporarily for backwards compatibility during migration
         self.view_panel = None
-
-        # - Control Panel (right side, middle)
         self.control_panel = None
-
-         # - Auxiliary Panel (right side, top)
         self.auxiliary_panel = None
-
-        # - Message Log (bottom) - LEGACY, use message_log_area instead
         self.message_log_panel = None
 
-        # NEW: Area-based architecture
+        # NEW: Area-based architecture (per HUD specification)
         # Main View Area (left side, large area) - state-driven
         self.main_view_area = MainViewArea(0, 0, 500, 450)
+
+        # Auxiliary View Area (upper-right) - state-driven
+        self.auxiliary_view_area = AuxiliaryViewArea(500, 0, 300, 200)
+
+        # Control Panel Area (right side, middle) - state-driven
+        self.control_panel_area = ControlPanelArea(500, 200, 300, 250)
 
         # Message Log Area (bottom, full width) - state-independent
         self.message_log_area = MessageLogArea(0, 450, 800, 150)
@@ -69,14 +70,16 @@ class HUDManager:
             delta_time: Time since last frame
             game_state: Current game state
         """
-        # Update legacy panels
+        # Update legacy panels (if still set)
         if self.control_panel:
             self.control_panel.update(delta_time, game_state)
         if self.auxiliary_panel:
             self.auxiliary_panel.update(delta_time, game_state)
 
-        # Update areas
+        # Update all areas
         self.main_view_area.update(delta_time, game_state)
+        self.auxiliary_view_area.update(delta_time, game_state)
+        self.control_panel_area.update(delta_time, game_state)
         self.message_log_area.update(delta_time, game_state)
 
     def render(self, screen, renderer, game_state, coordinates=None, view_data=None):
@@ -90,20 +93,29 @@ class HUDManager:
             coordinates: Optional coordinates to display in status panel
             view_data: Optional data for view panel (e.g., near_planet)
         """
-        # Render main view area first (background)
-        self.main_view_area.render(screen, renderer, game_state, **(view_data or {}))
+        # Prepare kwargs for areas
+        kwargs = view_data or {}
+        if coordinates:
+            kwargs['coordinates'] = coordinates
 
-        # Render HUD overlay panels on top
-        # Render control panel (right side, middle)
+        # Render main view area first (background)
+        self.main_view_area.render(screen, renderer, game_state, **kwargs)
+
+        # Render new area-based HUD elements
+        # Auxiliary View Area (upper-right)
+        self.auxiliary_view_area.render(screen, renderer, game_state, **kwargs)
+
+        # Control Panel Area (right side, middle)
+        self.control_panel_area.render(screen, renderer, game_state, **kwargs)
+
+        # LEGACY: Render legacy panels if still set (for backwards compatibility)
         if self.control_panel:
             self.control_panel.render(screen, renderer)
-            # Pass view_data to control panel for additional context (e.g., selected_role_index)
             if view_data and hasattr(self.control_panel, 'render_content_with_view_data'):
                 self.control_panel.render_content_with_view_data(screen, renderer, game_state, coordinates, view_data)
             else:
                 self.control_panel.render_content(screen, renderer, game_state, coordinates)
 
-        # Render auxiliary panel (right side, top)
         if self.auxiliary_panel:
             self.auxiliary_panel.render(screen, renderer)
             self.auxiliary_panel.render_content(screen, renderer, game_state, **(view_data or {}))
