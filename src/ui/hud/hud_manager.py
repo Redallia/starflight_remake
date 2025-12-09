@@ -3,6 +3,7 @@ HUD Manager - coordinates all HUD panels and areas
 """
 import pygame
 from ui.hud.message_log_area import MessageLogArea
+from ui.hud.main_view_area import MainViewArea
 
 
 class HUDManager:
@@ -34,6 +35,9 @@ class HUDManager:
         self.message_log_panel = None
 
         # NEW: Area-based architecture
+        # Main View Area (left side, large area) - state-driven
+        self.main_view_area = MainViewArea(0, 0, 500, 450)
+
         # Message Log Area (bottom, full width) - state-independent
         self.message_log_area = MessageLogArea(0, 450, 800, 150)
 
@@ -66,21 +70,18 @@ class HUDManager:
             game_state: Current game state
         """
         # Update legacy panels
-        if self.view_panel:
-            self.view_panel.update(delta_time, game_state)
         if self.control_panel:
             self.control_panel.update(delta_time, game_state)
         if self.auxiliary_panel:
             self.auxiliary_panel.update(delta_time, game_state)
-        if self.message_log_panel:
-            self.message_log_panel.update(delta_time, game_state)
 
-        # Update new areas
+        # Update areas
+        self.main_view_area.update(delta_time, game_state)
         self.message_log_area.update(delta_time, game_state)
 
     def render(self, screen, renderer, game_state, coordinates=None, view_data=None):
         """
-        Render all HUD panels
+        Render all HUD panels and areas
 
         Args:
             screen: Pygame screen surface
@@ -89,10 +90,8 @@ class HUDManager:
             coordinates: Optional coordinates to display in status panel
             view_data: Optional data for view panel (e.g., near_planet)
         """
-        # Render main view panel first (background)
-        if self.view_panel:
-            self.view_panel.render(screen, renderer)
-            self.view_panel.render_content(screen, renderer, game_state, **(view_data or {}))
+        # Render main view area first (background)
+        self.main_view_area.render(screen, renderer, game_state, **(view_data or {}))
 
         # Render HUD overlay panels on top
         # Render control panel (right side, middle)
@@ -109,12 +108,7 @@ class HUDManager:
             self.auxiliary_panel.render(screen, renderer)
             self.auxiliary_panel.render_content(screen, renderer, game_state, **(view_data or {}))
 
-        # Render message log (bottom) - LEGACY
-        if self.message_log_panel:
-            self.message_log_panel.render(screen, renderer)
-            self.message_log_panel.render_content(screen, renderer)
-
-        # Render new message log area (will replace legacy when migration complete)
+        # Render message log area (bottom)
         self.message_log_area.render(screen, renderer, game_state)
 
         # Draw canvas border (outermost edge)
@@ -133,18 +127,8 @@ class HUDManager:
             text: Message text
             color: RGB color tuple
         """
-        # Add to new area-based message log
         self.message_log_area.add_message(text, color)
-
-        # LEGACY: Also add to old panel if it exists (for backwards compatibility during migration)
-        if self.message_log_panel:
-            self.message_log_panel.add_message(text, color)
 
     def clear_messages(self):
         """Clear all messages from the message log"""
-        # Clear new area-based message log
         self.message_log_area.clear_messages()
-
-        # LEGACY: Also clear old panel if it exists (for backwards compatibility during migration)
-        if self.message_log_panel:
-            self.message_log_panel.clear_messages()

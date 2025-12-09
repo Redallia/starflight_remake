@@ -4,7 +4,6 @@ Handles movement in space, starfield rendering, and navigation
 """
 import pygame
 from core.screen_manager import Screen
-from ui.hud.space_view_panel import SpaceViewPanel
 from ui.hud.control_panel import ControlPanel
 from ui.hud.auxiliary_view import AuxiliaryView
 
@@ -31,11 +30,8 @@ class SpaceScreen(Screen):
         """Set up HUD panels for space navigation"""
         # Layout dimensions
         right_column_width = 300
-        message_log_height = 150
 
-        # Main View - Space view panel (left side, above message log)
-        space_view = SpaceViewPanel(0, 0, 500, 450)
-        self.hud_manager.set_view_panel(space_view)
+        # Main View is now handled by MainViewArea in HUDManager - no setup needed
 
         # Auxiliary View - Mini-map (upper-right)
         auxiliary_view = AuxiliaryView(500, 0, right_column_width, 200)
@@ -53,8 +49,8 @@ class SpaceScreen(Screen):
         self._setup_hud()
 
         # Regenerate starfield for variety
-        if self.hud_manager.view_panel:
-            self.hud_manager.view_panel.regenerate_starfield()
+        self.hud_manager.main_view_area.regenerate_starfield()
+
         # Add welcome message
         self.hud_manager.add_message("Entered space", (100, 200, 255))
 
@@ -130,8 +126,7 @@ class SpaceScreen(Screen):
 
             # Update starfield for parallax effect (stars drift opposite to movement)
             # Only scroll based on actual movement, not intended movement
-            if self.hud_manager.view_panel:
-                self.hud_manager.view_panel.update_starfield(-actual_dx * 2, -actual_dy * 2)
+            self.hud_manager.main_view_area.update_starfield(-actual_dx * 2, -actual_dy * 2)
 
         # Check proximity to planets for docking prompt
         self.check_planet_proximity()
