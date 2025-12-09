@@ -1,11 +1,12 @@
 """
-HUD Manager - coordinates all HUD panels
+HUD Manager - coordinates all HUD panels and areas
 """
 import pygame
+from ui.hud.message_log_area import MessageLogArea
 
 
 class HUDManager:
-    """Manages all HUD panels and their layout"""
+    """Manages all HUD panels and areas"""
 
     def __init__(self, screen_width=800, screen_height=600):
         """
@@ -17,8 +18,8 @@ class HUDManager:
         """
         self.screen_width = screen_width
         self.screen_height = screen_height
-        
-        # HUD overlay panels (set by screens)
+
+        # HUD overlay panels (set by screens) - TO BE MIGRATED TO AREAS
         # Using Starflight terminology:
         # Main view panel (renders behind HUD elements)
         self.view_panel = None
@@ -29,8 +30,12 @@ class HUDManager:
          # - Auxiliary Panel (right side, top)
         self.auxiliary_panel = None
 
-        # - Message Log (bottom)
+        # - Message Log (bottom) - LEGACY, use message_log_area instead
         self.message_log_panel = None
+
+        # NEW: Area-based architecture
+        # Message Log Area (bottom, full width) - state-independent
+        self.message_log_area = MessageLogArea(0, 450, 800, 150)
 
         # Canvas border
         self.border_color = (100, 150, 200)  # Light blue
@@ -54,12 +59,13 @@ class HUDManager:
 
     def update(self, delta_time, game_state):
         """
-        Update all panels
+        Update all panels and areas
 
         Args:
             delta_time: Time since last frame
             game_state: Current game state
         """
+        # Update legacy panels
         if self.view_panel:
             self.view_panel.update(delta_time, game_state)
         if self.control_panel:
@@ -68,6 +74,9 @@ class HUDManager:
             self.auxiliary_panel.update(delta_time, game_state)
         if self.message_log_panel:
             self.message_log_panel.update(delta_time, game_state)
+
+        # Update new areas
+        self.message_log_area.update(delta_time, game_state)
 
     def render(self, screen, renderer, game_state, coordinates=None, view_data=None):
         """
@@ -100,10 +109,13 @@ class HUDManager:
             self.auxiliary_panel.render(screen, renderer)
             self.auxiliary_panel.render_content(screen, renderer, game_state, **(view_data or {}))
 
-        # Render message log (bottom)
+        # Render message log (bottom) - LEGACY
         if self.message_log_panel:
             self.message_log_panel.render(screen, renderer)
             self.message_log_panel.render_content(screen, renderer)
+
+        # Render new message log area (will replace legacy when migration complete)
+        self.message_log_area.render(screen, renderer, game_state)
 
         # Draw canvas border (outermost edge)
         pygame.draw.rect(
@@ -121,10 +133,18 @@ class HUDManager:
             text: Message text
             color: RGB color tuple
         """
+        # Add to new area-based message log
+        self.message_log_area.add_message(text, color)
+
+        # LEGACY: Also add to old panel if it exists (for backwards compatibility during migration)
         if self.message_log_panel:
             self.message_log_panel.add_message(text, color)
 
     def clear_messages(self):
         """Clear all messages from the message log"""
+        # Clear new area-based message log
+        self.message_log_area.clear_messages()
+
+        # LEGACY: Also clear old panel if it exists (for backwards compatibility during migration)
         if self.message_log_panel:
             self.message_log_panel.clear_messages()
