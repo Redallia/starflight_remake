@@ -9,7 +9,6 @@ from entities.crew import ShipRole
 from ui.hud.planet_view_panel import PlanetViewPanel
 from ui.hud.bridge_panel import BridgePanel
 from ui.hud.terrain_map_panel import TerrainMapPanel
-from ui.hud.message_log_panel import MessageLogPanel
 
 
 class OrbitScreen(Screen):
@@ -74,10 +73,7 @@ class OrbitScreen(Screen):
         bridge_panel = BridgePanel(500, 200, right_column_width, 250)
         self.hud_manager.set_control_panel(bridge_panel)
 
-        # Message Log (bottom, full width) - only create if it doesn't exist yet
-        if not self.hud_manager.message_log_panel:
-            message_log = MessageLogPanel(0, 450, 800, message_log_height)
-            self.hud_manager.set_message_log_panel(message_log)
+        # Message Log is now handled by MessageLogArea in HUDManager - no setup needed
 
     def on_enter(self):
         """Called when entering orbit"""

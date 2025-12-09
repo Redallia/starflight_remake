@@ -7,7 +7,6 @@ from core.screen_manager import Screen
 from ui.hud.space_view_panel import SpaceViewPanel
 from ui.hud.control_panel import ControlPanel
 from ui.hud.auxiliary_view import AuxiliaryView
-from ui.hud.message_log_panel import MessageLogPanel
 
 
 class SpaceScreen(Screen):
@@ -46,10 +45,7 @@ class SpaceScreen(Screen):
         control_panel = ControlPanel(500, 200, right_column_width, 250)
         self.hud_manager.set_control_panel(control_panel)
 
-        # Message Log (bottom, full width) - only create if it doesn't exist yet
-        if not self.hud_manager.message_log_panel:
-            message_log = MessageLogPanel(0, 450, 800, message_log_height)
-            self.hud_manager.set_message_log_panel(message_log)
+        # Message Log is now handled by MessageLogArea in HUDManager - no setup needed
 
     def on_enter(self):
         """Called when entering space"""
