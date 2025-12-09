@@ -6,9 +6,8 @@ import pygame
 from core.screen_manager import Screen
 from systems.crew_action_system import ActionContext
 from entities.crew import ShipRole
-from ui.hud.planet_view_panel import PlanetViewPanel
 from ui.hud.bridge_panel import BridgePanel
-from ui.hud.terrain_map_panel import TerrainMapPanel
+from ui.hud.generic_menu_panel import GenericMenuPanel, MenuConfig
 
 
 class OrbitScreen(Screen):
@@ -41,6 +40,10 @@ class OrbitScreen(Screen):
         # Use shared HUD manager from game state
         self.hud_manager = game_state.hud_manager
 
+        # Legacy: control panel reference for bridge/menu management
+        # TODO: This will be migrated to control_panel_area in future phases
+        self.control_panel = None
+
     def _register_orbit_actions(self):
         """Register actions needed for orbit screen"""
         from systems.crew_actions.science_actions import SensorScanAction
@@ -55,30 +58,12 @@ class OrbitScreen(Screen):
         if not self.action_system._actions.get('captain.land_on_planet'):
             self.action_system.register_action(LandOnPlanetAction())
 
-    def _setup_hud(self):
-        """Set up HUD panels for orbit view"""
-        # Layout dimensions (same as space screen)
-        right_column_width = 300
-        message_log_height = 150
-
-        # Main View - Planet view panel (left side, above message log)
-        planet_view = PlanetViewPanel(0, 0, 500, 450)
-        self.hud_manager.set_view_panel(planet_view)
-
-        # Auxiliary Panel - Terrain map (upper-right, replaces mini-map in orbit)
-        terrain_map = TerrainMapPanel(500, 0, right_column_width, 200)
-        self.hud_manager.set_auxiliary_panel(terrain_map)
-
-        # Control Panel - Bridge (right side, below terrain map, above message log)
-        bridge_panel = BridgePanel(500, 200, right_column_width, 250)
-        self.hud_manager.set_control_panel(bridge_panel)
-
-        # Message Log is now handled by MessageLogArea in HUDManager - no setup needed
-
     def on_enter(self):
         """Called when entering orbit"""
-        # Set up HUD panels for this screen
-        self._setup_hud()
+        # Create bridge panel for local management
+        # NOTE: This is temporary - orbit screen needs bridge/menu state management
+        # which will be properly integrated into control_panel_area later
+        self.control_panel = BridgePanel(500, 200, 300, 250)
 
         planet_name = self.game_state.orbiting_planet['name'] if self.game_state.orbiting_planet else "Unknown"
         self.hud_manager.add_message(f"Entered orbit around {planet_name}", (100, 200, 255))
@@ -91,14 +76,10 @@ class OrbitScreen(Screen):
 
     def update(self, delta_time, input_handler):
         """Update orbit screen"""
-        # If terrain not loaded yet, just update HUD (which triggers terrain generation)
+        # TODO: Terrain loading will be handled by main_view_area in future
+        # For now, mark as loaded immediately
         if not self.terrain_loaded:
-            self.hud_manager.update(delta_time, self.game_state)
-            # Check if terrain is now loaded
-            planet_view = self.hud_manager.view_panel
-            if planet_view and hasattr(planet_view, 'terrain_grid') and planet_view.terrain_grid:
-                self.terrain_loaded = True
-            return
+            self.terrain_loaded = True
 
         # Check if we're in gas giant warning mode
         if self.gas_giant_warning_mode:
@@ -107,8 +88,8 @@ class OrbitScreen(Screen):
         elif self.landing_mode:
             self._handle_landing_input(input_handler)
         else:
-            # Get bridge panel from control panel
-            bridge_panel = self.hud_manager.control_panel
+            # Get bridge panel from local control panel
+            bridge_panel = self.control_panel
             if not bridge_panel:
                 return
 
@@ -317,7 +298,7 @@ class OrbitScreen(Screen):
 
     def _build_role_menus(self):
         """Build role menus dynamically from action system"""
-        bridge_panel = self.hud_manager.control_panel
+        bridge_panel = self.control_panel
         if not bridge_panel:
             return
 
@@ -371,25 +352,23 @@ class OrbitScreen(Screen):
             danger_items=["Proceed"]  # Mark "Proceed" as dangerous
         )
 
-        # Swap control panel to gas giant warning panel
+        # Swap local control panel to gas giant warning panel
         warning_panel = GenericMenuPanel(500, 200, 300, 250, warning_config)
-        self.hud_manager.set_control_panel(warning_panel)
+        self.control_panel = warning_panel
 
     def _exit_gas_giant_warning(self):
         """Exit gas giant warning mode - return to bridge view"""
         self.gas_giant_warning_mode = False
 
-        # Swap control panel back to bridge panel
+        # Swap local control panel back to bridge panel
         bridge_panel = BridgePanel(500, 200, 300, 250)
-        self.hud_manager.set_control_panel(bridge_panel)
+        self.control_panel = bridge_panel
 
         # Rebuild bridge menus
         self._build_role_menus()
 
     def _enter_landing_mode(self):
         """Enter landing mode - swap control panel to landing interface"""
-        from ui.hud.generic_menu_panel import GenericMenuPanel, MenuConfig
-
         self.landing_mode = True
         self.selected_landing_option = 0
         self.selected_landing_site = None  # Reset landing site selection
@@ -400,17 +379,17 @@ class OrbitScreen(Screen):
             items=["Site Select", "Descend", "Abort"]
         )
 
-        # Swap control panel to landing control panel
+        # Swap local control panel to landing control panel
         landing_panel = GenericMenuPanel(500, 200, 300, 250, landing_config)
-        self.hud_manager.set_control_panel(landing_panel)
+        self.control_panel = landing_panel
 
     def _exit_landing_mode(self):
         """Exit landing mode - return to bridge view"""
         self.landing_mode = False
 
-        # Swap control panel back to bridge panel
+        # Swap local control panel back to bridge panel
         bridge_panel = BridgePanel(500, 200, 300, 250)
-        self.hud_manager.set_control_panel(bridge_panel)
+        self.control_panel = bridge_panel
 
         # Rebuild bridge menus
         self._build_role_menus()
@@ -438,6 +417,13 @@ class OrbitScreen(Screen):
             view_data['selected_role_index'] = self.selected_role_index
             view_data['selected_menu_index'] = self.selected_menu_index
 
-        # Render everything through HUD manager
-        # This will render: planet view panel, minimap, status, message log
+        # Render HUD areas through HUD manager
         self.hud_manager.render(screen, renderer, self.game_state, coordinates, view_data)
+
+        # Render bridge/menu panel overlay (temporary until integrated into control_panel_area)
+        if self.control_panel:
+            self.control_panel.render(screen, renderer)
+            if hasattr(self.control_panel, 'render_content_with_view_data'):
+                self.control_panel.render_content_with_view_data(screen, renderer, self.game_state, coordinates, view_data)
+            elif hasattr(self.control_panel, 'render_content'):
+                self.control_panel.render_content(screen, renderer, self.game_state, coordinates)

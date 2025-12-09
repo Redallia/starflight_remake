@@ -4,8 +4,6 @@ Handles movement in space, starfield rendering, and navigation
 """
 import pygame
 from core.screen_manager import Screen
-from ui.hud.control_panel import ControlPanel
-from ui.hud.auxiliary_view import AuxiliaryView
 
 
 class SpaceScreen(Screen):
@@ -26,28 +24,8 @@ class SpaceScreen(Screen):
         # Use shared HUD manager from game state
         self.hud_manager = game_state.hud_manager
 
-    def _setup_hud(self):
-        """Set up HUD panels for space navigation"""
-        # Layout dimensions
-        right_column_width = 300
-
-        # Main View is now handled by MainViewArea in HUDManager - no setup needed
-
-        # Auxiliary View - Mini-map (upper-right)
-        auxiliary_view = AuxiliaryView(500, 0, right_column_width, 200)
-        self.hud_manager.set_auxiliary_panel(auxiliary_view)
-
-        # Control Panel - Ship status (right side, below mini-map, above message log)
-        control_panel = ControlPanel(500, 200, right_column_width, 250)
-        self.hud_manager.set_control_panel(control_panel)
-
-        # Message Log is now handled by MessageLogArea in HUDManager - no setup needed
-
     def on_enter(self):
         """Called when entering space"""
-        # Set up HUD panels for this screen
-        self._setup_hud()
-
         # Regenerate starfield for variety
         self.hud_manager.main_view_area.regenerate_starfield()
 

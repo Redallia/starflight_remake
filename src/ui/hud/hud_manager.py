@@ -22,14 +22,7 @@ class HUDManager:
         self.screen_width = screen_width
         self.screen_height = screen_height
 
-        # LEGACY: HUD overlay panels (set by screens) - DEPRECATED
-        # These are kept temporarily for backwards compatibility during migration
-        self.view_panel = None
-        self.control_panel = None
-        self.auxiliary_panel = None
-        self.message_log_panel = None
-
-        # NEW: Area-based architecture (per HUD specification)
+        # Area-based architecture (per HUD specification)
         # Main View Area (left side, large area) - state-driven
         self.main_view_area = MainViewArea(0, 0, 500, 450)
 
@@ -46,36 +39,14 @@ class HUDManager:
         self.border_color = (100, 150, 200)  # Light blue
         self.border_width = 2
 
-    def set_view_panel(self, panel):
-        """Set the main view panel (background)"""
-        self.view_panel = panel
-
-    def set_control_panel(self, panel):
-        """Set the control panel (right side, middle)"""
-        self.control_panel = panel
-
-    def set_auxiliary_panel(self, panel):
-        """Set the auxiliary panel (right side, top)"""
-        self.auxiliary_panel = panel
-
-    def set_message_log_panel(self, panel):
-        """Set the message log panel (bottom)"""
-        self.message_log_panel = panel
-
     def update(self, delta_time, game_state):
         """
-        Update all panels and areas
+        Update all HUD areas
 
         Args:
             delta_time: Time since last frame
             game_state: Current game state
         """
-        # Update legacy panels (if still set)
-        if self.control_panel:
-            self.control_panel.update(delta_time, game_state)
-        if self.auxiliary_panel:
-            self.auxiliary_panel.update(delta_time, game_state)
-
         # Update all areas
         self.main_view_area.update(delta_time, game_state)
         self.auxiliary_view_area.update(delta_time, game_state)
@@ -84,43 +55,31 @@ class HUDManager:
 
     def render(self, screen, renderer, game_state, coordinates=None, view_data=None):
         """
-        Render all HUD panels and areas
+        Render all HUD areas
 
         Args:
             screen: Pygame screen surface
             renderer: Renderer instance
             game_state: Current game state
             coordinates: Optional coordinates to display in status panel
-            view_data: Optional data for view panel (e.g., near_planet)
+            view_data: Optional data for areas (e.g., near_planet)
         """
         # Prepare kwargs for areas
         kwargs = view_data or {}
         if coordinates:
             kwargs['coordinates'] = coordinates
 
-        # Render main view area first (background)
+        # Render all four HUD areas in order
+        # Main View Area (background, left side)
         self.main_view_area.render(screen, renderer, game_state, **kwargs)
 
-        # Render new area-based HUD elements
         # Auxiliary View Area (upper-right)
         self.auxiliary_view_area.render(screen, renderer, game_state, **kwargs)
 
         # Control Panel Area (right side, middle)
         self.control_panel_area.render(screen, renderer, game_state, **kwargs)
 
-        # LEGACY: Render legacy panels if still set (for backwards compatibility)
-        if self.control_panel:
-            self.control_panel.render(screen, renderer)
-            if view_data and hasattr(self.control_panel, 'render_content_with_view_data'):
-                self.control_panel.render_content_with_view_data(screen, renderer, game_state, coordinates, view_data)
-            else:
-                self.control_panel.render_content(screen, renderer, game_state, coordinates)
-
-        if self.auxiliary_panel:
-            self.auxiliary_panel.render(screen, renderer)
-            self.auxiliary_panel.render_content(screen, renderer, game_state, **(view_data or {}))
-
-        # Render message log area (bottom)
+        # Message Log Area (bottom, full width)
         self.message_log_area.render(screen, renderer, game_state)
 
         # Draw canvas border (outermost edge)
