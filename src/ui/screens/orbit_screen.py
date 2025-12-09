@@ -25,9 +25,6 @@ class OrbitScreen(Screen):
         self.selected_role_index = 0  # Start with first role (Captain) selected
         self.selected_menu_index = 0  # Selected option in role menu
 
-        # Loading state
-        self.terrain_loaded = False
-
         # Landing mode state
         self.landing_mode = False  # Are we in landing mode?
         self.selected_landing_option = 0  # Selected option in landing menu (Site Select/Descend/Abort)
@@ -68,18 +65,13 @@ class OrbitScreen(Screen):
         planet_name = self.game_state.orbiting_planet['name'] if self.game_state.orbiting_planet else "Unknown"
         self.hud_manager.add_message(f"Entered orbit around {planet_name}", (100, 200, 255))
 
-        # Reset loading state
-        self.terrain_loaded = False
-
         # Build dynamic menus from action system
         self._build_role_menus()
 
     def update(self, delta_time, input_handler):
         """Update orbit screen"""
-        # TODO: Terrain loading will be handled by main_view_area in future
-        # For now, mark as loaded immediately
-        if not self.terrain_loaded:
-            self.terrain_loaded = True
+        # Update HUD first (which handles terrain generation in main_view_area)
+        self.hud_manager.update(delta_time, self.game_state)
 
         # Check if we're in gas giant warning mode
         if self.gas_giant_warning_mode:
@@ -100,9 +92,6 @@ class OrbitScreen(Screen):
             else:
                 # Handle bridge role selection
                 self._handle_bridge_input(input_handler, bridge_panel)
-
-        # Update HUD after handling input
-        self.hud_manager.update(delta_time, self.game_state)
 
     def _handle_gas_giant_warning_input(self, input_handler):
         """Handle input when in gas giant warning mode"""
@@ -403,9 +392,7 @@ class OrbitScreen(Screen):
         coordinates = self.game_state.get_coordinate_position()
 
         # Prepare view data including selected indices based on current mode
-        view_data = {
-            'loading': not self.terrain_loaded
-        }
+        view_data = {}
 
         # Add appropriate selection index based on current mode
         if self.gas_giant_warning_mode:

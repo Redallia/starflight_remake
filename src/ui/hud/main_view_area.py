@@ -4,6 +4,8 @@ Primary visual centerpiece for gameplay - left side, large area
 """
 import pygame
 import random
+from core.terrain_generator import TerrainGenerator
+from ui.planet_sphere_renderer import PlanetSphereRenderer
 
 
 class MainViewArea:
@@ -27,6 +29,12 @@ class MainViewArea:
         # Starfield for space view (persistent across renders)
         self.stars = []
         self._generate_starfield()
+
+        # Orbit view state
+        self.current_planet = None
+        self.terrain_grid = None
+        self.terrain_generator = None
+        self.sphere_renderer = PlanetSphereRenderer(radius=150)
 
     def _generate_starfield(self):
         """Generate random stars for space background"""
@@ -75,7 +83,18 @@ class MainViewArea:
             delta_time: Time since last frame
             game_state: Current game state
         """
-        pass
+        # Update orbit view if in orbit
+        if game_state.location == "orbit":
+            new_planet = game_state.orbiting_planet
+
+            # Generate terrain if planet changed
+            if new_planet != self.current_planet:
+                self.current_planet = new_planet
+                self._generate_terrain()
+
+            # Update sphere rotation
+            if self.terrain_grid:
+                self.sphere_renderer.update(delta_time)
 
     def render(self, screen, renderer, game_state, **kwargs):
         """
@@ -89,8 +108,8 @@ class MainViewArea:
         """
         if game_state.location == "space":
             self._render_space_view(screen, renderer, game_state, **kwargs)
-        # elif game_state.location == "orbit":
-        #     self._render_orbit_view(screen, renderer, game_state, **kwargs)
+        elif game_state.location == "orbit":
+            self._render_orbit_view(screen, renderer, game_state, **kwargs)
         else:
             # Default: black background
             screen.fill((0, 0, 0))
@@ -193,3 +212,74 @@ class MainViewArea:
                     color=(200, 200, 200),
                     font=renderer.small_font
                 )
+
+    def _render_orbit_view(self, screen, renderer, game_state, **kwargs):
+        """
+        Render orbit view with rotating planet
+
+        Args:
+            screen: Pygame screen surface
+            renderer: Renderer instance
+            game_state: Current game state
+            **kwargs: Additional rendering data
+        """
+        # Draw space background
+        pygame.draw.rect(screen, (10, 10, 20), (self.x, self.y, self.width, self.height))
+
+        planet = game_state.orbiting_planet
+        if not planet:
+            return
+
+        # Check if terrain is still generating
+        if not self.terrain_grid or not self.terrain_generator:
+            # Show loading message
+            center_x = self.x + self.width // 2
+            center_y = self.y + self.height // 2
+
+            renderer.draw_text_centered(
+                f"Scanning {planet['name']}...",
+                center_x,
+                center_y - 20,
+                color=(100, 200, 255),
+                font=renderer.large_font
+            )
+            renderer.draw_text_centered(
+                "Generating planetary data",
+                center_x,
+                center_y + 20,
+                color=(150, 150, 150),
+                font=renderer.default_font
+            )
+            return
+
+        # Render rotating planet sphere
+        center_x = self.x + self.width // 2
+        center_y = self.y + self.height // 2
+
+        self.sphere_renderer.render_optimized(
+            screen,
+            center_x,
+            center_y,
+            self.terrain_grid,
+            self.terrain_generator
+        )
+
+        # Draw planet name at top
+        renderer.draw_text_centered(
+            planet['name'],
+            center_x,
+            self.y + 20,
+            color=(255, 255, 255),
+            font=renderer.large_font
+        )
+
+    def _generate_terrain(self):
+        """Generate terrain for current planet in orbit"""
+        if not self.current_planet:
+            self.terrain_grid = None
+            self.terrain_generator = None
+            return
+
+        # Generate terrain (200x100 for sphere mapping - optimized)
+        self.terrain_generator = TerrainGenerator(self.current_planet)
+        self.terrain_grid = self.terrain_generator.generate(200, 100)
