@@ -1,5 +1,29 @@
 # Minimum Viable Product (MVP) Definition
 
+## MVP Introductory Story Structure
+Starport orbits above the player's homeworld. Player launches from Starport for the first time. It's humanity's first foray out into the wider universe and player is at the helm.
+
+Player is allowed freedom to explore the planets of the inner system, scanning, landing, etc. Planets here will be rocky and introduction-friendly.
+
+### Inital Bridge experiences
+Player will have a chance to use the different bridge commands associated with each officer for the first time: science, navigation, communication, etc.
+- the Navigator will be engage engines so the ship can move
+- the Science officer will be asked to get scan of a planet and provide analysis
+- the Communications officer will be prompted to communicate with an another planetary explorer ship or planetside outpost
+- the Captain will be prompted to land at a set of coordinates
+- the Engineer will be asked to run a ship diagnostic and provide repair analysis
+- A scripted event will injure one of the crew members, necessitating said crew member to visit the Doctor for inspection and treatment
+
+
+At some point, player will hit the boundary of the inner system and enter the outer system. Planets here will be gas giants and their moons. 
+This is where they'll learn how to navigate into and out of different orbital systems, whether inner orbits or gas giant systems. 
+
+Eventually player will push past the outer system boundary and enter interstellar space.
+Here they'll learn about flying between star systems, using the star map.
+This is also where they'll have humanity's "first contact" event, and set the stage/premise for the game.
+
+At this point, the "tutorial" will be over, and the player will be treated to a chance to customize their crew, their ship, and have a chance to experience the actual game
+
 ## Core Question
 What's the smallest version of this game that still feels like Starflight?
 
