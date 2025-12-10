@@ -89,26 +89,83 @@ The default HUD configuration used for most gameplay consists of four distinct a
 - Always present across all game states using the HUD
 - Read-only display (not interactive)
 - Auto-scrolls as new messages arrive
-- Message history persists across state changes, unless otherwise specified
+- Message history persists across state changes
 - Append-only; no display logic beyond rendering accumulated messages
 
 ## Layout Variations
 
 ### Planet Surface Layout
-When on the planet surface, the HUD maintains the four-area structure but with adjustments:
-- Auxiliary View shows terrain vehicle statistics (fuel/energy)
-- Specific layout changes TBD (original game made minor adjustments)
+
+When on the planet surface, the HUD maintains the four-area structure but with significantly different content. The architectural pattern remains the same (game state drives display, HUD manager mediates), but the player interaction model shifts from deep crew role hierarchies to a shallower, action-focused menu.
+
+**Main View:**
+- Top-down terrain view with vehicle and icons
+- Icons represent: minerals, flora/fauna, structures (ruins, alien buildings), player's landed ship
+- Player moves vehicle here during Move mode
+- Weapon targeting cursor appears here during Weapon/Target
+
+**Auxiliary View:**
+- Default: Vehicle statistics (cargo capacity used/remaining, fuel/energy, distance and direction to ship)
+- Map mode: Toggles to show either local mini-map (nearby terrain) or regional map (wider area, structures visible from afar)
+- Can overlay stats on map view or toggle between them
+
+**Control Panel:**
+- Remains interactive (unlike original game's passive crew health display)
+- Uses shallow hierarchy matching ship interface pattern
+- Top-level options with at most one level of sub-options
+
+**Control Panel Menu Structure:**
+
+- **Move** → Engages movement mode, locks menu (no sub-menu)
+- **Scan** →
+  - Target (move cursor to select scan target)
+  - Analysis (detailed readout of scanned target, results in Message Log or modal)
+  - Icons (reference modal showing what each icon type represents)
+- **Cargo** → Opens cargo modal (view inventory, pick up nearby items, jettison items, examine items/messages)
+- **Weapon** →
+  - Mode (toggle between Stun and Attack)
+  - Target (move cursor to select target, execute attack)
+- **Medicine** →
+  - Review (crew health status modal)
+  - Treat (select crew member to heal; field treatment caps at 50-60% max health)
+- **Map** → Toggles Auxiliary View between stats and map view (no sub-menu)
+
+**Message Log:**
+- Functions as normal - event notifications, scan results, descriptions, hazard warnings
+- Crew injuries from creature attacks or environmental hazards reported here
+- No longer gets repurposed for cargo display (cargo uses modal instead)
+
+**Contextual Prompts:**
+- Stopping adjacent to landed ship triggers "Enter Ship? Y/N" prompt
+- Stopping adjacent to structure (ruins, alien building) may trigger "Enter? Y/N" prompt (future feature)
+
+**Crew Skills on Planet Surface:**
+
+Crew roles don't appear in the menu, but skills affect action outcomes:
+- **Science Officer:** Scan detail and analysis quality
+- **Navigator:** Weapon accuracy (low skill = shots miss or hit wrong target)
+- **Doctor:** Healing effectiveness
+- **Engineer:** Potentially vehicle repair (if vehicle damage is implemented)
+- **Communications:** Potentially relevant at alien structures (future feature)
+
+**Input Routing on Planet Surface:**
+
+- **Move mode active:** Movement keys control vehicle, menu locked on Move option, Spacebar disengages
+- **Menu navigation:** W/S navigate, Space/Enter select, Escape/Backspace backs out
+- **Weapon/Target mode:** Cursor keys move targeting cursor, Space/Enter fires, Escape cancels
+- **Scan/Target mode:** Cursor keys move selection cursor, Space/Enter confirms target, Escape cancels
+- **Modals:** Capture input until dismissed
 
 ### Special-Case Screens (Non-HUD or Alternate Layout)
 Some interactions use full-screen interfaces outside the standard HUD:
 - **Main Menu:** Title screen and game options
-- **Starport:** Full-screen hub interface
-- **Captain → Cargo:** Full-screen cargo manifest, message review, artifact examination
-- **Navigator → Starmap:** Full-screen starmap interface (when not in hyperspace?)
-- **Trade Screens:** Full-screen trading interfaces
-- **Future:** Explorable locations (ruins, derelicts) may use alternate layouts
+- **Starport:** Full-screen hub interface. MVP uses simple text menu; future versions will use side-scroller exploration mode. See separate Starport specification document.
+- **Captain → Cargo:** Modal over HUD (not full-screen takeover)
+- **Navigator → Starmap:** Modal over HUD, or Auxiliary View override (TBD)
+- **Trade Screens:** Modal interfaces where needed
+- **Future:** Explorable locations (ruins, derelicts) may use side-scroller mode similar to Starport
 
-Note: The boundary between "HUD with different content" and "separate full-screen interface" needs clarification for some of these cases.
+Note: Most "special" interfaces are now planned as modals over the HUD rather than full-screen takeovers, maintaining context and simplifying implementation.
 
 ## Game States
 
@@ -116,6 +173,7 @@ The HUD displays are driven by game state, which consists of:
 - **Location:** Where the player is (Hyperspace, System Space, Orbit, Planet Surface, etc.)
 - **Sub-state:** Modifier to current location (Landing Mode, Communications, Scanning, etc.)
 - **Auxiliary Override:** Temporary override for Auxiliary View display (or None)
+- **Active Encounter:** Reference to ships in current encounter, if any (context modifier, not a location)
 
 ### State: HYPERSPACE
 - **Main View:** Starfield, ship, star systems
@@ -128,6 +186,40 @@ The HUD displays are driven by game state, which consists of:
 - **Auxiliary View:** System mini-map (planets, orbits, ship position)
 - **Control Panel:** Crew roles → action menus
 - **Message Log:** Persistent
+
+### Encounters (Context Modifier)
+
+Encounters are not a separate location state. They are a **context modifier** that can occur during IN_SYSTEM_SPACE or HYPERSPACE. When an encounter is active, the game tracks `active_encounter` referencing the involved ships.
+
+**What changes during an encounter:**
+- **Main View:** Renders encounter mode - player ship and all other ships in the encounter (may be multiple hostile vessels)
+- **Auxiliary View:** No change from base state (mini-map in system space, ship status in hyperspace)
+- **Control Panel:** No change - full crew role access remains available
+- **Message Log:** Encounter events reported ("Captain, they've armed their weapons!")
+
+**What stays the same:**
+- All crew functions remain accessible
+- Navigator → Maneuver still works (you can fly around within the encounter)
+- Science Officer can scan alien vessels (reveals composition, size, shield status, weapons armed)
+
+**Encounter triggers:**
+- Another ship closes to interaction range
+- Attempting to orbit a protected planet (forced encounter with defenders)
+
+**Encounter resolution:**
+- Flee successfully → encounter ends, return to normal space/hyperspace
+- Hail/Respond → transitions to IN_COMMUNICATIONS
+- Combat (post-MVP) → transitions to combat state
+- Alien flees/destroyed → encounter ends
+
+**Protected planet flow:**
+1. Player attempts to enter orbit around protected planet
+2. Defender encounter triggers; player remains in IN_SYSTEM_SPACE with active_encounter
+3. Player resolves encounter (negotiate, fight, flee)
+4. If resolved peacefully or defenders defeated → orbit becomes available
+5. If player flees → back to normal IN_SYSTEM_SPACE, planet still protected
+
+Note: Encounters can occur in IN_SYSTEM_SPACE and HYPERSPACE, but never during IN_ORBIT. Once in orbit, the player is in a "safe" state.
 
 ### State: IN_ORBIT
 - **Main View:** Rotating planet
@@ -150,18 +242,39 @@ Note: Landing site selection may use a modal interface with "blow up lines" conn
 - **Message Log:** Persistent
 
 ### State: ON_PLANET_SURFACE
-- **Main View:** Terrain vehicle and environment
-- **Auxiliary View:** Vehicle statistics (fuel/energy)
-- **Control Panel:** Crew roles → action menus (adjusted for surface context)
-- **Message Log:** Persistent
+- **Main View:** Top-down terrain with vehicle and icons (minerals, flora/fauna, structures, landed ship)
+- **Auxiliary View:** Vehicle statistics (cargo, fuel, distance to ship); toggles to map view
+- **Control Panel:** Shallow action-focused menu (Move, Scan, Cargo, Weapon, Medicine, Map)
+- **Message Log:** Persistent; receives scan results, hazard warnings, injury reports
+
+This state uses a significantly different interaction model. See **Layout Variations > Planet Surface Layout** for full details on menu structure, input routing, and how crew skills apply.
 
 ### State: IN_COMMUNICATIONS
-- **Main View:** Alien portrait, derelict ship visual, or other communication source
+- **Main View:** Alien portrait (generic by species; specific character portraits are a future enhancement) or derelict ship visual
 - **Auxiliary View:** Retains previous display (mini-map, ship status, or prior scan results)
-- **Control Panel:** Dialogue choices
-- **Message Log:** Communication text and responses
+- **Control Panel:** Communications menu (see below)
+- **Message Log:** All dialogue appears here - player statements, alien responses, conversation record
 
-Note: Derelict interactions (automated responses, log playback, coordinate retrieval) use the Communications state for MVP.
+**Communications Control Panel Menu:**
+
+Top-level options:
+- **Statement** → Sends a posture-flavored statement to the alien; they respond in Message Log
+- **Question** → Opens sub-menu (replaces top-level menu):
+  - Themselves
+  - Other Beings
+  - The Past
+  - Trade
+  - General Info
+- **Posture** → Opens sub-menu (replaces top-level menu):
+  - Hostile
+  - Friendly (default at conversation start)
+  - Obsequious
+  - Selection persists for duration of conversation until changed
+- **Terminate** → Ends communication, returns to prior game state
+
+Posture affects the tone of Statements and Questions, and may influence alien responses and disposition.
+
+Note: Derelict interactions use the same Communications interface for MVP. Future versions may differentiate (e.g., limited options for automated systems, different question categories like Ship Logs, Coordinates, System Status).
 
 ### State: STARPORT
 - Does not use standard HUD
@@ -229,21 +342,41 @@ Command executes, potentially changing game state
 
 Input handling depends on current game state and context:
 
-- **During Maneuvering:** Movement keys go to ship/vehicle control. Control Panel is inactive or limited.
-- **In Menus:** W/S navigate, Space/Enter select. Movement keys may be ignored or exit menu mode.
-- **During Communications:** Input goes to dialogue selection.
-- **Modals/Prompts:** Modal captures input until dismissed.
+**During Maneuvering (Navigator → Maneuver active):**
+- Movement keys control ship/vehicle
+- Control Panel is locked on Navigator/Maneuver option (highlighted)
+- Spacebar behavior depends on location:
+  - In space/hyperspace: Disengages maneuver mode, unlocks Control Panel, returns to Bridge menu
+  - Approaching a planet: Can transition to IN_ORBIT state and reset Control Panel to Bridge
+- Other crew functions inaccessible until maneuver mode disengaged
 
-The input handler checks game state to determine where to route input. The Control Panel receives input only when it's the active interaction context.
+**In Menus (maneuver mode not active):**
+- W/S navigate menu options
+- Space/Enter select highlighted option
+- Movement keys may be ignored or could re-engage maneuver mode (TBD)
+- Backspace/Escape backs out of sub-menus
+
+**During Communications:**
+- W/S navigate dialogue options
+- Space/Enter select option
+- Sub-menus (Question, Posture) replace top-level menu; backing out returns to top level
+
+**Modals/Prompts:**
+- Modal captures all input until dismissed
+- Typically Y/N or selection from limited options
+
+The input handler checks game state to determine where to route input. The Control Panel receives input only when it's the active interaction context (i.e., not during maneuvering).
 
 ## Open Questions
 
-1. **Captain → Cargo and Navigator → Starmap:** Are these full-screen takeovers, or HUD with alternate content? Need to decide and document.
+1. **Captain → Cargo and Navigator → Starmap:** Are these full-screen takeovers, or HUD with alternate content? Leaning toward modals over the HUD rather than full-screen takeovers. Need to finalize and document.
 
-2. **Planet Surface layout specifics:** What exactly changes from the standard four-area layout?
+2. **Doctor role redesign:** Current design makes the role feel superfluous in space. On planet surface, Medicine/Treat is useful but limited. Consider tying to exploration (examining alien life, assessing biosphere safety, diagnosing environmental hazards) rather than just reactive healing.
 
-3. **Doctor role redesign:** Current design makes the role feel superfluous. Consider tying to exploration (examining alien life, assessing biosphere safety, diagnosing environmental hazards) rather than just reactive healing.
+3. **Landing site selection interface:** Modal with "blow up lines" to terrain map? Needs design work.
 
-4. **Landing site selection interface:** Modal with "blow up lines" to terrain map? Needs design work.
+4. **Derelict/ruin exploration:** MVP uses Communications state. Future versions may need dedicated exploration interface (side-scroller mode?).
 
-5. **Derelict/ruin exploration:** MVP uses Communications state. Future versions may need dedicated exploration interface (side-scroller mode?).
+5. **Planet Surface - structure interaction:** What happens when player enters ruins or alien buildings? Modal interaction? Separate game state? Side-scroller mode (future)?
+
+6. **Starport interface:** Full-screen hub, but what's the actual layout and flow? Needs detailed specification.
