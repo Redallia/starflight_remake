@@ -156,6 +156,208 @@ Crew roles don't appear in the menu, but skills affect action outcomes:
 - **Scan/Target mode:** Cursor keys move selection cursor, Space/Enter confirms target, Escape cancels
 - **Modals:** Capture input until dismissed
 
+## Modal Specifications
+
+Modals overlay the HUD, capturing input until dismissed. They maintain game context (the HUD remains visible beneath) while providing focused interfaces for specific tasks.
+
+### Cargo Modal (Captain → Cargo)
+
+Accessed via Captain → Cargo from the Control Panel (in space) or Cargo from the action menu (on planet surface). Used for inventory management on both ship and terrain vehicle.
+
+**Layout:** Two-column design
+- **Left column:** Scrollable item list organized by category
+- **Right column:** Description of highlighted item, plus available actions
+
+**Categories (with headers):**
+- **Nearby** - Items within pickup range (only appears when items are present)
+- **Minerals** - Sorted alphabetically, shows quantity
+- **Lifeforms** - Sorted alphabetically, shows quantity
+- **Artifacts** - Sorted alphabetically
+- **Messages** - Sorted by discovery date
+
+**Interaction:**
+- W/S or Up/Down: Navigate item list
+- Right column updates automatically to show highlighted item
+- Hotkey actions shown at bottom of modal, context-sensitive:
+
+| Item Type | Available Actions |
+|-----------|-------------------|
+| Nearby item | [P]ick up |
+| Carried mineral/lifeform | [J]ettison |
+| Carried artifact | [J]ettison |
+| Carried message | [A]rchive |
+
+- Escape: Close modal
+
+**Behaviors:**
+- **Pick up:** Transfers item from Nearby to cargo. If cargo is full, shows "Cargo hold full" - excess items remain in place.
+- **Jettison:** Prompts "Jettison [item]? Y/N" - confirmed items are destroyed and cannot be recovered.
+- **Archive:** Moves message to archived storage (does not consume cargo space).
+
+**Context differences:**
+- **Ship:** Nearby items are debris from destroyed vessels or items floating in proximity
+- **Terrain vehicle:** Nearby items are minerals, lifeforms, artifacts on the ground within pickup range
+- **Lifeforms (planet surface):** Hostile creatures must be subdued (stunned) before they appear as pickable
+
+**Display format:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CARGO (23/50)                                              │
+├─────────────────────────────┬───────────────────────────────┤
+│                             │                               │
+│  NEARBY                     │  Endurium                     │
+│  ──────                     │                               │
+│    Debris Fragment          │  A rare crystalline mineral   │
+│                             │  with unique energy storage   │
+│  MINERALS                   │  properties. Highly valued    │
+│  ────────                   │  by most spacefaring          │
+│  > Endurium (3)             │  civilizations.               │
+│    Rhodium (7)              │                               │
+│                             │  Value: ~150 credits/unit     │
+│  LIFEFORMS                  │                               │
+│  ─────────                  │                               │
+│    Spore Sample (2)         │  [J]ettison                   │
+│                             │                               │
+│  ARTIFACTS                  │                               │
+│  ─────────                  │                               │
+│    Strange Device           │                               │
+│                             │                               │
+│  MESSAGES                   │                               │
+│  ────────                   │                               │
+│    Ruins Text (2450.7)      │                               │
+│                             │                               │
+├─────────────────────────────┴───────────────────────────────┤
+│  [P]ick up  [J]ettison  [A]rchive           [Esc] Close     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Starmap Modal (Navigator → Starmap)
+
+Accessed via Navigator → Starmap from the Control Panel. **Only available in Hyperspace** - option does not appear in Navigator menu when in system space.
+
+Used for navigation planning. Purely informational - does not set course or engage autopilot. Player must manually navigate toward desired coordinates.
+
+**Layout:**
+- **Main area:** Scrolling sector map showing ~100x100 coordinate region
+- **X-axis:** Along bottom edge with coordinate markers
+- **Y-axis:** Along left edge with coordinate markers
+- **Info bar:** Along bottom, showing Position | Destination | Distance | Fuel
+
+**Map elements:**
+- Stars (visitable systems)
+- Nebulae (environmental/visual features)
+- Flux/jump points (only if discovered)
+- Ship marker (current location, distinct icon)
+- Crosshair (destination selector, player-controlled)
+
+**Interaction:**
+- WASD or arrow keys: Move crosshair
+- Map scrolls when crosshair reaches edge (rolling/continuous display)
+- Info bar updates in real-time:
+  - **Position:** Current ship coordinates (x, y)
+  - **Destination:** Crosshair coordinates (x, y)
+  - **Distance:** Straight-line distance to crosshair
+  - **Fuel:** Estimated fuel consumption for journey
+- Escape: Close modal
+
+**Display format:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  STARMAP                                                    │
+├─────────────────────────────────────────────────────────────┤
+│    0   10   20   30   40   50   60   70   80   90  100      │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │                    *                                 │ 0 │
+│  │        ·                      *                      │   │
+│  │                  ░░░░                                │20 │
+│  │    *            ░░░░░░            ⊕                  │   │
+│  │                  ░░░░        +                       │40 │
+│  │         *                              *             │   │
+│  │                        █                             │60 │
+│  │                                   *                  │   │
+│  │              *                                       │80 │
+│  │    *                                      *          │   │
+│  └──────────────────────────────────────────────────────┘100│
+│                                                             │
+│  * = Star   ░ = Nebula   ⊕ = Jump Point   █ = Ship   + = Cursor │
+├─────────────────────────────────────────────────────────────┤
+│ Position: 47, 58  │ Destination: 62, 38 │ Dist: 24.4 │ Fuel: 12 │
+├─────────────────────────────────────────────────────────────┤
+│                                              [Esc] Close    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Future consideration:** When in system space (post-MVP), Navigator → Starmap could show a local system map instead, displaying planets, moons, gas giant sub-systems, and current ship position within the system.
+
+**Related:** During hyperspace maneuvering, the Auxiliary View may cycle between Ship Status and a local hyperspace map snapshot (e.g., every 10 seconds) to provide visual interest and navigation awareness during long journeys.
+
+### Trade Outpost Modal (Planet Surface)
+
+Accessed by stopping terrain vehicle adjacent to a trade outpost building on a planet with sentient species settlements. Not required for MVP (intro scenario has no planetary trade encounters).
+
+**Trigger:** Proximity to trade outpost → "Do you wish to trade? Y/N" prompt
+
+**Layout (mini-HUD style):**
+- **Top-left:** Portrait/image representing the species you're trading with
+- **Top-right:** Trade info (Species name, STV percentage, player credits, current offer)
+- **Middle:** Scrollable goods list (merchant inventory and player cargo)
+- **Bottom:** Action bar
+
+**Display format:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ┌─────────┐  SPECIES: Thrynn                                │
+│ │         │  STV: 127%                                      │
+│ │  [Pic]  │  Credits: 4,500                                 │
+│ │         │                                                 │
+│ └─────────┘  Offer: ---                                     │
+├─────────────────────────────────────────────────────────────┤
+│  AVAILABLE GOODS                                            │
+│  ───────────────                                            │
+│  > Endurium (15)         50 cr/unit                         │
+│    Promethium (8)        120 cr/unit                        │
+│    Medical Supplies (3)  200 cr/unit                        │
+│                                                             │
+│  YOUR CARGO                                                 │
+│  ──────────                                                 │
+│    Rhodium (7)           35 cr/unit                         │
+│    Spore Sample (2)      80 cr/unit                         │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│        [B]uy          [S]ell          [Esc] Exit            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**STV (Standard Trade Value):**
+Percentage modifier relative to Starport base prices.
+- 100% = standard prices
+- Above 100% = merchant charges more (buying) / pays less (selling)
+- Below 100% = better deals for player
+
+**Interaction - Browse Mode:**
+- W/S or Up/Down: Navigate goods list
+- B: Initiate buy of highlighted item → Transaction mode
+- S: Initiate sell of highlighted cargo item → Transaction mode
+- Escape: Exit trade screen
+
+**Interaction - Transaction Mode:**
+Info area updates to show merchant's offer price. Action bar changes:
+
+```
+├─────────────────────────────────────────────────────────────┤
+│       [A]gree         [H]aggle        [C]ancel              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+- Agree: Complete transaction at offered price, return to browse mode
+- Haggle: (Post-MVP) Initiate haggling mini-game to negotiate better price
+- Cancel: Abort transaction, return to browse mode
+
+**Quantity selection:**
+For items with quantity > 1, transaction mode may include quantity selector (TBD):
+- Left/Right or A/D: Adjust quantity
+- Offer price updates based on quantity
+
 ### Special-Case Screens (Non-HUD or Alternate Layout)
 Some interactions use full-screen interfaces outside the standard HUD:
 - **Main Menu:** Title screen and game options
