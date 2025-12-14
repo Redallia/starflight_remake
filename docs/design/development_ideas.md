@@ -76,6 +76,15 @@ Locations could utilize an expanded side-scroller game interface, allowing playe
 
 Location-based scenarios would also help to break up the repetitive gameplay loops present in the regular game, and provide a more varied and improved visual experience.
 
+### Planets
+**Weather Systems**
+While the original games had simulated weather, the weather was planetary in scale with no visual effects. It would be fascinating to aim for ongoing, Perlin-noise generated weather effects for different simulated environment types. Hurricanes or storm fronts for temperate Earth-like planets, to Mars-like planet-wide sandstorms, to simulations of Jupiter-like red spots and similar. Weather might then depend on the local effects of high-level simulation, procedurally derived from whatever the weather layer of the Perlin was.
+
+Might be necessary to leverage a GPU to handle all that high-level rendering though, which would take the game significantly outside the scope of what the original games were able to provide. However, the immersive quality might be worth it.
+
+**Moons and Craters**
+I want to look into how to generate craters and similar effects during planet surface generation. A celestial body without an atmosphere should be pock-marked by craters to sell the effect, rather than simply rendering like any other planet.
+
 ### Including modern gameplay loops
 **Colony building**
 In the original games, the player could find and recommend habitable planets for colonization. But beyond simply logging them and receiving a monetary reward, these had no other effect on gameplay, and were utilized as quick way to accumulate credits for ship improvement.
