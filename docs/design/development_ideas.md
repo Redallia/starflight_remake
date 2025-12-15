@@ -46,6 +46,33 @@ A distress call from another starship could request medical assistance. A well-t
 
 ## Wishlist
 
+### Expanded Skill Systems
+The original games had a list of 5 skills:
+- Science
+- Navigation
+- Engineering
+- Communication
+- Medicine
+
+Each skill would range from 0 to 250 (with training). 
+- High Science skill gave better planet scan information vs low Science which left the user with a bunch of unknowns, even after the scan. 
+- High Communication allowed full translations of alien languages, as opposed to low Communication leaving most of the text untranslated. 
+- High Navigation gave better accuracy when firing weapons, or was faster to resolve hyperspace coordinates after going through a flux jump, while low Navigation was less accurate when firing and slower to orient after a jump.
+- High Enginnering would let ship repairs happen quicker
+- High Medicine would heal crew members faster
+
+It would be fascinating if Starport could raise crew skill up to some baseline cap - 150 or 200, maybe - while other facilities could be uncovered to let crew members exceed that cap, with the top-tier cap unlocking new abilities or capabilities.
+
+Another facet might be the expansion of Skills into specialties, allowing crew members to unlock new "Classes"
+
+Maybe 1-100 is a normal skill range, 101-200 gives access to specialized tricks or abilities, and 200-250 unlocks Skill "specialities", with crew members only being able to specialize in one skill. This would encourage a diversity of skills and crew members.
+
+**Training and Factions**
+You could pair the expanded Skill training with Faction rating, with a high enough faction rating allowing the player access to specialized facilities where a crew member could become a specialist.
+
+**Complementary Specializations**
+Complementary specializations could unlock combo abilities. For example: Navigator + Diplomat might “Stellar Envoy” missions, where you chart trade routes and negotiate treaties.
+
 ### Star Systems
 **Inner/Outer orbits**
 Star systems differentiate between outer and inner planetary orbits. The player could enter a star system, and see the outer planets in orbit, while the inner planets would act like a separate enterable system.
@@ -114,7 +141,11 @@ Locations might have events or interactable objects that might require crews to 
 The aim would be to give the player more options for interaction that felt interesting, and provide more usefulness for crew members beyond their ship roles. Doctors and Engineers especially felt almost superfluous in the original game outside of specific conditions.
 
 ### Factions
+Introducing a faction system to the game would allow for meaningful player choice, leading to changes in alien interactions, and differentiation between internal factions within a given species, culture, or civilization.
 
+Imagine the player encountering a pre-space flight civilization caught up in a Cold War scenario. The player taking sides in a given conflict would lead to one faction or another gaining dominance and ultimately becoming the player's point of contact for that civilization going forward.
+
+Additionally, with a faction system, we can include the ability to secretly improve/worsen relations with hidden groups based on other trigger-based actions or behaviors.
 
 ## Stories
 Each story is intended to act as the sort of event that could come about as the result of emergent gameplay. 

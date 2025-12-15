@@ -128,3 +128,4 @@ Treat an injured crew member. Only one crew member can be treated at a time
 # Expanded Roles - Wishlist
 While this is nominally a remake of the original Starflight games, the intent is to take the what was present in the original games and expand on it.
 That might include deepening the options available to the different crew roles, or adding entirely new roles for specialized purposes.
+
