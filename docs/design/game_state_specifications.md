@@ -73,7 +73,7 @@ A region of space centered on a gravitational body. Stackable - can nest arbitra
 }
 ```
 
-**Contains:** Orbital bodies (planets, moons, stations), ships, anomalies, rings, asteroids
+**Contains:** Orbital bodies (planets, moons, stations), ships, anomalies, rings, asteroids, comets
 
 **Movement:** Free movement in 2D plane. Smaller scale than hyperspace.
 
@@ -231,6 +231,7 @@ Not all transitions are valid:
 
 - Can't land on gas giants (warning prompt, but allowed if player insists - consequences follow)
 - Can't enter orbit from hyperspace (must be in LOCAL_SPACE)
+- Can't enter orbit around hostile aliens (must resolve encounter first)
 - Can't land without selecting a landing site
 - Can't dock with hostile stations (must resolve encounter first)
 
