@@ -171,4 +171,14 @@ Eventually player will push past the outer system boundary and enter interstella
 Here they'll learn about flying between star systems, using the star map.
 This is also where they'll have humanity's "first contact" event, and set the stage/premise for the game.
 
-At this point, the "tutorial" will be over, and the player will be treated to a chance to customize their crew, their ship, and have a chance to experience the actual game
+At this point, the "tutorial" will be over, and the player will be treated to a chance to customize their crew, their ship, and have a chance to experience the actual game.
+
+### "Captain, they're lying"
+The crew is engaging with a disabled Olphine frigate who sent out a distress signal. The Olphine is an alien species with a reputation for criminal activity, but your mission is to assist. They've just invited you over to their ship so you can assist with repairs, but your communications officer who's trained in alien relations surreptitiously informs you that they're lying, and that there's a good chance they're planning on hijacking your own vessel.
+
+### Xilqik First Contact
+The first meeting with the Xilqik ship is just a flash on the screen of the Xilqik portrait, following by quickly cutting off communications and an announcement from the crew that the ship has armed its weapons, but haven't raised its shields. The Xilqik are trying to figure out how to work the ship, but are inviting disaster through their ignorance.
+
+The player is free to respond however they might, and it might end with the destruction of the ship. The player wouldn't be blamed for the outcome, since watching a ship arm its weapons is easily interpreted as a hostile act. The baseline case would assume that the player would destroy the ship (tragic, but neutral as far as the Xilqik are concerned), and the best case would be patience and seeing how the situation plays itself out 
+
+For the good case, the player is transmitted the hyperspace coordinates of the Xilqik home system, and landing coordinates for something to progress their story. For the case of ship destruction, the player is sent a transmission of just the planetary coordinates. They'd have to find out about the Xilqik home world from the Yanooth, who don't view the Xilqik as important.

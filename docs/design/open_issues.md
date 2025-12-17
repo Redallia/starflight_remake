@@ -1,8 +1,5 @@
 # Open Issues
 
-## Navigation & Coordinate Systems 
-We just talked through how hyperspace tiles work, fuel consumption per coordinate, how system space is looser. This deserves its own doc since it's core to the "exploration as gameplay" loop.
-
 ## Combat Specification
 You've deferred this, but eventually you'll need it. The original's arcade-style combat didn't fit. You mentioned wanting something more tactical. When you're ready, this needs its own doc.
 
