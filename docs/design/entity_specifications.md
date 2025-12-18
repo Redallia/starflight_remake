@@ -1,6 +1,7 @@
 # Entity Specifications
 Different game entities and details about each one.
 
+
 ## Crew Entity
 A sentient being capable of serving aboard a starship. Both player crew and alien crew share this base definition.
 Contains:
@@ -35,6 +36,7 @@ Alien ships are encountered in hyperspace and local space. They have faction aff
 
 ## Celestial Entities
 Bodies that exist in space, forming the structure of star systems.
+
 ### Star
 The central body of a star system. Exists at two levels: as an entry point in hyperspace, and as the non-interactive center of an Inner System.
 Contains:
