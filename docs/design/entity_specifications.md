@@ -2,6 +2,68 @@
 Different game entities and details about each one.
 
 
+## Species
+Defines a type of sentient being. Template for crew members and NPCs.
+Not a spatial entity - a data structure referenced by other entities.
+
+Contains:
+- Name (e.g., "Thrynn", "Human", "Velox")
+- Physical characteristics (portrait set, crew silhouette, physical scale)
+- Skill modifiers (e.g., Thrynn get +10 Navigation, -5 Medicine)
+* Communication style (dialogue patterns, translation difficulty baseline)
+- Homeworld reference (origin system/planet)
+- Default faction (for MVP: assumed faction when spawning this species)
+
+Data Structure:
+- name: string
+- portrait_set: string (path or identifier)
+- silhouette: string (path or identifier)
+- scale: enum (small, medium, large) or float
+- skill_modifiers: dict {skill_name: int modifier}
+- communication_style: string (identifier referencing dialogue patterns)
+- translation_difficulty: int (baseline difficulty for comms officer)
+- homeworld: string (system/planet reference)
+- default_faction: string (faction identifier)
+
+## Faction
+A political, organizational, or cultural entity that the player can have standing with.
+Not a spatial entity - a data structure that affects encounters, access, and NPC behavior.
+
+Contains:
+- Name (e.g., "Thrynn Empire", "Tandelou Eshvey", "Tandelou Eshvara")
+- Associated species (list - which species are members; often one, sometimes multiple)
+- Faction portraits (optional overrides for species portraits when representing this faction)
+- Player standing (hostile/unfriendly/neutral/friendly/allied, or numeric scale)
+- Territory (which systems/regions they claim - list of system references)
+- Relationships (attitudes toward other factions)
+- Encounter behavior (how ships of this faction act - aggressive, mercantile, evasive, etc.)
+
+Data Structure:
+- name: string
+- species: list[string] (species identifiers)
+- portraits: dict {species_id: portrait_path} (optional overrides)
+- player_standing: int or enum
+- territory: list[string] (system/region references)
+- relationships: dict {faction_id: stance}
+- default_behavior: string (behavior pattern identifier)
+
+## Ship Entity
+A space-faring vessel capable of hyperspace and local space travel. Both player ship and alien ships share this base definition.
+Contains:
+Name
+- Ship class/type (determines base stats, visual representation)
+- Crew roster (for player ship; alien ships have implied crew)
+- Faction/species affiliation
+- Equipment (weapons, armor, shields, engines, special technology or artifacts)
+- Coordinate location (in hyperspace or local space context)
+- Cargo (minerals, lifeforms, artifacts, messages)
+- Fuel level (current and maximum)
+- Hull integrity (current and maximum)
+
+Player ship is the vessel the player commands. Equipment can be upgraded at Starport. Cargo is managed via Captain → Cargo. Fuel and hull are critical resources that constrain exploration.
+
+Alien ships are encountered in hyperspace and local space. They have faction affiliations that determine behavior (hostile, neutral, friendly). Their equipment loadout affects encounter difficulty. Defeated alien ships may drop cargo or debris.
+
 ## Crew Entity
 A sentient being capable of serving aboard a starship. Both player crew and alien crew share this base definition.
 Contains:
@@ -16,23 +78,6 @@ Player crew are assigned to the player's ship and controlled via bridge commands
 Alien crew exist aboard alien vessels. Their skill levels affect how well their ship performs in encounters (accuracy, scan resistance, communication clarity). The player doesn't interact with them directly, but their presence is implied by ship behavior.
 
 **Death**: When a crew member dies, their role becomes vacant. For player crew, the crew member with the next highest rating fills in until a replacement is assigned at Starport. Deceased player crew appear as a memorial at Starport.
-
-## Ship Entity
-A space-faring vessel capable of hyperspace and local space travel. Both player ship and alien ships share this base definition.
-Contains:
-Name
-- Ship class (determines base stats, visual representation)
-- Crew roster (for player ship; alien ships have implied crew)
-- Faction/species affiliation
-- Equipment (weapons, armor, shields, engines, special technology or artifacts)
-- Coordinate location (in hyperspace or local space context)
-- Cargo (minerals, lifeforms, artifacts, messages)
-- Fuel level (current and maximum)
-- Hull integrity (current and maximum)
-
-Player ship is the vessel the player commands. Equipment can be upgraded at Starport. Cargo is managed via Captain → Cargo. Fuel and hull are critical resources that constrain exploration.
-
-Alien ships are encountered in hyperspace and local space. They have faction affiliations that determine behavior (hostile, neutral, friendly). Their equipment loadout affects encounter difficulty. Defeated alien ships may drop cargo or debris.
 
 ## Celestial Entities
 Bodies that exist in space, forming the structure of star systems.
@@ -173,13 +218,3 @@ Contains:
 
 Not directly interacted with as an entity - it is the player's presence on the surface. Fuel depletion causes abandonment, triggering on-foot return to ship.
 
-## Factions
-Not an entity in the spatial sense, but a data structure that affects entity behavior.
-Contains:
-- Name
-- Species (which alien species this faction represents, if any)
-- Player standing (numeric or tiered - hostile, unfriendly, neutral, friendly, allied)
-- Territory (which systems or regions they claim)
-- Relationships (stance toward other factions)
-
-**Effect**: Faction standing determines alien ship behavior on encounter, access to faction-specific stations and settlements, and available dialogue/trade options.
