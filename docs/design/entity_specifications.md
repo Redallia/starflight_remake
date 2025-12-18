@@ -6,15 +6,15 @@ Different game entities and details about each one.
 Defines a type of sentient being. Template for crew members and NPCs.
 Not a spatial entity - a data structure referenced by other entities.
 
-Contains:
+**Contains**:
 - Name (e.g., "Thrynn", "Human", "Velox")
 - Physical characteristics (portrait set, crew silhouette, physical scale)
 - Skill modifiers (e.g., Thrynn get +10 Navigation, -5 Medicine)
-* Communication style (dialogue patterns, translation difficulty baseline)
+- Communication style (dialogue patterns, translation difficulty baseline)
 - Homeworld reference (origin system/planet)
 - Default faction (for MVP: assumed faction when spawning this species)
 
-Data Structure:
+**Data Structure**:
 - name: string
 - portrait_set: string (path or identifier)
 - silhouette: string (path or identifier)
@@ -47,31 +47,81 @@ Data Structure:
 - relationships: dict {faction_id: stance}
 - default_behavior: string (behavior pattern identifier)
 
-## Ship Entity
-A space-faring vessel capable of hyperspace and local space travel. Both player ship and alien ships share this base definition.
+## Ships
+Ships fall into two broad categories: 
+- Ships as a class, which more of a template
+- Ship Instances, which are instantiations of specific ships
+
+### Ship Class
+A template defining a type of vessel. Designed by a species, used by factions.
+Not a spatial entity - a data structure referenced by ship instances.
+
 Contains:
-Name
-- Ship class/type (determines base stats, visual representation)
-- Crew roster (for player ship; alien ships have implied crew)
-- Faction/species affiliation
-- Equipment (weapons, armor, shields, engines, special technology or artifacts)
-- Coordinate location (in hyperspace or local space context)
-- Cargo (minerals, lifeforms, artifacts, messages)
-- Fuel level (current and maximum)
-- Hull integrity (current and maximum)
+- Class name (e.g., "Thrynn Destroyer", "Human Survey Vessel", "Elowan Seedship")
+- Designer species (which species designed this class - affects visual style)
+- Base stats (hull strength, fuel capacity, cargo capacity, base speed)
+- Equipment slots (how many/what type of weapons, shields, engines, special equipment)
+- Visual identifier (sprite or model reference)
 
-Player ship is the vessel the player commands. Equipment can be upgraded at Starport. Cargo is managed via Captain → Cargo. Fuel and hull are critical resources that constrain exploration.
+Data Structure:
+- class_name: string
+- designer_species: string (species identifier)
+- base_hull: int
+- base_fuel_capacity: int
+- base_cargo_capacity: int
+- base_speed: float
+- equipment_slots: dict {slot_type: int count}
+- sprite: string (visual reference)
 
-Alien ships are encountered in hyperspace and local space. They have faction affiliations that determine behavior (hostile, neutral, friendly). Their equipment loadout affects encounter difficulty. Defeated alien ships may drop cargo or debris.
+### Ship (Instance)
+A specific vessel that exists in the game world.
+Spatial entity - has position in hyperspace or local space.
 
-## Crew Entity
-A sentient being capable of serving aboard a starship. Both player crew and alien crew share this base definition.
 Contains:
-- Name
-- Species (determines available skill bonuses, visual representation)
-- Assigned ship role (Captain, Science Officer, Navigator, Engineer, Communications, Doctor, or none)
-- Skills and training levels (Science, Navigation, Engineering, Communication, Medicine)
+- Name (the vessel's name, e.g., "ISS Explorer", "Vengeance of Arth")
+- Ship class (reference to ship class data)
+- Faction (who this ship serves)
+- Ship portraits (optional overrides for specific captain portraits when representing this ship)
+- Crew roster (list of crew members aboard)
+- Installed equipment (weapons, shields, engines, etc.)
+- Current state (hull integrity, fuel level, cargo contents)
+- Position (coordinate context - where in space it currently is)
+
+Data Structure:
+- name: string
+- ship_class: string (class identifier)
+- faction: string (faction identifier)
+- crew: list[Crew]
+- equipment: dict {slot_type: equipment_id}
+- hull: int (current)
+- fuel: int (current)
+- cargo: list[CargoItem]
+- position: PositionContext
+- portraits: dict {species_id: portrait_path} (optional overrides)
+
+## Crew Member
+An individual sentient being capable of serving aboard a starship.
+Spatial only in the sense of being "on a ship" - not independently positioned.
+
+Contains:
+- Name (individual's name)
+- Species (reference to species data)
+- Faction membership (public - what they claim; hidden - actual loyalty, if different)
+- Assigned role (Captain, Science Officer, Navigator, Engineer, Communications, Doctor, or none)
+- Skills (Science, Navigation, Engineering, Communication, Medicine - individual values)
 - Health (current and maximum)
+- Status (active, injured, dead)
+
+Data Structure:
+- name: string
+- species: string (species identifier)
+- public_faction: string (faction identifier)
+- hidden_faction: string or null (if secretly loyal elsewhere)
+- role: enum or null
+- skills: dict {skill_name: int}
+- health: int
+- max_health: int
+- status: enum (active, injured, dead)
 
 Player crew are assigned to the player's ship and controlled via bridge commands. They're created or recruited at Starport and can be trained to improve skills.
 
