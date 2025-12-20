@@ -1,0 +1,44 @@
+{
+    "species": {
+        "human": {
+            "name": "Human",
+            "description": "Standard humanoid species with balanced attributes.",
+            "portrait": "human_portrait.png",
+            "communication_style": "friendly",
+            "starting_skill_value": {
+                "science": 50,
+                "navigation": 30,
+                "engineering": 30,
+                "communication": 30,
+                "medicine": 30
+            },
+            "maximum_skill_value": {
+                "science": 250,
+                "navigation": 200,
+                "engineering": 200,
+                "communication": 200,
+                "medicine": 200
+            }
+        },
+        "ov’al": {
+            "name": "Ov’al",
+            "description": "A species known for their telepathic abilities and enhanced strength.",
+            "portrait": "oval_portrait.png",
+            "communication_style": "friendly",
+            "starting_skill_value": {
+                "science": 10,
+                "navigation": 50,
+                "engineering": 10,
+                "communication": 50,
+                "medicine": 0
+            },
+            "maximum_skill_value": {
+                "science": 150,
+                "navigation": 250,
+                "engineering": 150,
+                "communication": 250,
+                "medicine": 100
+            }
+        }
+    }
+}

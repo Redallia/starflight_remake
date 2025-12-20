@@ -1,0 +1,24 @@
+{
+    "skills": {
+        "science": {
+            "description": "Affects scan quality and analysis detail",
+            "associated_role": "science_officer"
+        },
+        "navigation": {
+            "description": "Affects weapon accuracy, fuel efficiency, post-flux orientation time",
+            "associated_role": "navigator"
+        },
+        "engineering": {
+            "description": "Affects repair speed and quality",
+            "associated_role": "engineer"
+        },
+        "communication": {
+            "description": "Affects translation quality and diplomatic insight",
+            "associated_role": "communications"
+        },
+        "medicine": {
+            "description": "Affects healing speed and effectiveness",
+            "associated_role": "doctor"
+        }
+    }
+}
