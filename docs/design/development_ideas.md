@@ -182,3 +182,13 @@ The first meeting with the Xilqik ship is just a flash on the screen of the Xilq
 The player is free to respond however they might, and it might end with the destruction of the ship. The player wouldn't be blamed for the outcome, since watching a ship arm its weapons is easily interpreted as a hostile act. The baseline case would assume that the player would destroy the ship (tragic, but neutral as far as the Xilqik are concerned), and the best case would be patience and seeing how the situation plays itself out 
 
 For the good case, the player is transmitted the hyperspace coordinates of the Xilqik home system, and landing coordinates for something to progress their story. For the case of ship destruction, the player is sent a transmission of just the planetary coordinates. They'd have to find out about the Xilqik home world from the Yanooth, who don't view the Xilqik as important.
+
+### Life Finds a Way
+
+The player hears about a gas giant in Ov'al space that, somehow, is teeming with life. They go to investigate and find the rumor to be true, but their ship is incapable of getting close.
+
+The player reports back about the gas giant and the unique life. A science mission is offered to go and study the life. The player is allowed to outfit their ship with special engines (Class 1 equivalent),shields designed to work in the atmosphere of a gas giant, and specially designed cargo pods for carrying these unique life forms.
+
+Having these installed, the player is allowed to "land" on a gas giant. Instead of the terrain vehicle, the players ship is the navigable object, and fuel costs come out of the player's ship's fuel supply (so long missions are discouraged).
+
+The terrain behaves identically, and specialty life forms are allowed to be captured. The rewards for returning with these life forms should be enough to offset the cost of fuel plus profit. Science faction standing is also increased to some set maximum.

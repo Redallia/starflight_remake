@@ -11,7 +11,8 @@
             "starting_relationships":{
                 "oval_collective": -30,
                 "citadel": 20
-            }
+            },
+            "available_ships": ["human_survey_vessel"]
         },
         "oval_collective": {
             "name": "Ov'al Collective",
@@ -24,7 +25,8 @@
             "starting_relationships":{
                 "oval_collective": 50,
                 "citadel": -10
-            }
+            },
+            "available_ships": ["oval_survey_vessel", "oval_cargo_transport"]
         }
     }
 }

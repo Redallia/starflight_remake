@@ -105,6 +105,12 @@
             "is_fuel": true,
             "rarity": "rare"
         },
+        "rodnium":{
+            "name": "Rodnium",
+            "value": 440,
+            "is_fuel": true,
+            "rarity": "rare"
+        },
         "atruinium":{
             "name": "Atruinium",
             "nickname": "Atrun",

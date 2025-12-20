@@ -1,19 +1,45 @@
 {
-    "ships": {
-        "classes": {
-            "human_survey_vessel": {
-                "name": "Survey Vessel",
-                "designer_species": "human",
-                "size_class": "frigate",
-                "sprite": "human_survey.png",
-                "base_hull": 100,
-                "available_cargo_bays": 12,
-                "max_equipment_class": {
-                    "engine": 3,
-                    "shield": 2,
-                    "armor": 2,
-                    "weapon": 2
-                }                
+    "ship_classes": {
+        "human_survey_vessel": {
+            "name": "Survey Vessel",
+            "designer_species": "human",
+            "size_class": "frigate",
+            "sprite": "human_survey.png",
+            "base_hull": 100,
+            "available_cargo_bays": 12,
+            "max_equipment_class": {
+                "engine": 5,
+                "shield": 5,
+                "armor": 5,
+                "weapon": 5
+            }
+        },
+        "oval_survey_vessel": {
+            "name": "Survey Vessel",
+            "designer_species": "oval",
+            "size_class": "frigate",
+            "sprite": "oval_survey.png",
+            "base_hull": 100,
+            "available_cargo_bays": 12,
+            "max_equipment_class": {
+                "engine": 5,
+                "shield": 5,
+                "armor": 5,
+                "weapon": 5
+            }
+        },
+        "oval_cargo_transport": {
+            "name": "Ov'al Transport",
+            "designer_species": "oval",
+            "size_class": "transport",
+            "sprite": "oval_transport.png",
+            "base_hull": 100,
+            "available_cargo_bays": 24,
+            "max_equipment_class": {
+                "engine": 3,
+                "shield": 2,
+                "armor": 5,
+                "weapon": 0
             }
         }
     }
