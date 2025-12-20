@@ -4,70 +4,91 @@
             "class_1": {
                 "name": "Class 1 Laser",
                 "description": "Basic laser",
+                "class": 1,
                 "damage": 10,
-                "power_consumption_rate": 0.01
+                "power_consumption_rate": 0.01,
+                "cost": 8000
             },
             "class_2": {
                 "name": "Class 2 Laser",
                 "description": "Slightly improved laser",
+                "class": 2,
                 "damage": 20,
-                "power_consumption_rate": 0.01
+                "power_consumption_rate": 0.01,
+                "cost": 20000
             },
             "class_3": {
                 "name": "Class 3 Laser",
                 "description": "Improved laser",
+                "class": 3,
                 "damage": 30,
-                "power_consumption_rate": 0.01
+                "power_consumption_rate": 0.01,
+                "cost": 54000
             },
             "class_4": {
                 "name": "Class 4 Laser",
                 "description": "Advanced laser",
+                "class": 4,
                 "damage": 40,
-                "power_consumption_rate": 0.01
+                "power_consumption_rate": 0.01,
+                "cost": 90000
             },
             "class_5": {
                 "name": "Class 5 Laser",
                 "description": "State-of-the-art laser",
+                "class": 5,
                 "damage": 50,
-                "power_consumption_rate": 0.01
+                "power_consumption_rate": 0.01,
+                "cost": 150000
             },
             "mining_laser": {
                 "name": "Mining Laser",
                 "description": "Specialized mining laser",
                 "damage": 5,
-                "power_consumption_rate": 0.01
+                "power_consumption_rate": 0.01,
+                "cost": 1500
             }
         },
         "missile_launcher": {
             "class_1": {
                 "name": "Class 1 Missile Launcher",
                 "description": "Basic missile launcher",
+                "class": 1,
                 "damage": 20,
-                "power_consumption_rate": 0.05
+                "power_consumption_rate": 0.05,
+                "cost": 12000
             },
             "class_2": {
                 "name": "Class 2 Missile Launcher",
                 "description": "Slightly improved missile launcher",
+                "class": 2,
                 "damage": 40,
-                "power_consumption_rate": 0.05
+                "power_consumption_rate": 0.05,
+                "cost": 28000
             },
             "class_3": {
                 "name": "Class 3 Missile Launcher",
                 "description": "Improved missile launcher",
+                "class": 3,
                 "damage": 60,
-                "power_consumption_rate": 0.05
+                "power_consumption_rate": 0.05,
+                "cost": 60000
             },
             "class_4": {
                 "name": "Class 4 Missile Launcher",
                 "description": "Advanced missile launcher",
+                "class": 4,
                 "damage": 80,
-                "power_consumption_rate": 0.05
+                "power_consumption_rate": 0.05,
+                "cost": 120000
             },
             "class_5": {
                 "name": "Class 5 Missile Launcher",
                 "description": "State-of-the-art missile launcher",
+                "class": 5,
                 "damage": 100,
-                "power_consumption_rate": 0.05
+                "power_consumption_rate": 0.05,
+                "cost": 200000
             }
  
         }

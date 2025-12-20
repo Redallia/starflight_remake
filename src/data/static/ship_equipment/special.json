@@ -4,12 +4,14 @@
             "flux_scanner": {
                 "name": "Flux Scanner",
                 "description": "Scans for flux jumps",
-                "power_consumption_rate": 0.2
+                "power_consumption_rate": 0.2,,
+                "cost": 1500
             },
             "hyperspace_scanner": {
                 "name": "Hyperspace Scanner",
                 "description": "Scans for alien vessels in hyperspace",
-                "power_consumption_rate": 0.3
+                "power_consumption_rate": 0.3,
+                "cost": 1500
             }
         }
     }

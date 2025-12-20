@@ -3,27 +3,37 @@
         "class_1": {
             "name": "Class 1 Armor",
             "description": "Basic armor",
-            "durability": 0.1
+            "class": 1,
+            "durability": 0.1,
+            "cost": 1500
         },
         "class_2": {
             "name": "Class 2 Armor",
             "description": "Slightly improved armor",
-            "durability": 0.2
+            "class": 2,
+            "durability": 0.2,
+            "cost": 3100
         },
         "class_3": {
             "name": "Class 3 Armor",
             "description": "Improved armor",
-            "durability": 0.3
+            "class": 3,
+            "durability": 0.3,
+            "cost": 6200
         },
         "class_4": {
             "name": "Class 4 Armor",
             "description": "Advanced armor",
-            "durability": 0.4
+            "class": 4,
+            "durability": 0.4,
+            "cost": 12500
         },
         "class_5": {
             "name": "Class 5 Armor",
             "description": "State-of-the-art armor",
-            "durability": 0.5
+            "class": 5,
+            "durability": 0.5,
+            "cost": 25000
         }
     }
 }

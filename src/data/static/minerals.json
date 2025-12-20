@@ -1,0 +1,116 @@
+{
+    "minerals": {
+        "lead": {
+            "name": "Lead",
+            "value": 40,
+            "rarity": "common"
+        },
+        "iron": {
+            "name": "Iron",
+            "value": 60,
+            "rarity": "common"
+        },
+        "cobalt": {
+            "name": "Cobalt",
+            "value": 80,
+            "rarity": "common"
+        },
+        "nickel": {
+            "name": "Nickel",
+            "value": 100,
+            "rarity": "common"
+        },
+        "copper": {
+            "name": "Copper",
+            "value": 120,
+            "rarity": "common"
+        },
+        "zinc": {
+            "name": "Zinc",
+            "value": 140,
+            "rarity": "common"
+        },
+        "molybdenum": {
+            "name": "Molybdenum",
+            "value": 160,
+            "is_repair_material": true,
+            "rarity": "uncommon"
+        },
+        "tin": {
+            "name": "Tin",
+            "value": 180,
+            "rarity": "common"
+        },
+        "magnesium": {
+            "name": "Magnesium",
+            "value": 200,
+            "rarity": "uncommon"
+        },
+        "aluminum": {
+            "name": "Aluminum",
+            "value": 220,
+            "is_repair_material": true,
+            "rarity": "common"
+        },
+        "titanium": {
+            "name": "Titanium",
+            "value": 240,
+            "is_repair_material": true,
+            "rarity": "uncommon"
+        },
+        "chromium": {
+            "name": "Chromium",
+            "value": 260,
+            "rarity": "uncommon"
+        },
+        "antimony": {
+            "name": "Antimony",
+            "value": 280,
+            "rarity": "uncommon"
+        },
+        "promethium": {
+            "name": "Promethium",
+            "value": 300,
+            "is_repair_material": true,
+            "rarity": "uncommon"
+        },
+        "mercury": {
+            "name": "Mercury",
+            "value": 320,
+            "rarity": "uncommon"
+        },
+        "tungsten": {
+            "name": "Tungsten",
+            "value": 340,
+            "rarity": "uncommon"
+        },
+        "silver": {
+            "name": "Silver",
+            "value": 360,
+            "rarity": "uncommon"
+        },
+        "gold": {
+            "name": "Gold",
+            "value": 380,
+            "rarity": "rare"
+        },
+        "platinum": {
+            "name": "Platinum",
+            "value": 400,
+            "rarity": "rare"
+        },
+        "plutonium": {
+            "name": "Plutonium",
+            "value": 420,
+            "is_fuel": true,
+            "rarity": "rare"
+        },
+        "atruinium":{
+            "name": "Atruinium",
+            "nickname": "Atrun",
+            "value": 500,
+            "is_fuel": true,
+            "rarity": "rare"
+        }
+    }
+}

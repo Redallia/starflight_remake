@@ -1,0 +1,20 @@
+{
+    "ships": {
+        "classes": {
+            "human_survey_vessel": {
+                "name": "Survey Vessel",
+                "designer_species": "human",
+                "size_class": "frigate",
+                "sprite": "human_survey.png",
+                "base_hull": 100,
+                "available_cargo_bays": 12,
+                "max_equipment_class": {
+                    "engine": 3,
+                    "shield": 2,
+                    "armor": 2,
+                    "weapon": 2
+                }                
+            }
+        }
+    }
+}
