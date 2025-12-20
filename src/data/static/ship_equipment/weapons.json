@@ -1,0 +1,75 @@
+{
+    "weapons": {
+        "laser": {
+            "class_1": {
+                "name": "Class 1 Laser",
+                "description": "Basic laser",
+                "damage": 10,
+                "power_consumption_rate": 0.01
+            },
+            "class_2": {
+                "name": "Class 2 Laser",
+                "description": "Slightly improved laser",
+                "damage": 20,
+                "power_consumption_rate": 0.01
+            },
+            "class_3": {
+                "name": "Class 3 Laser",
+                "description": "Improved laser",
+                "damage": 30,
+                "power_consumption_rate": 0.01
+            },
+            "class_4": {
+                "name": "Class 4 Laser",
+                "description": "Advanced laser",
+                "damage": 40,
+                "power_consumption_rate": 0.01
+            },
+            "class_5": {
+                "name": "Class 5 Laser",
+                "description": "State-of-the-art laser",
+                "damage": 50,
+                "power_consumption_rate": 0.01
+            },
+            "mining_laser": {
+                "name": "Mining Laser",
+                "description": "Specialized mining laser",
+                "damage": 5,
+                "power_consumption_rate": 0.01
+            }
+        },
+        "missile_launcher": {
+            "class_1": {
+                "name": "Class 1 Missile Launcher",
+                "description": "Basic missile launcher",
+                "damage": 20,
+                "power_consumption_rate": 0.05
+            },
+            "class_2": {
+                "name": "Class 2 Missile Launcher",
+                "description": "Slightly improved missile launcher",
+                "damage": 40,
+                "power_consumption_rate": 0.05
+            },
+            "class_3": {
+                "name": "Class 3 Missile Launcher",
+                "description": "Improved missile launcher",
+                "damage": 60,
+                "power_consumption_rate": 0.05
+            },
+            "class_4": {
+                "name": "Class 4 Missile Launcher",
+                "description": "Advanced missile launcher",
+                "damage": 80,
+                "power_consumption_rate": 0.05
+            },
+            "class_5": {
+                "name": "Class 5 Missile Launcher",
+                "description": "State-of-the-art missile launcher",
+                "damage": 100,
+                "power_consumption_rate": 0.05
+            }
+ 
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "armor": {
+        "class_1": {
+            "name": "Class 1 Armor",
+            "description": "Basic armor",
+            "durability": 0.1
+        },
+        "class_2": {
+            "name": "Class 2 Armor",
+            "description": "Slightly improved armor",
+            "durability": 0.2
+        },
+        "class_3": {
+            "name": "Class 3 Armor",
+            "description": "Improved armor",
+            "durability": 0.3
+        },
+        "class_4": {
+            "name": "Class 4 Armor",
+            "description": "Advanced armor",
+            "durability": 0.4
+        },
+        "class_5": {
+            "name": "Class 5 Armor",
+            "description": "State-of-the-art armor",
+            "durability": 0.5
+        }
+    }
+}

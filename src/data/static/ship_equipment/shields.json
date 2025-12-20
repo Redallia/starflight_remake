@@ -1,0 +1,34 @@
+{
+    "shield": {
+        "class_1": {
+            "name": "Class 1 shield",
+            "description": "Basic shield",
+            "protection_value": 10,
+            "power_consumption_rate": 0.1
+        },
+        "class_2": {
+            "name": "Class 2 shield",
+            "description": "Slightly improved shield",
+            "protection_value": 20,
+            "power_consumption_rate": 0.1
+        },
+        "class_3": {
+            "name": "Class 3 shield",
+            "description": "Improved shield",
+            "protection_value": 30,
+            "power_consumption_rate": 0.1
+        },
+        "class_4": {
+            "name": "Class 4 shield",
+            "description": "Advanced shield",
+            "protection_value": 40,
+            "power_consumption_rate": 0.1
+        },
+        "class_5": {
+            "name": "Class 5 shield",
+            "description": "State-of-the-art shield",
+            "protection_value": 50,
+            "power_consumption_rate": 0.1
+        }
+    }
+}

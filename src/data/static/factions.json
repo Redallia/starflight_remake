@@ -1,0 +1,30 @@
+{
+    "factions":{
+        "citadel":{
+            "name": "Citadel",
+            "homeworld": "earth",
+            "portrait_override": "citadel.png",
+            "species": ["human"],
+            "territories": ["sol"],
+            "communication_style_override": "friendly",
+            "starting_player_standing": 50,
+            "starting_relationships":{
+                "oval_collective": -30,
+                "citadel": 20
+            }
+        },
+        "oval_collective": {
+            "name": "Ov'al Collective",
+            "homeworld": "oval_planet",
+            "portrait_override": "oval_collective.png",
+            "species": ["ov’al"],
+            "territories": ["oval_system"],
+            "communication_style_override": "neutral",
+            "starting_player_standing": 0,
+            "starting_relationships":{
+                "oval_collective": 50,
+                "citadel": -10
+            }
+        }
+    }
+}

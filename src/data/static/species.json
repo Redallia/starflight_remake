@@ -18,6 +18,10 @@
                 "engineering": 200,
                 "communication": 200,
                 "medicine": 200
+            },
+            "species_affinities": {
+                "ov’al": -20,
+                "human": 0
             }
         },
         "ov’al": {
@@ -38,6 +42,10 @@
                 "engineering": 150,
                 "communication": 250,
                 "medicine": 100
+            },
+            "species_affinities": {
+                "ov’al": 0,
+                "human": -20
             }
         }
     }

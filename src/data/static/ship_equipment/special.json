@@ -1,0 +1,16 @@
+{
+    "special":{
+        "scanners": {
+            "flux_scanner": {
+                "name": "Flux Scanner",
+                "description": "Scans for flux jumps",
+                "power_consumption_rate": 0.2
+            },
+            "hyperspace_scanner": {
+                "name": "Hyperspace Scanner",
+                "description": "Scans for alien vessels in hyperspace",
+                "power_consumption_rate": 0.3
+            }
+        }
+    }
+}
