@@ -1,0 +1,34 @@
+{
+    "planet_types": {
+        "molten": {
+            "name": "Molten",
+            "description": "A planet with a surface entirely covered in molten rock.",
+            "landable": true
+        },
+        "ocean": {
+            "name": "Ocean",
+            "description": "A planet with a surface entirely covered in liquid.",
+            "landable": true
+        },
+        "rocky": {
+            "name": "Rocky",
+            "description": "A planet with a solid surface.",
+            "landable": true
+        },
+        "frozen":{
+            "name": "Frozen",
+            "description": "A planet with a surface entirely covered in ice.",
+            "landable": true
+        },
+        "gas_giant": {
+            "name": "Gas Giant",
+            "description": "A large planet composed primarily of gas.",
+            "landable": false
+        },
+        "ice_giant": {
+            "name": "Ice Giant",
+            "description": "A large cold planet.",
+            "landable": false
+        }
+    }
+}

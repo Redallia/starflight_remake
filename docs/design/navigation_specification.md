@@ -5,7 +5,7 @@ This document defines how movement works across all spatial contexts: hyperspace
 Coordinate Systems
 
 ## Hyperspace
-Hyperspace uses a tile-based coordinate system. The sector grid is 125 x 110 tiles, with each tile being 10 x 10 units. This gives a total navigable space of 1250 x 1100 units.
+Hyperspace uses a tile-based coordinate system. The sector grid is 125 x 110 tiles, with each tile being 8 x 8 units. This gives a total navigable space of 1000 x 880 units.
 
 Ship position is tracked at the unit level for smooth movement and visual rendering. A ship might be at position (473, 891) within the 1250x1100 space.
 Tile position is derived from unit position and determines what feature (if any) the ship is interacting with. Position (473, 891) means the ship is in tile (47, 89).
@@ -15,13 +15,9 @@ Each tile can contain at most one feature. Features are positioned at the center
 ### Hyperspace Objects
 Three object types can occupy hyperspace tiles:
 #### Stars (System Entry Points)
-Stars are entry points into local space. Visual size varies by stellar spectral class:
-Spectral Class | Relative Size | Notes
-O, B (Blue giants) | Large | Dominates tile
-A, F (White/Yellow-white) | Medium-large | 
-G (Yellow, Sol-like) | Medium |
-K (Orange) | Medium-small | 
-M (Red dwarf) | Small |
+Stars are entry points from hyperspace into local space. Visual size varies by stellar spectral class. See src/data/static/stellar_classes.json
+
+
 
 **Interaction**: Collision with the star's boundary triggers automatic system entry. No confirmation prompt. Approach angle is preserved; entering from galactic north places the ship at the northern edge of the Outer System map.
 

@@ -1,0 +1,67 @@
+{
+    "template_system": {
+        "star" : {
+            "type": "G"
+        },
+        "inner_system":{
+            "planet_count": 3,
+            "planet_1":{
+                "type": "molten",
+                "gravity": 1.2,
+                "atmosphere": ["sulphur compounds","carbon dioxide"],
+                "hydrosphere": [""],
+                "lithosphere": ["mercury","",""],
+                "atmospheric_activity": "violent",
+                "temperature": "inferno"
+            },
+            "planet_2":{
+                "type": "rocky",
+                "gravity": 0.6,
+                "atmosphere": ["vacuum"],
+                "hydrosphere": ["none"],
+                "lithosphere": ["lead","iron","cobalt"],
+                "atmospheric_activity": "none",
+                "temperature": "searing"
+            },
+            "planet_3":{
+                "type": "ocean",
+                "gravity": 0.9,
+                "atmosphere": ["nitrogen","oxygen"],
+                "hydrosphere": ["water ice"],
+                "lithosphere": ["","",""],
+                "atmospheric_activity": "calm",
+                "temperature": "tropical"
+            }
+        },
+        "outer_system":{
+            "planet_count": 3,
+            "planet_1":{
+                "type": "gas",
+                "gravity": 10.2,
+                "atmosphere": ["",""],
+                "hydrosphere": [""],
+                "lithosphere": ["","",""],
+                "atmospheric_activity": "very violent",
+                "temperature": "temperate"
+            },
+            "planet_2":{
+                "type": "ice giant",
+                "gravity": 6.5,
+                "atmosphere": ["",""],
+                "hydrosphere": [""],
+                "lithosphere": ["","",""],
+                "atmospheric_activity": "moderate",
+                "temperature": "arctic"
+            },
+            "planet_3":{
+                "type": "frozen",
+                "gravity": 0.25,
+                "atmosphere": ["",""],
+                "hydrosphere": [""],
+                "lithosphere": ["","",""],
+                "atmospheric_activity": "",
+                "temperature": "sub-arctic"
+            }
+        }
+    }
+}

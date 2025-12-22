@@ -1,0 +1,32 @@
+{
+    "spectral_class": {
+        "O": {
+            "name": "O",
+            "description": "The hottest and most massive stars."
+        },
+        "B": {
+            "name": "B",
+            "description": "Hot and blue stars."
+        },
+        "A": {
+            "name": "A",
+            "description": "Hot and white stars."
+        },
+        "F": {
+            "name": "F",
+            "description": "Warm and yellow stars."
+        },
+        "G": {
+            "name": "G",
+            "description": "Yellow dwarf stars like our Sun."
+        },
+        "K": {
+            "name": "K",
+            "description": "Orange dwarf stars."
+        },
+        "M": {
+            "name": "M",
+            "description": "Red dwarf stars, the most common type."
+        }
+    }
+}
