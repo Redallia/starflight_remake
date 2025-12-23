@@ -1,34 +1,48 @@
 {
-    "planet_types": {
-        "molten": {
-            "name": "Molten",
-            "description": "A planet with a surface entirely covered in molten rock.",
-            "landable": true
-        },
-        "ocean": {
-            "name": "Ocean",
-            "description": "A planet with a surface entirely covered in liquid.",
-            "landable": true
-        },
-        "rocky": {
-            "name": "Rocky",
-            "description": "A planet with a solid surface.",
-            "landable": true
-        },
-        "frozen":{
-            "name": "Frozen",
-            "description": "A planet with a surface entirely covered in ice.",
-            "landable": true
-        },
-        "gas_giant": {
-            "name": "Gas Giant",
-            "description": "A large planet composed primarily of gas.",
-            "landable": false
-        },
-        "ice_giant": {
-            "name": "Ice Giant",
-            "description": "A large cold planet.",
-            "landable": false
+    "planet": {
+        "type_name":[
+            "cratered",
+            "molten",
+            "ocean",
+            "rocky",
+            "frozen",
+            "gas_giant",
+            "ice_giant"
+        ],
+        "atmosphere_density_types": [
+            "none",
+            "thin",
+            "moderate",
+            "dense",
+            "very dense"
+        ],
+        "atmosphere_types":[
+            ["vacuum"],
+            ["ammonia compounds"],
+            ["hydrogen", "helium"],
+            ["oxygen", "nitrogen"],
+            ["oxygen", "carbon dioxide"],
+            ["carbon dioxide", "nitrogen"],
+            ["argon"],
+            ["chlorine compounds"],
+            ["water vapor", "methane", "carbon dioxide"],
+            ["silicate compounds"],
+            ["carbon dioxide", "methane"],
+            []
+        ],
+        "hydrosphere_types":[
+            ["none"],
+            ["ocean"],
+            ["ice"]
+        ],
+        "description": {
+            "cratered": "A rocky body pockmarked with craters",
+            "molten": "A planet with a surface entirely covered in molten rock.",
+            "ocean": "A planet with a surface entirely covered in liquid.",
+            "rocky": "A planet with a solid surface.",
+            "frozen": "A planet with a surface entirely covered in ice.",
+            "gas_giant": "A large planet composed primarily of gas.",
+            "ice_giant": "A large cold planet."
         }
     }
 }

@@ -113,7 +113,7 @@ Might be necessary to leverage a GPU to handle all that high-level rendering tho
 I want to look into how to generate craters and similar effects during planet surface generation. A celestial body without an atmosphere should be pock-marked by craters to sell the effect, rather than simply rendering like any other planet.
 
 ### Including modern gameplay loops
-**Colony building**
+#### Colony building
 In the original games, the player could find and recommend habitable planets for colonization. But beyond simply logging them and receiving a monetary reward, these had no other effect on gameplay, and were utilized as quick way to accumulate credits for ship improvement.
 
 In the new game, as the player finds and recommends planets for colonization, these recommendations could be the source for further gameplay in the form of:
@@ -126,7 +126,7 @@ In the new game, as the player finds and recommends planets for colonization, th
 
 This obviously represents a radical departure from the original game designs, which were focused on exploration, mystery uncovering, and storytelling. As such, this sort of interaction would be more appropriate for a sandbox-mode sector, rather than a story focused one.
 
-**Sidescroller game**
+#### Sidescroller game
 The original Starflight games had simple interfaces that allowed the player to walk around as a character, instead of flying around in a starship. 
 The only place this sort of interaction showed up was in the Starport area.
 I would love to see that system expanded into something more.
@@ -139,6 +139,19 @@ Locations might have events or interactable objects that might require crews to 
     - Doctors could interact with injured individuals in locations, or handle interactions with other living beings/creatures
 
 The aim would be to give the player more options for interaction that felt interesting, and provide more usefulness for crew members beyond their ship roles. Doctors and Engineers especially felt almost superfluous in the original game outside of specific conditions.
+
+#### The Race 
+In the original games, the player was the only character that was going around surveying planets. Aside from discovering habitable worlds and uncovering more of the mystery that was dropped as breadcrumbs, there was little reason to visit every planet.
+
+In The Race, the player starts in a fresh, unexplored sector. Player should be able to decide how many other "racers" they're competing against. The **Player's Organization** then tasks all racers to conduct a full survey of the sector.  
+
+All star systems, all planets, moons, celestial bodies are counted. **Flux jumps** might not be considered as necessary for a full survey, but each flux found could be added to a player's point count. The same flux could count multiple times, but only once per player.
+
+Each body is scored, individually, with bonuses for fully surveyed systems. Systems with more bodies are worth more in terms of body count, and in terms of system value.
+
+A "winner" is declared when all systems and other celestial phenomenon have been surveyed, the "players" return back to **Starport**, and the final totals are tallied.
+
+Different AI algorithms can be developed with different survey styles. If this is opened to the public, PvP surveying could be done, including the capacity for PvP ship engagement, though this should act as a reset rather than a full ship destruction.
 
 ### Factions
 Introducing a faction system to the game would allow for meaningful player choice, leading to changes in alien interactions, and differentiation between internal factions within a given species, culture, or civilization.

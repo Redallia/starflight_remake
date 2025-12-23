@@ -1,0 +1,18 @@
+{
+    "planet": {
+        "name": "",
+        "type": "",
+        "mass": 0,
+        "bio_percentage": 0,
+        "mineral_percentage": 0,
+        "atmosphere": [],
+        "hydrosphere": [],
+        "lithosphere": [],
+        "orbit_number": 0,
+        "predominant_surface": "",
+        "atmospheric_density": "",
+        "gravity": 0,
+        "temperature": "",
+        "global_weather": ""
+    }      
+}

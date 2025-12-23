@@ -1,0 +1,429 @@
+{
+    "atmospheric_components": {
+        "nitrogen": {
+            "name": "Nitrogen",
+            "symbol": "N₂",
+            "family": "inert",
+            "description": "Stable diatomic gas, common in terrestrial atmospheres",
+            "temperature_range": { "min": 50, "max": 1500 },
+            "incompatible_with": []
+        },
+        "oxygen": {
+            "name": "Oxygen",
+            "symbol": "O₂",
+            "family": "oxidizing",
+            "description": "Reactive gas, indicates biological or photochemical processes",
+            "temperature_range": { "min": 50, "max": 800 },
+            "incompatible_with": ["methane", "hydrogen", "ammonia", "hydrogen_sulfide"]
+        },
+        "carbon_dioxide": {
+            "name": "Carbon Dioxide",
+            "symbol": "CO₂",
+            "family": "carbon",
+            "description": "Greenhouse gas, common on volcanic and Venus-type worlds",
+            "temperature_range": { "min": 150, "max": 1200 },
+            "incompatible_with": []
+        },
+        "carbon_monoxide": {
+            "name": "Carbon Monoxide",
+            "symbol": "CO",
+            "family": "carbon",
+            "description": "Toxic gas, indicates incomplete combustion or volcanic activity",
+            "temperature_range": { "min": 50, "max": 1000 },
+            "incompatible_with": ["oxygen"]
+        },
+        "methane": {
+            "name": "Methane",
+            "symbol": "CH₄",
+            "family": "reducing",
+            "description": "Common on cold worlds and gas giants, explosive with oxygen",
+            "temperature_range": { "min": 50, "max": 500 },
+            "incompatible_with": ["oxygen", "ozone", "chlorine", "fluorine"]
+        },
+        "hydrogen": {
+            "name": "Hydrogen",
+            "symbol": "H₂",
+            "family": "reducing",
+            "description": "Lightest gas, retained only by massive worlds or cold temperatures",
+            "temperature_range": { "min": 20, "max": 400 },
+            "incompatible_with": ["oxygen", "ozone", "chlorine", "fluorine"]
+        },
+        "helium": {
+            "name": "Helium",
+            "symbol": "He",
+            "family": "noble",
+            "description": "Inert noble gas, common on gas giants",
+            "temperature_range": { "min": 3, "max": 2000 },
+            "incompatible_with": []
+        },
+        "argon": {
+            "name": "Argon",
+            "symbol": "Ar",
+            "family": "noble",
+            "description": "Inert noble gas, trace component on many worlds",
+            "temperature_range": { "min": 50, "max": 1500 },
+            "incompatible_with": []
+        },
+        "neon": {
+            "name": "Neon",
+            "symbol": "Ne",
+            "family": "noble",
+            "description": "Rare noble gas",
+            "temperature_range": { "min": 20, "max": 2000 },
+            "incompatible_with": []
+        },
+        "ammonia": {
+            "name": "Ammonia",
+            "symbol": "NH₃",
+            "family": "reducing",
+            "description": "Pungent gas, common on cold giant planets",
+            "temperature_range": { "min": 100, "max": 450 },
+            "incompatible_with": ["oxygen", "ozone", "chlorine"]
+        },
+        "water_vapor": {
+            "name": "Water Vapor",
+            "symbol": "H₂O",
+            "family": "inert",
+            "description": "Greenhouse gas, indicates presence of liquid water or volcanic activity",
+            "temperature_range": { "min": 250, "max": 1200 },
+            "incompatible_with": []
+        },
+        "sulfur_dioxide": {
+            "name": "Sulfur Dioxide",
+            "symbol": "SO₂",
+            "family": "sulfur",
+            "description": "Volcanic gas, toxic and corrosive",
+            "temperature_range": { "min": 150, "max": 1500 },
+            "incompatible_with": []
+        },
+        "hydrogen_sulfide": {
+            "name": "Hydrogen Sulfide",
+            "symbol": "H₂S",
+            "family": "sulfur",
+            "description": "Toxic volcanic gas with distinctive odor",
+            "temperature_range": { "min": 100, "max": 800 },
+            "incompatible_with": ["oxygen", "ozone"]
+        },
+        "chlorine": {
+            "name": "Chlorine",
+            "symbol": "Cl₂",
+            "family": "oxidizing",
+            "description": "Highly reactive halogen, extremely hostile to carbon-based life",
+            "temperature_range": { "min": 150, "max": 700 },
+            "incompatible_with": ["hydrogen", "methane", "ammonia"]
+        },
+        "fluorine": {
+            "name": "Fluorine",
+            "symbol": "F₂",
+            "family": "oxidizing",
+            "description": "Most reactive element, vanishingly rare in free form",
+            "temperature_range": { "min": 50, "max": 500 },
+            "incompatible_with": ["hydrogen", "methane", "ammonia"],
+            "rarity": "exotic"
+        },
+        "ozone": {
+            "name": "Ozone",
+            "symbol": "O₃",
+            "family": "oxidizing",
+            "description": "Unstable oxygen allotrope, indicates active photochemistry",
+            "temperature_range": { "min": 100, "max": 600 },
+            "incompatible_with": ["methane", "hydrogen", "ammonia", "hydrogen_sulfide"]
+        },
+        "xenon": {
+            "name": "Xenon",
+            "symbol": "Xe",
+            "family": "noble",
+            "description": "Heavy noble gas, trace component",
+            "temperature_range": { "min": 100, "max": 1500 },
+            "incompatible_with": [],
+            "rarity": "uncommon"
+        },
+        "krypton": {
+            "name": "Krypton",
+            "symbol": "Kr",
+            "family": "noble",
+            "description": "Noble gas, trace component",
+            "temperature_range": { "min": 80, "max": 1500 },
+            "incompatible_with": [],
+            "rarity": "uncommon"
+        },
+        "nitrogen_dioxide": {
+            "name": "Nitrogen Dioxide",
+            "symbol": "NO₂",
+            "family": "oxidizing",
+            "description": "Reddish-brown toxic gas, indicates lightning or volcanic activity",
+            "temperature_range": { "min": 200, "max": 800 },
+            "incompatible_with": ["hydrogen", "methane"]
+        },
+        "silicon_tetrafluoride": {
+            "name": "Silicon Tetrafluoride",
+            "symbol": "SiF₄",
+            "family": "exotic",
+            "description": "Exotic volcanic gas from fluorine-rich worlds",
+            "temperature_range": { "min": 200, "max": 1000 },
+            "incompatible_with": ["water_vapor"],
+            "rarity": "exotic"
+        }
+    },
+
+    "atmospheric_families": {
+        "oxidizing": {
+            "description": "Reactive atmospheres that support combustion",
+            "hazard_type": "corrosive",
+            "compatible_primaries": ["oxygen", "chlorine", "ozone"],
+            "common_secondaries": ["nitrogen", "argon", "carbon_dioxide", "water_vapor"]
+        },
+        "reducing": {
+            "description": "Hydrogen-rich atmospheres common on giant planets and primordial worlds",
+            "hazard_type": "suffocating",
+            "compatible_primaries": ["hydrogen", "methane", "ammonia"],
+            "common_secondaries": ["helium", "nitrogen", "hydrogen_sulfide"]
+        },
+        "carbon": {
+            "description": "Carbon compound dominated atmospheres",
+            "hazard_type": "suffocating",
+            "compatible_primaries": ["carbon_dioxide", "carbon_monoxide"],
+            "common_secondaries": ["nitrogen", "sulfur_dioxide", "argon", "water_vapor"]
+        },
+        "inert": {
+            "description": "Chemically stable atmospheres",
+            "hazard_type": "suffocating",
+            "compatible_primaries": ["nitrogen"],
+            "common_secondaries": ["argon", "carbon_dioxide", "methane", "oxygen"]
+        },
+        "noble": {
+            "description": "Noble gas dominated atmospheres, rare",
+            "hazard_type": "suffocating",
+            "compatible_primaries": ["helium", "argon", "neon"],
+            "common_secondaries": ["hydrogen", "nitrogen"]
+        },
+        "sulfur": {
+            "description": "Sulfur compound atmospheres indicating volcanic activity",
+            "hazard_type": "toxic",
+            "compatible_primaries": ["sulfur_dioxide", "hydrogen_sulfide"],
+            "common_secondaries": ["carbon_dioxide", "nitrogen", "water_vapor"]
+        },
+        "exotic": {
+            "description": "Unusual atmospheric compositions",
+            "hazard_type": "varies",
+            "compatible_primaries": ["silicon_tetrafluoride", "fluorine"],
+            "common_secondaries": ["nitrogen", "carbon_dioxide", "argon"]
+        }
+    },
+
+    "hydrosphere_components": {
+        "water": {
+            "name": "Water",
+            "formula": "H₂O",
+            "phase": "liquid",
+            "temperature_range": { "min": 273, "max": 373 },
+            "description": "Universal solvent, essential for carbon-based life as we know it",
+            "compatible_atmospheres": ["nitrogen", "oxygen", "carbon_dioxide", "argon", "water_vapor"],
+            "terrain_type": "continental"
+        },
+        "water_ice": {
+            "name": "Water Ice",
+            "formula": "H₂O",
+            "phase": "solid",
+            "temperature_range": { "min": 50, "max": 273 },
+            "description": "Frozen water, covers polar regions or entire surface of cold worlds",
+            "compatible_atmospheres": ["nitrogen", "oxygen", "carbon_dioxide", "argon", "methane"],
+            "terrain_type": "ice"
+        },
+        "ammonia": {
+            "name": "Liquid Ammonia",
+            "formula": "NH₃",
+            "phase": "liquid",
+            "temperature_range": { "min": 195, "max": 240 },
+            "description": "Possible alternative solvent for exotic biochemistry",
+            "compatible_atmospheres": ["nitrogen", "hydrogen", "methane", "ammonia"],
+            "terrain_type": "continental"
+        },
+        "ammonia_water": {
+            "name": "Ammonia-Water Mix",
+            "formula": "NH₃/H₂O",
+            "phase": "liquid",
+            "temperature_range": { "min": 176, "max": 300 },
+            "description": "Eutectic mixture allowing liquid at lower temperatures",
+            "compatible_atmospheres": ["nitrogen", "hydrogen", "ammonia", "carbon_dioxide"],
+            "terrain_type": "continental"
+        },
+        "methane": {
+            "name": "Liquid Methane",
+            "formula": "CH₄",
+            "phase": "liquid",
+            "temperature_range": { "min": 90, "max": 112 },
+            "description": "Cryogenic hydrocarbon seas, like those on Titan",
+            "compatible_atmospheres": ["nitrogen", "methane", "hydrogen"],
+            "terrain_type": "continental"
+        },
+        "ethane": {
+            "name": "Liquid Ethane",
+            "formula": "C₂H₆",
+            "phase": "liquid",
+            "temperature_range": { "min": 90, "max": 184 },
+            "description": "Cryogenic hydrocarbon, often mixed with methane",
+            "compatible_atmospheres": ["nitrogen", "methane", "hydrogen"],
+            "terrain_type": "continental"
+        },
+        "ethanol": {
+            "name": "Ethanol",
+            "formula": "C₂H₅OH",
+            "phase": "liquid",
+            "temperature_range": { "min": 159, "max": 351 },
+            "description": "Organic alcohol seas, extremely rare natural occurrence",
+            "compatible_atmospheres": ["nitrogen", "carbon_dioxide", "argon"],
+            "terrain_type": "continental",
+            "rarity": "exotic"
+        },
+        "nitrogen": {
+            "name": "Liquid Nitrogen",
+            "formula": "N₂",
+            "phase": "liquid",
+            "temperature_range": { "min": 63, "max": 77 },
+            "description": "Cryogenic nitrogen lakes on extremely cold worlds",
+            "compatible_atmospheres": ["nitrogen", "helium", "neon"],
+            "terrain_type": "continental"
+        },
+        "sulfur": {
+            "name": "Molten Sulfur",
+            "formula": "S",
+            "phase": "liquid",
+            "temperature_range": { "min": 388, "max": 718 },
+            "description": "Yellow volcanic sulfur lakes",
+            "compatible_atmospheres": ["sulfur_dioxide", "carbon_dioxide", "hydrogen_sulfide"],
+            "terrain_type": "magma"
+        },
+        "magma_silicate": {
+            "name": "Silicate Magma",
+            "formula": "SiO₂",
+            "phase": "liquid",
+            "temperature_range": { "min": 1000, "max": 2500 },
+            "description": "Molten rock oceans on extremely hot or young worlds",
+            "compatible_atmospheres": ["carbon_dioxide", "sulfur_dioxide", "carbon_monoxide", "silicon_tetrafluoride"],
+            "terrain_type": "magma"
+        },
+        "magma_iron": {
+            "name": "Molten Iron",
+            "formula": "Fe",
+            "phase": "liquid",
+            "temperature_range": { "min": 1538, "max": 3000 },
+            "description": "Iron seas on hellish volcanic worlds",
+            "compatible_atmospheres": ["carbon_dioxide", "sulfur_dioxide", "carbon_monoxide"],
+            "terrain_type": "magma",
+            "rarity": "exotic"
+        },
+        "sulfuric_acid": {
+            "name": "Sulfuric Acid",
+            "formula": "H₂SO₄",
+            "phase": "liquid",
+            "temperature_range": { "min": 283, "max": 610 },
+            "description": "Corrosive acid pools, like Venus cloud droplets",
+            "compatible_atmospheres": ["carbon_dioxide", "sulfur_dioxide", "nitrogen"],
+            "terrain_type": "continental",
+            "hazard": "corrosive"
+        },
+        "hydrochloric_acid": {
+            "name": "Hydrochloric Acid",
+            "formula": "HCl",
+            "phase": "liquid",
+            "temperature_range": { "min": 247, "max": 383 },
+            "description": "Extremely corrosive acid seas",
+            "compatible_atmospheres": ["chlorine", "nitrogen", "carbon_dioxide"],
+            "terrain_type": "continental",
+            "hazard": "corrosive",
+            "rarity": "exotic"
+        },
+        "none": {
+            "name": "None",
+            "formula": null,
+            "phase": null,
+            "temperature_range": { "min": 0, "max": 9999 },
+            "description": "No liquid surface - desert or cratered world",
+            "compatible_atmospheres": ["all"],
+            "terrain_type": "desert"
+        }
+    },
+
+    "atmosphere_presets": {
+        "terran": {
+            "description": "Earth-like breathable atmosphere",
+            "components": ["nitrogen", "oxygen", "argon", "water_vapor"],
+            "density_range": { "min": 0.8, "max": 1.2 },
+            "breathable": true
+        },
+        "venusian": {
+            "description": "Dense carbon dioxide atmosphere with sulfuric clouds",
+            "components": ["carbon_dioxide", "nitrogen", "sulfur_dioxide", "water_vapor"],
+            "density_range": { "min": 50, "max": 100 },
+            "breathable": false
+        },
+        "martian": {
+            "description": "Thin carbon dioxide atmosphere",
+            "components": ["carbon_dioxide", "nitrogen", "argon"],
+            "density_range": { "min": 0.001, "max": 0.05 },
+            "breathable": false
+        },
+        "titan_like": {
+            "description": "Dense nitrogen atmosphere with methane",
+            "components": ["nitrogen", "methane", "hydrogen"],
+            "density_range": { "min": 1.0, "max": 2.0 },
+            "breathable": false
+        },
+        "jovian": {
+            "description": "Hydrogen-helium gas giant atmosphere",
+            "components": ["hydrogen", "helium", "methane", "ammonia"],
+            "density_range": null,
+            "breathable": false
+        },
+        "volcanic": {
+            "description": "Sulfur-rich volcanic atmosphere",
+            "components": ["sulfur_dioxide", "carbon_dioxide", "hydrogen_sulfide"],
+            "density_range": { "min": 0.5, "max": 10.0 },
+            "breathable": false
+        },
+        "primordial": {
+            "description": "Early Earth-type reducing atmosphere",
+            "components": ["nitrogen", "methane", "ammonia", "water_vapor"],
+            "density_range": { "min": 0.5, "max": 3.0 },
+            "breathable": false
+        },
+        "chlorine_world": {
+            "description": "Hostile chlorine-rich atmosphere",
+            "components": ["chlorine", "nitrogen", "carbon_dioxide"],
+            "density_range": { "min": 0.5, "max": 5.0 },
+            "breathable": false,
+            "rarity": "exotic"
+        },
+        "vacuum": {
+            "description": "No significant atmosphere",
+            "components": [],
+            "density_range": { "min": 0, "max": 0.0001 },
+            "breathable": false
+        }
+    },
+
+    "generation_rules": {
+        "temperature_kelvin": {
+            "frozen": { "min": 20, "max": 150 },
+            "cold": { "min": 100, "max": 250 },
+            "temperate": { "min": 200, "max": 350 },
+            "warm": { "min": 300, "max": 500 },
+            "hot": { "min": 450, "max": 800 },
+            "molten": { "min": 700, "max": 3000 }
+        },
+        "gravity_effects": {
+            "hydrogen_retention_minimum_gravity": 2.0,
+            "helium_retention_minimum_gravity": 0.5,
+            "heavy_gas_retention_minimum_gravity": 0.1,
+            "notes": "Low gravity worlds lose lighter gases over geological time"
+        },
+        "hydrosphere_coverage_percent": {
+            "trace": { "min": 0, "max": 5 },
+            "arid": { "min": 5, "max": 25 },
+            "moderate": { "min": 25, "max": 50 },
+            "wet": { "min": 50, "max": 75 },
+            "ocean_world": { "min": 75, "max": 100 }
+        }
+    }
+}
