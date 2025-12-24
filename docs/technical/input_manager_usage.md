@@ -134,7 +134,7 @@ def handle_event(self, event):
         self.return_to_previous_state()
 ```
 
-### Ship Navigation State
+### Ship Navigation State (with Diagonal Movement)
 
 ```python
 def handle_event(self, event):
@@ -147,7 +147,20 @@ def update(self, dt):
     if not self.navigation_active:
         return
 
-    # Continuous movement using is_key_pressed
+    # Get movement vector (handles diagonals automatically)
+    dx, dy = self.input_manager.get_movement_vector()
+
+    if dx != 0 or dy != 0:
+        self.move_ship(dx, dy, dt)
+```
+
+**Alternative approach (checking individual keys):**
+```python
+def update(self, dt):
+    if not self.navigation_active:
+        return
+
+    # Manual checking (get_movement_vector is cleaner)
     if self.input_manager.is_key_pressed("nav_up"):
         self.move_ship(0, -1, dt)
     if self.input_manager.is_key_pressed("nav_down"):
@@ -203,6 +216,52 @@ def handle_event(self, event):
         self.handle_selection()
 ```
 
+## Diagonal Movement
+
+The InputManager supports diagonal movement in two ways:
+
+### 1. Numpad Diagonal Keys (Single Key)
+- **KP7** - Up-Left diagonal
+- **KP9** - Up-Right diagonal
+- **KP1** - Down-Left diagonal
+- **KP3** - Down-Right diagonal
+
+These work with a single keypress on the numpad.
+
+### 2. Combined WASD/Arrow Keys
+- **W + A** (or **Up + Left**) - Up-Left diagonal
+- **W + D** (or **Up + Right**) - Up-Right diagonal
+- **S + A** (or **Down + Left**) - Down-Left diagonal
+- **S + D** (or **Down + Right**) - Down-Right diagonal
+
+### Using `get_movement_vector()`
+
+The easiest way to handle 8-directional movement:
+
+```python
+def update(self, dt):
+    # Get direction vector
+    dx, dy = self.input_manager.get_movement_vector()
+
+    # Apply movement
+    if dx != 0 or dy != 0:
+        self.ship_x += dx * self.speed * dt
+        self.ship_y += dy * self.speed * dt
+```
+
+**Returns:**
+- `(0, -1)` - Moving up
+- `(0, 1)` - Moving down
+- `(-1, 0)` - Moving left
+- `(1, 0)` - Moving right
+- `(-1, -1)` - Moving up-left (diagonal)
+- `(1, -1)` - Moving up-right (diagonal)
+- `(-1, 1)` - Moving down-left (diagonal)
+- `(1, 1)` - Moving down-right (diagonal)
+- `(0, 0)` - Not moving
+
+**Priority:** Numpad diagonal keys take priority over combined WASD/arrow presses. This prevents conflicts if someone presses both at once.
+
 ## Benefits
 
 1. **No key repetition** - Define bindings once, use everywhere
@@ -211,3 +270,4 @@ def handle_event(self, event):
 4. **Rebindable** - Players can customize controls later
 5. **Readable code** - `if action == "menu_up"` is clearer than checking key codes
 6. **Context-aware** - Same keys can mean different things in different contexts
+7. **Diagonal movement built-in** - Supports both numpad and combined key diagonals
