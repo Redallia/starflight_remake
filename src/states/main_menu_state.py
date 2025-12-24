@@ -2,9 +2,9 @@
 Main menu state
 """
 import pygame
-import json
-from pathlib import Path
 from core.game_state import GameState
+from core.data_loader import DataLoader
+from core.input_manager import InputManager
 from ui.menu_renderer import MenuRenderer
 
 
@@ -15,7 +15,9 @@ class MainMenuState(GameState):
         """Initialize the main menu state"""
         super().__init__(state_manager)
 
-        # Initialize menu renderer
+        # Initialize managers and renderers
+        self.data_loader = DataLoader()
+        self.input_manager = InputManager()
         self.menu_renderer = MenuRenderer()
 
         # Menu data (will be loaded in on_enter)
@@ -27,9 +29,8 @@ class MainMenuState(GameState):
 
     def _load_menu_data(self):
         """Load menu configuration from JSON file"""
-        menu_path = Path(__file__).parent.parent / "data" / "static" / "menu" / "main_menu.json"
-        with open(menu_path, 'r') as f:
-            menu_data = json.load(f)
+        # Use DataLoader to load the menu configuration
+        menu_data = self.data_loader.load_static("menu", "main_menu.json")
 
         self.menu_title = menu_data["title"]
         self.menu_options = menu_data["options"]
@@ -43,17 +44,16 @@ class MainMenuState(GameState):
 
     def handle_event(self, event):
         """Handle menu input events"""
-        if event.type == pygame.KEYDOWN:
-            # Menu navigation - W/Up/Numpad8 = up, S/Down/Numpad2 = down
-            if event.key in (pygame.K_w, pygame.K_UP, pygame.K_KP8):
-                self.selected_menu_index = (self.selected_menu_index - 1) % len(self.option_labels)
-            elif event.key in (pygame.K_s, pygame.K_DOWN, pygame.K_KP2):
-                self.selected_menu_index = (self.selected_menu_index + 1) % len(self.option_labels)
+        # Convert event to action using InputManager
+        action = self.input_manager.get_action(event)
 
-            # Menu selection - Enter or Space
-            elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
-                if self.selected_menu_index not in self.disabled_menu_items:
-                    self._handle_selection()
+        if action == "menu_up":
+            self.selected_menu_index = (self.selected_menu_index - 1) % len(self.option_labels)
+        elif action == "menu_down":
+            self.selected_menu_index = (self.selected_menu_index + 1) % len(self.option_labels)
+        elif action == "confirm":
+            if self.selected_menu_index not in self.disabled_menu_items:
+                self._handle_selection()
 
     def _handle_selection(self):
         """Handle menu option selection"""
