@@ -1,0 +1,20 @@
+{
+    "title": "STARFLIGHT",
+    "options": [
+        {
+            "id": "new_game",
+            "label": "New Game",
+            "enabled": true
+        },
+        {
+            "id": "load_game",
+            "label": "Load Game",
+            "enabled": false
+        },
+        {
+            "id": "exit_game",
+            "label": "Exit Game",
+            "enabled": true
+        }
+    ]
+}
