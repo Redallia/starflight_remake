@@ -2,6 +2,12 @@
 Simple menu renderer for Starflight Remake
 """
 import pygame
+from core.colors import (
+    MENU_TEXT,
+    MENU_SELECTED,
+    MENU_DISABLED,
+    MENU_TITLE
+)
 
 
 class MenuRenderer:
@@ -17,11 +23,11 @@ class MenuRenderer:
         self.font = pygame.font.Font(None, font_size)
         self.title_font = pygame.font.Font(None, font_size * 2)
 
-        # Colors
-        self.text_color = (200, 200, 200)
-        self.highlight_color = (255, 255, 100)
-        self.disabled_color = (100, 100, 100)
-        self.title_color = (255, 255, 255)
+        # Colors from centralized palette
+        self.text_color = MENU_TEXT
+        self.highlight_color = MENU_SELECTED
+        self.disabled_color = MENU_DISABLED
+        self.title_color = MENU_TITLE
 
     def render(self, surface, title, options, selected_index, disabled_indices=None):
         """

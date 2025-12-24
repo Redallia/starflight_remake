@@ -4,6 +4,7 @@ Starflight Remake - Main Entry Point
 import pygame
 import sys
 from core.state_manager import StateManager
+from core.colors import BLACK
 from states.main_menu_state import MainMenuState
 
 
@@ -11,10 +12,6 @@ from states.main_menu_state import MainMenuState
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 FPS = 60
-
-# Colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 
 
 def main():
