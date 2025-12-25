@@ -10,6 +10,7 @@ class StateManager:
         """Initialize the state manager"""
         self.states = {}
         self.current_state = None
+        self.game_state = None  # Runtime game state (ship, crew, location, etc.)
 
     def register_state(self, name, state):
         """

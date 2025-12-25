@@ -1,0 +1,15 @@
+{
+  "title": "STARPORT - CITADEL",
+  "options": [
+    {
+      "id": "launch_to_space",
+      "label": "Launch",
+      "enabled": true
+    },
+    {
+      "id": "exit_to_main_menu",
+      "label": "Exit to Main Menu",
+      "enabled": true
+    }
+  ]
+}

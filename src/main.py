@@ -6,6 +6,8 @@ import sys
 from core.state_manager import StateManager
 from core.colors import BLACK
 from states.main_menu_state import MainMenuState
+from states.starport_menu_state import StarportMenuState
+from states.space_navigation_state import SpaceNavigationState
 
 
 # Display constants
@@ -31,7 +33,8 @@ def main():
 
     # Register game states
     state_manager.register_state("main_menu", MainMenuState(state_manager))
-    # TODO: Register other states (starport, space_navigation, etc.)
+    state_manager.register_state("starport", StarportMenuState(state_manager))
+    state_manager.register_state("space_navigation", SpaceNavigationState(state_manager))
 
     # Start with main menu
     state_manager.change_state("main_menu")

@@ -1,0 +1,40 @@
+{
+    "grid_sizes": {
+        "hyperspace": {
+            "x": 249,
+            "y": 220,
+            "tile_size":{
+                "x": 8,
+                "y": 8
+            }
+        },
+        "system_space": {
+            "x": 100,
+            "y": 100,
+            "tile_size":{
+                "x": 8,
+                "y": 8
+            }
+        },
+        "planetary_grid": {
+            "x": 500,
+            "y": 500,
+            "tile_size":{
+                "x": 8,
+                "y": 8
+            }
+        }
+    },
+    "starting_game_values": {
+        "credits": 1000,
+        "fuel": 100        
+    },
+    "fuel_costs": {
+        "launch": 10,
+        "maneuver": 5,
+        "hyperspace": 20
+    },
+    "power_consumption_units": {
+        "fuel_per_power_unit": 1
+    }
+}

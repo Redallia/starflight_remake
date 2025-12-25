@@ -1,18 +1,17 @@
 """
-Main menu state
+Starport menu state
 """
-import pygame
 from core.game_state import GameState
 from core.data_loader import DataLoader
 from core.input_manager import InputManager
 from ui.menu_renderer import MenuRenderer
 
 
-class MainMenuState(GameState):
-    """Main menu state - first screen player sees"""
+class StarportMenuState(GameState):
+    """Starport menu state - screen shown when player is at starport"""
 
     def __init__(self, state_manager):
-        """Initialize the main menu state"""
+        """Initialize the starport menu state"""
         super().__init__(state_manager)
 
         # Initialize managers and renderers
@@ -30,7 +29,7 @@ class MainMenuState(GameState):
     def _load_menu_data(self):
         """Load menu configuration from JSON file"""
         # Use DataLoader to load the menu configuration
-        menu_data = self.data_loader.load_static("menu", "main_menu.json")
+        menu_data = self.data_loader.load_static("menu", "starport_menu.json")
 
         self.menu_title = menu_data["title"]
         self.menu_options = menu_data["options"]
@@ -59,40 +58,19 @@ class MainMenuState(GameState):
         """Handle menu option selection"""
         selected_option_id = self.menu_options[self.selected_menu_index]["id"]
 
-        if selected_option_id == "new_game":
-            # Create new game state
-            self._create_new_game()
-            # Transition to starport
-            self.state_manager.change_state("starport")
-        elif selected_option_id == "load_game":
-            # TODO: Load game
-            print("Load Game selected - TODO: implement")
-        elif selected_option_id == "exit_game":
-            # Signal to quit the game
-            pygame.event.post(pygame.event.Event(pygame.QUIT))
-
-    def _create_new_game(self):
-        """Create a new game state with default values"""
-        # Create minimal game state for now
-        # Values are placeholders - will be replaced with actual defaults later
-        self.state_manager.game_state = {
-            "ship": {
-                "class": "human_survey_vessel",
-                "name": "Explorer",
-                "location": "starport"
-            },
-            "crew": [],  # Empty for now
-            "credits": 0,  # Placeholder
-            "current_system": "default_system"
-        }
-        print("New game created:", self.state_manager.game_state)
+        if selected_option_id == "launch_to_space":
+            # Transition to space navigation state
+            self.state_manager.change_state("space_navigation")
+        elif selected_option_id == "exit_to_main_menu":
+            # Return to main menu
+            self.state_manager.change_state("main_menu")
 
     def update(self, dt):
         """Update menu state (nothing to update for static menu)"""
         pass
 
     def render(self, surface):
-        """Render the main menu"""
+        """Render the starport menu"""
         self.menu_renderer.render(
             surface,
             self.menu_title,
