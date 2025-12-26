@@ -3,6 +3,11 @@
 ## Overview
 Terrain vehicle exploration on a planet's surface. Player navigates a top-down grid, collects resources, discovers ruins, encounters creatures, and manages vehicle fuel/cargo.
 
+**Related Documentation:**
+- See [Navigation Context Framework](../navigation_context_framework.md) for navigation stack architecture
+- See [Orbit State](orbit.md) for the state that transitions to/from surface
+- This document provides implementation specifications for the SurfaceState class
+
 ## State Information
 - **State Name**: `surface`
 - **Implementation**: (Not yet created)
@@ -194,17 +199,24 @@ When terrain vehicle moves adjacent to landed ship icon:
 - Crew health status
 
 ## Game State Requirements
+The surface state preserves the navigation stack from space navigation:
+
 ```python
 {
+    "current_system": {"x": 100, "y": 200},  # galactic coords, preserved
+    "navigation_stack": [
+        "outer_system",
+        "planet_4_subsystem"  # if on a moon in a gas giant system
+    ],  # preserved from space navigation
     "location": {
-        "type": "surface",
-        "system": "sol",
-        "planet": "aqua",
-        "coordinates": {"x": 45, "y": -23}
+        "coordinates": {"x": 45, "y": -23},  # landing site on planet surface
+        "target_body": 2  # orbital index of body player is on
     },
+    "current_state": "surface",
     "vehicle": {
         "fuel": 80,
         "max_fuel": 100,
+        "position": {"x": 50, "y": -20},  # vehicle position on surface
         "cargo": [
             {"type": "mineral", "name": "iron", "quantity": 5},
             {"type": "flora", "name": "spore_sample", "quantity": 2}
@@ -218,6 +230,13 @@ When terrain vehicle moves adjacent to landed ship icon:
     }
 }
 ```
+
+**Key Points:**
+- Navigation stack is preserved (not modified by landing on surface)
+- `current_system` is preserved
+- `target_body` uses orbital index to identify which body you're on
+- `location.coordinates` is the landing site
+- `vehicle.position` tracks vehicle movement across surface
 
 ## Crew Skills on Surface
 

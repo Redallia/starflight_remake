@@ -2,13 +2,20 @@
 
 ## Overview
 This document defines how movement works across all spatial contexts: hyperspace, local space (star systems), and the transitions between them. Navigation is the core verb of the game. Everything else depends on how moving through space actually feels and functions.
-Coordinate Systems
 
-## Hyperspace
-Hyperspace uses a tile-based coordinate system. The sector grid is 125 x 110 tiles, with each tile being 8 x 8 units. This gives a total navigable space of 1000 x 880 units.
+**Related Documentation:**
+- See [Navigation Context Framework](navigation_context_framework.md) for the complete navigation system architecture
+- See [Space Navigation State](states/space_navigation.md) for implementation specifications
+- This document provides detailed movement mechanics and coordinate systems
 
-Ship position is tracked at the unit level for smooth movement and visual rendering. A ship might be at position (473, 891) within the 1250x1100 space.
-Tile position is derived from unit position and determines what feature (if any) the ship is interacting with. Position (473, 891) means the ship is in tile (47, 89).
+## Coordinate Systems
+
+### Hyperspace
+Hyperspace uses a tile-based coordinate system. The sector grid is **250 × 220 tiles**, with each tile being **8 × 8 units**. This gives a total navigable space of **2000 × 1760 units**.
+
+Ship position is tracked at the **unit level** for smooth movement and visual rendering. A ship might be at position (473, 891) within the 2000×1760 space.
+
+Tile position is derived from unit position and determines what feature (if any) the ship is interacting with. Position (473, 891) means the ship is in tile (59, 111).
 
 Each tile can contain at most one feature. Features are positioned at the center of their tile, but their visual and collision radii vary. A ship can fly around the edges of a tile without necessarily colliding with its feature.
 
@@ -29,48 +36,57 @@ Nebulae are fixed regions that change the visual background (from black to a col
 Flux points are fast-travel nodes connecting distant parts of the sector. Visually rendered as a small cluster of stars that shift between configurations, suggesting spatial instability.
 **Interaction**: Collision triggers the jump to the linked destination. Flux points are paired or networked; each point has a defined destination. Whether the destination is known before first use or must be discovered through exploration is TBD.
 
-## Local Space (Star Systems)
-Local space also uses a tile-based coordinate system, but at a smaller scale than hyperspace. The exact grid size varies depending on what's being represented:
+## System Space (Star Systems)
+System space contexts also use tile-based coordinate systems, but at smaller scales than hyperspace. The exact grid size varies depending on what's being represented:
 
-**Outer System**: Contains gas giants, ice giants, and an enterable Inner System at the center. Grid size TBD based on system scale.
-**Inner System**: Contains rocky planets (and potentially hot Jupiters) with the star at the center. Grid size TBD.
-**Planetary Systems**: Any planet with satellites becomes its own enterable local space, with the planet at the center and moons in orbit. Grid size scales based on the extent of the moon system. Limited to four moons maximum per planet.
+**Outer System**: Contains gas giants, ice giants, and an enterable Inner System zone at the center. Grid size TBD based on system scale.
+
+**Inner System**: Contains rocky planets with the primary star at the center (non-interactive). Grid size TBD.
+
+**Gas Giant Sub-Systems**: Any gas giant becomes its own enterable local space, with the gas giant at the center and moons in orbit. Grid size scales based on the extent of the moon system.
 
 Ship position tracking works the same as hyperspace: unit-level for rendering, tile-level for interactions.
+
+**Note:** Celestial bodies are identified by orbital index (0-based, innermost to outermost), not names.
 
 ### Orbital Paths
 Planets and moons are positioned along visible orbital paths rendered as circles or ellipses around their parent body. For MVP, celestial bodies occupy fixed positions on these paths. Actual orbital movement is deferred to post-MVP development.
 
 The orbital path serves as visual context, communicating "this is where this planet travels" even without active motion.
 
-### Local Space Objects
+### System Space Objects
 #### Star (Central Body)
 The star sits at the center of the Inner System. It is non-interactive. Ships can fly through or over the star with no collision or penalty. The star is a visual centerpiece only.
 
 #### Planets
-Planets exist in both Outer and Inner Systems. Each planet has:
+Planets exist in both Outer and Inner Systems. Each planet is identified by its orbital index (0-based, innermost to outermost). Each planet has:
 
-- A position on its orbital path
+- A position on its orbital path (fixed for MVP)
 - A visual radius (how large it appears)
 - A collision radius (when approach is detected)
 
-**Interaction**: When the ship collides with a planet's boundary, a prompt appears in the Message Log: "Approaching [Planet Name]. Press Space to enter orbit." The player must confirm to transition to the ORBIT state. This allows ships to fly past planets without accidentally entering orbit.
+**Interaction**: When the ship collides with a planet's boundary, a prompt appears in the Message Log: "Approaching Planet [Index]. Press Space to enter orbit." The player must confirm to transition to the ORBIT state. This allows ships to fly past planets without accidentally entering orbit.
 
 #### Inner System Entry Point
-The center of the Outer System contains an entry point to the Inner System. This functions like a star in hyperspace: collision triggers automatic transition inward. The ship appears at the edge of the Inner System map, with approach angle preserved.
+The center of the Outer System contains an entry point to the Inner System. This functions like a star in hyperspace: collision triggers automatic transition inward.
+- `navigation_stack`: Push "inner_system" onto stack
+- Ship appears at the edge of the Inner System map, with approach angle preserved
 
-**Exiting the Inner System**: Flying to the outer edge of the Inner System grid pops the context and returns the ship to the Outer System.
+**Exiting the Inner System**: Flying to the outer edge of the Inner System grid pops "inner_system" off the stack and returns the ship to the Outer System.
 
-#### Planetary System Entry
-Any planet with moons can be entered as its own local space context. Collision with such a planet still prompts for orbit, but an additional option may be presented (TBD) or entering the planetary system may require entering orbit first and then selecting a "View Moons" option.
+#### Gas Giant Sub-System Entry
+Gas giants (identified by orbital index) can be entered as their own navigation context. Collision with a gas giant:
+- Triggers automatic transition into the gas giant sub-system
+- `navigation_stack`: Push "planet_[index]_subsystem" onto stack
+- Ship appears at edge based on approach angle
 
-**Alternative approach**: Planetary systems could be entered automatically on collision (like Inner System entry), with orbit being a separate action once inside. This needs design consideration.
+**Entering Orbit Around Gas Giant**: While inside the gas giant sub-system, colliding with the central gas giant prompts orbit entry (same as regular planets).
 
 #### Moons
-Moons orbit within planetary systems. Interaction works identically to planets: collision prompts orbit entry via Message Log.
+Moons orbit within gas giant sub-systems. Identified by orbital index within that sub-system. Interaction works identically to planets: collision prompts orbit entry via Message Log.
 
 #### Starport/Space Station
-Starport and Space Stations within planetary systems. Interaction works identically to planets: collision prompts dock entry via Message Log.
+Starport and Space Stations exist as special orbital bodies. Interaction works identically to planets: collision prompts dock entry via Message Log.
 
 ## Transitions
 ### Transition Types
@@ -131,20 +147,23 @@ Movement is controlled through Navigator → Maneuver. Selecting this option:
 
 ### Movement Input
 **While maneuvering**:
-- WASD or Arrow Keys: Control ship direction/velocity
+- WASD or Arrow Keys: Control ship direction (tile-based)
 - Spacebar: Disengage maneuvering mode
 
-The specific movement model (instant direction change vs. momentum/drift) is TBD. The original Starflight had a degree of drift that made piloting feel more like ship handling than direct control.
+**Movement Model:** Tile-based keyboard controls with instant direction changes. No momentum, drift, or physics simulation for MVP. The ship goes where you point it.
 
 ## Fuel Consumption
-Fuel is consumed during hyperspace travel. The rate depends on engine class:
-Engine Class | Fuel per Coordinate | Notes 
-Class 1 | 1.0 | Starting engine
-Class 2 | 0.75 | 
-Class 3 | 0.5 |
-(etc.)
+Fuel is consumed during hyperspace travel. The rate depends on engine class `power_consumption_rate`:
 
-Local space movement (within star systems) consumes negligible or zero fuel. The real fuel cost is getting to and from systems via hyperspace, and launching from a planetary surface into orbit.
+| Engine Class | Fuel per Coordinate | Notes |
+|--------------|---------------------|-------|
+| Class 1 | 0.48 | Starting engine |
+| Class 2 | 0.40 | |
+| Class 3 | 0.32 | |
+| Class 4 | 0.24 | |
+| Class 5 | 0.16 | State-of-the-art |
+
+**System space movement** (all contexts: outer system, inner system, gas giant sub-systems) consumes **zero fuel** for MVP. The real fuel cost is getting to and from systems via hyperspace, and launching from a planetary surface into orbit.
 
 This creates the core exploration tension: how far can I travel before I need to turn back?
 

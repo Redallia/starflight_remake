@@ -3,6 +3,11 @@
 ## Overview
 Orbiting a planet. Player can scan the planet, select a landing site, and descend to the surface or leave orbit back to space.
 
+**Related Documentation:**
+- See [Navigation Context Framework](../navigation_context_framework.md) for navigation stack architecture
+- See [Space Navigation State](space_navigation.md) for the state that transitions to/from orbit
+- This document provides implementation specifications for the OrbitState class
+
 ## State Information
 - **State Name**: `orbit`
 - **Implementation**: (Not yet created)
@@ -122,15 +127,22 @@ Extended analysis of scan data, more detailed breakdown.
 - Landing site coordinates (when selected)
 
 ## Game State Requirements
+The orbit state preserves the navigation stack from space navigation:
+
 ```python
 {
+    "current_system": {"x": 100, "y": 200},  # galactic coords, preserved
+    "navigation_stack": [
+        "outer_system",
+        "planet_4_subsystem"  # if orbiting a moon in a gas giant system
+    ],  # preserved from space navigation
     "location": {
-        "type": "orbit",
-        "system": "sol",
-        "planet": "aqua"
+        "coordinates": {"x": 25, "y": 30},  # where ship was when entering orbit
+        "target_body": 2  # orbital index of body being orbited
     },
+    "current_state": "orbit",
     "scan_data": {
-        "aqua": {
+        "100_200_2": {  # system_x_system_y_body_index
             "scanned": True,
             "type": "ocean",
             "minerals": ["iron", "nickel"],
@@ -141,6 +153,12 @@ Extended analysis of scan data, more detailed breakdown.
     "landing_site": {"x": 45, "y": -23}  # when in landing mode
 }
 ```
+
+**Key Points:**
+- Navigation stack is preserved (not modified by entering orbit)
+- `current_system` is preserved
+- `target_body` uses orbital index, not name
+- Scan data keyed by `{system_x}_{system_y}_{body_index}` for uniqueness
 
 ## Protected Planets
 Some planets may be protected by alien factions:

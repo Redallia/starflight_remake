@@ -20,7 +20,7 @@ The original Starflight had arcade-style real-time combat:
 
 **Problems**: 
 - Didn't fit the exploration/strategy focus of the game.
-- 
+- Combat was never particularly engaging or exciting
 
 ### Desired Direction
 More tactical, less twitch-based. Possible approaches:
@@ -47,6 +47,7 @@ More tactical, less twitch-based. Possible approaches:
 Combat should leverage crew skills:
 - **Navigator**: Weapon accuracy, evasive maneuvers
 - **Engineer**: Damage repair during combat, system efficiency
+    - Want to have "Scotty, more power to the shields!" moments
 - **Science Officer**: Target analysis, weak point identification
 - **Captain**: Combat tactics, crew coordination bonuses
 - **Doctor**: Crew injury treatment during/after combat

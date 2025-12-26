@@ -6,6 +6,10 @@ This document defines the game state architecture - what states exist, how they 
 
 The core insight: game state isn't just "what mode are we in" - it's a **nested coordinate context** that tracks where the player is at every level of the spatial hierarchy simultaneously. When you're on a planet's surface, the game still knows which system you're in, which planet you orbited, where you landed. Backing out restores each layer.
 
+**Related Documentation:**
+- See [Navigation Context Framework](navigation_context_framework.md) for the detailed navigation system design
+- This document provides the overall game state architecture that encompasses navigation and other states
+
 ## State Architecture
 
 ### Top Level: Game Mode
@@ -20,116 +24,130 @@ Most of this document concerns what happens within `PLAYING`.
 
 ### The Context Stack
 
-When playing, the game maintains a **FILO (First In, Last Out) stack** of coordinate contexts. This allows arbitrary nesting of spatial layers.
+When playing, the game maintains a **FILO (First In, Last Out) stack** of navigation contexts stored at the top level of `game_state`. This allows arbitrary nesting of spatial layers.
 
-```
-context_stack: [
-    { type: HYPERSPACE, ... },      // Always the base
-    { type: LOCAL_SPACE, ... },     // Star system
-    { type: LOCAL_SPACE, ... },     // Inner system (optional)
-    { type: LOCAL_SPACE, ... },     // Gas giant moon system (optional)
-    { type: ORBIT, ... },           // Orbiting a body
-]
+**Key Design Notes:**
+- Hyperspace is the implicit base state and is NOT in the stack (stack is empty when in hyperspace)
+- Star systems are identified by galactic coordinates `{"x": int, "y": int}`, not names
+- Celestial bodies are identified by orbital index (0-based, innermost to outermost)
+- Stack persists across state transitions (orbit, surface, starport)
+
+```python
+# Example navigation stack
+{
+    "current_system": {"x": 100, "y": 200},  # null when in hyperspace
+    "navigation_stack": [
+        "outer_system",
+        "planet_4_subsystem"  # gas giant at orbital position 4
+    ],
+    "location": {
+        "coordinates": {"x": 25, "y": 30},
+        "target_body": 2  # orbital index when in orbit/surface
+    },
+    "current_state": "space_navigation"  # or "orbit", "surface", etc.
+}
 ```
 
 **Push** a new context when entering a deeper layer.
 **Pop** a context when backing out to the previous layer.
 
-The **top of the stack** represents the current spatial context. The full stack represents the complete path from hyperspace to current location.
+The **top of the stack** represents the current navigation context. The full stack plus `current_system` represents the complete path from hyperspace to current location.
+
+See [Navigation Context Framework](navigation_context_framework.md) for complete navigation stack specifications.
 
 ### Context Types
 
 #### HYPERSPACE
 
-The base layer. Always at the bottom of the stack. Interstellar space.
+The base layer. Implicit when `navigation_stack` is empty and `current_system` is null.
 
-```
-{
-    type: HYPERSPACE,
-    coords: (x, y),              // Position in sector
-    velocity: (vx, vy),          // Current movement vector
-}
-```
+**Coordinate System:**
+- Tile-based: 250×220 tiles
+- Each tile is 8×8 units for rendering
+- Total space: 2000×1760 units
+- Ship position tracked at unit level
 
 **Contains:** Star systems, flux jumps, alien ships, anomalies
 
-**Movement:** Free movement in 2D plane. Large scale (sector-sized).
+**Movement:** Tile-based keyboard controls (WASD), no momentum/physics
+
+**Fuel:** Consumed per coordinate traveled based on engine class
 
 **Transitions out:**
-- Enter a star system → Push LOCAL_SPACE
+- Enter a star system → Set `current_system` to star coords, push "outer_system" onto stack
 
-#### LOCAL_SPACE
+#### SYSTEM_SPACE (replaces LOCAL_SPACE)
 
-A region of space centered on a gravitational body. Stackable - can nest arbitrarily.
+Navigation contexts within a star system. Three sub-types:
 
-```
-{
-    type: LOCAL_SPACE,
-    body: "Jupiter",             // What this space is centered on
-    body_type: GAS_GIANT,        // Star, planet, moon, asteroid, station
-    parent_coords: (x, y),       // Where we entered from parent context
-    coords: (x, y),              // Current position in this local space
-    velocity: (vx, vy),          // Current movement vector
-}
-```
+**Outer System:**
+- Contains gas giants and outer planets
+- Mini-map shows outer planets/orbits + inner system zone (center)
+- Pushed onto stack when entering a star system from hyperspace
 
-**Contains:** Orbital bodies (planets, moons, stations), ships, anomalies, rings, asteroids, comets
+**Inner System:**
+- Contains rocky planets near the primary star
+- Mini-map shows inner planets/orbits + primary star (center, non-interactive)
+- Pushed onto stack when entering from outer system
 
-**Movement:** Free movement in 2D plane. Smaller scale than hyperspace.
+**Gas Giant Sub-System:**
+- Localized region around a gas giant and its moons
+- Mini-map shows gas giant (center) + moons/orbits
+- Pushed onto stack when entering a gas giant from outer/inner system
 
-**Transitions out:**
-- Enter a sub-body's local space → Push LOCAL_SPACE
-- Enter orbit around a body → Push ORBIT
-- Exit to parent context → Pop (restore parent_coords as position)
+**Contains:** Orbital bodies (planets, moons, stations), ships, anomalies
 
-**Examples of LOCAL_SPACE nesting:**
-- Sol System (star) → Inner System (region) → Earth (planet) → Moon (satellite)
-- Sol System (star) → Outer System (region) → Jupiter (gas giant) → Europa (moon) → Station (orbital)
+**Movement:** Tile-based keyboard controls (WASD), no momentum/physics
+
+**Fuel:** No fuel consumption in system space (MVP)
+
+**Transitions:**
+- Enter sub-context → Push new context identifier onto stack
+- Enter orbit → Transition to ORBIT state (stack preserved)
+- Exit to parent → Pop current context off stack
+
+**Examples:**
+- Hyperspace → Outer System → Inner System
+- Hyperspace → Outer System → Gas Giant (position 4) Sub-System
+- Within gas giant sub-system, orbital indices identify moons (0, 1, 2, etc.)
 
 #### ORBIT
 
-Locked in orbit around a specific body. No free movement - you're circling.
+Game state (not navigation context). Locked in orbit around a specific body.
 
-```
-{
-    type: ORBIT,
-    body: "Europa",              // What we're orbiting
-    body_type: MOON,             // Planet, moon, asteroid, station
-    orbital_position: 0.0,       // Angle in orbit (0-360 or radians)
-    parent_coords: (x, y),       // Where we were when we entered orbit
-}
-```
+**State Information:**
+- `current_state`: "orbit"
+- `navigation_stack`: Preserved from system space navigation
+- `location.target_body`: Orbital index of body being orbited
+- `current_system`: Preserved
 
 **Contains:** Just the player and the body being orbited (and maybe orbital stations/debris)
 
-**Movement:** None (or slow orbital drift for visuals). Player is "parked."
+**Movement:** None. Player is "parked."
 
 **Transitions out:**
-- Land on surface → Push SURFACE (if landable)
-- Dock with station → Push DOCKED (if dockable)
-- Leave orbit → Pop (restore parent_coords as position in LOCAL_SPACE)
+- Land on surface → Transition to SURFACE state (stack preserved)
+- Dock with station → Transition to DOCKED state (stack preserved)
+- Leave orbit → Return to space_navigation state, ship appears near target body
 
 #### SURFACE
 
-On the surface of a landable body. Different game mode - terrain vehicle exploration.
+Game state (not navigation context). On the surface of a landable body.
 
-```
-{
-    type: SURFACE,
-    body: "Europa",              // What we're on
-    planetary_coords: (x, y),    // Where on the planet (landing site)
-    vehicle_coords: (x, y),      // Vehicle position relative to landing site
-    ship_coords: (x, y),         // Where the ship is (usually same as planetary_coords)
-}
-```
+**State Information:**
+- `current_state`: "surface"
+- `navigation_stack`: Preserved
+- `location.target_body`: Orbital index of body player is on
+- `location.coordinates`: Landing site coordinates on planet surface
+- `current_system`: Preserved
 
 **Contains:** Terrain, minerals, flora, fauna, ruins, structures, player vehicle, landed ship
 
-**Movement:** Terrain vehicle movement on 2D surface grid.
+**Movement:** Terrain vehicle movement on 2D surface grid (tile-based, WASD)
 
 **Transitions out:**
-- Enter ship and launch → Pop (return to ORBIT)
-- Enter structure → Push DOCKED (future - side-scroller mode)
+- Enter ship and launch → Return to ORBIT state (stack preserved)
+- Enter structure → Transition to DOCKED state (future - side-scroller mode)
 
 #### DOCKED
 
