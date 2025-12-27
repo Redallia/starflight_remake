@@ -2,19 +2,21 @@
 Placeholder space navigation state for testing state transitions
 """
 import pygame
+from ui.hud_renderer import HudRenderer
 from core.game_state import GameState
 from core.colors import SPACE_BLACK, TEXT_NORMAL
 from core.input_manager import InputManager
 
 
 class SpaceNavigationState(GameState):
-    """Placeholder space navigation state - will be replaced with full implementation later"""
+    """ Space navigation state """
 
     def __init__(self, state_manager):
         super().__init__(state_manager)
         self.font = pygame.font.Font(None, 36)
         self.small_font = pygame.font.Font(None, 24)
         self.input_manager = InputManager()
+        self.hud_renderer = HudRenderer()
 
     def on_enter(self):
         """Called when entering space navigation state"""
@@ -48,42 +50,50 @@ class SpaceNavigationState(GameState):
         pass
 
     def render(self, surface):
-        """Render placeholder space view"""
-        # Fill with space black background
+        """Render space navigation view with the HUD """
+        # Fill background
         surface.fill(SPACE_BLACK)
 
-        # Title
-        title = self.font.render("SPACE NAVIGATION - PLACEHOLDER", True, TEXT_NORMAL)
-        title_rect = title.get_rect(center=(surface.get_width() // 2, 200))
-        surface.blit(title, title_rect)
+        # Render HUD
+        self.hud_renderer.render(surface)
+        
+        # """Render placeholder space view"""
+        # # Fill with space black background
+        # surface.fill(SPACE_BLACK)
 
-        # Show current location
-        current_region = self.state_manager.game_session.get_current_context().data.get("region")
-        hyperspace_coords = self.state_manager.game_session.get_hyperspace_coordinates()
-        location = self.small_font.render(f"Location: {current_region}({hyperspace_coords})", True, TEXT_NORMAL)
-        location_rect = location.get_rect(center=(surface.get_width() // 2, 250))
-        surface.blit(location, location_rect)
+        # # Title
+        # title = self.font.render("SPACE NAVIGATION - PLACEHOLDER", True, TEXT_NORMAL)
+        # title_rect = title.get_rect(center=(surface.get_width() // 2, 200))
+        # surface.blit(title, title_rect)
 
-        ## Show current ship position
-        current_ship_position = self.state_manager.game_session.ship_position
-        ship_position = self.small_font.render(f"Ship Position: {current_ship_position}", True, TEXT_NORMAL)
-        ship_position_rect = ship_position.get_rect(center=(surface.get_width() // 2, 300))
-        surface.blit(ship_position, ship_position_rect)
+        # # Show current location
+        # current_region = self.state_manager.game_session.get_current_context().data.get("region")
+        # hyperspace_coords = self.state_manager.game_session.get_hyperspace_coordinates()
+        # location = self.small_font.render(f"Location: {current_region}({hyperspace_coords})", True, TEXT_NORMAL)
+        # location_rect = location.get_rect(center=(surface.get_width() // 2, 250))
+        # surface.blit(location, location_rect)
 
-        # Instructions
-        instruction = self.small_font.render("Press ESC to return to Starport", True, TEXT_NORMAL)
-        instruction_rect = instruction.get_rect(center=(surface.get_width() // 2, 350))
-        surface.blit(instruction, instruction_rect)
+        # ## Show current ship position
+        # current_ship_position = self.state_manager.game_session.ship_position
+        # ship_position = self.small_font.render(f"Ship Position: {current_ship_position}", True, TEXT_NORMAL)
+        # ship_position_rect = ship_position.get_rect(center=(surface.get_width() // 2, 300))
+        # surface.blit(ship_position, ship_position_rect)
 
-        # Show game state info if available
-        if self.state_manager.game_state:
-            ship_info = self.small_font.render(
-                f"Ship: {self.state_manager.game_state.get('ship', {}).get('name', 'Unknown')}",
-                True,
-                TEXT_NORMAL
-            )
-            ship_rect = ship_info.get_rect(center=(surface.get_width() // 2, 350))
-            surface.blit(ship_info, ship_rect)
+        # # Instructions
+        # instruction = self.small_font.render("Press ESC to return to Starport", True, TEXT_NORMAL)
+        # instruction_rect = instruction.get_rect(center=(surface.get_width() // 2, 350))
+        # surface.blit(instruction, instruction_rect)
+
+        # # Show game state info if available
+        # if self.state_manager.game_state:
+        #     ship_info = self.small_font.render(
+        #         f"Ship: {self.state_manager.game_state.get('ship', {}).get('name', 'Unknown')}",
+        #         True,
+        #         TEXT_NORMAL
+        #     )
+        #     ship_rect = ship_info.get_rect(center=(surface.get_width() // 2, 350))
+        #     surface.blit(ship_info, ship_rect)
+        pass
 
     def _move_ship(self, dx, dy):
         """Move the ship by (dx, dy) in current context"""
