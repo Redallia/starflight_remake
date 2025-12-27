@@ -85,7 +85,6 @@ Contains:
 - Crew roster (list of crew members aboard)
 - Installed equipment (weapons, shields, engines, etc.)
 - Current state (hull integrity, fuel level, cargo contents)
-- Position (coordinate context - where in space it currently is)
 
 Data Structure:
 - name: string
@@ -96,7 +95,6 @@ Data Structure:
 - hull: int (current)
 - fuel: int (current)
 - cargo: list[CargoItem]
-- position: PositionContext
 - portraits: dict {species_id: portrait_path} (optional overrides)
 
 ## Crew Member

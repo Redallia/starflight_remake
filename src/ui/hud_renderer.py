@@ -1,5 +1,5 @@
 """
-    Base class for the HUD
+    Base renderer class for the HUD
 """
 
 import pygame

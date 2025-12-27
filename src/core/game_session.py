@@ -1,6 +1,8 @@
 """
 Base class for game session
 """
+from entities.ship import Ship
+
 from .constants import (
     CONTEXT_HYPERSPACE,
     CONTEXT_LOCAL_SPACE,
@@ -12,6 +14,7 @@ from .constants import (
     LOCATION_STARPORT
 
 )
+
 
 class NavigationContext:
     """
@@ -47,6 +50,9 @@ class GameSession:
 
         # For a new game, player is currently docked at Starport
         self.current_context = docked_ctx
+
+        # Give the player a new ship
+        self.player_ship = Ship(ship_id=0)
         
         # For getting at current hyperspace coordinates
         self.hyperspace_context = hyperspace_ctx

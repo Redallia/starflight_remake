@@ -56,10 +56,6 @@ class SpaceNavigationState(GameState):
 
         # Render HUD
         self.hud_renderer.render(surface)
-        
-        # """Render placeholder space view"""
-        # # Fill with space black background
-        # surface.fill(SPACE_BLACK)
 
         # # Title
         # title = self.font.render("SPACE NAVIGATION - PLACEHOLDER", True, TEXT_NORMAL)
