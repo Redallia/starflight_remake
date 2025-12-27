@@ -47,3 +47,20 @@ class GameSession:
 
         # For a new game, player is currently docked at Starport
         self.current_context = docked_ctx
+        
+        # For getting at current hyperspace coordinates
+        self.hyperspace_context = hyperspace_ctx
+
+    def get_current_context(self):
+        """Return the current context type"""
+        return self.current_context.type
+
+    def leave_current_context(self):
+        """Move up one level in the nav hierarchy"""
+        if self.current_context.parent:
+            self.current_context = self.current_context.parent
+    
+    def get_hyperspace_coordinates(self):
+        """Return the hyperspace coordinates from the current context"""
+        return self.hyperspace_context.data.get("coords")
+        

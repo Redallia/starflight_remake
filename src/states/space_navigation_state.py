@@ -39,9 +39,15 @@ class SpaceNavigationState(GameState):
         title_rect = title.get_rect(center=(surface.get_width() // 2, 200))
         surface.blit(title, title_rect)
 
+        # Show current location
+        hyperspace_coords = self.state_manager.game_session.get_hyperspace_coordinates()
+        location = self.small_font.render(f"Location: {hyperspace_coords}", True, TEXT_NORMAL)
+        location_rect = location.get_rect(center=(surface.get_width() // 2, 250))
+        surface.blit(location, location_rect)
+
         # Instructions
         instruction = self.small_font.render("Press ESC to return to Starport", True, TEXT_NORMAL)
-        instruction_rect = instruction.get_rect(center=(surface.get_width() // 2, 300))
+        instruction_rect = instruction.get_rect(center=(surface.get_width() // 2, 350))
         surface.blit(instruction, instruction_rect)
 
         # Show game state info if available
