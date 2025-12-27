@@ -11,6 +11,7 @@ class StateManager:
         self.states = {}
         self.current_state = None
         self.game_state = None  # Runtime game state (ship, crew, location, etc.)
+        self.game_session = None # Initialized during New Game/Load Game main menu actions
 
     def register_state(self, name, state):
         """

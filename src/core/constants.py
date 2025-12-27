@@ -138,6 +138,11 @@ CONTEXT_ORBIT = "orbit"
 CONTEXT_SURFACE = "surface"
 CONTEXT_DOCKED = "docked"
 
+# Local Space Regions
+REGION_INNER_SYSTEM = "inner_system"
+REGION_OUTER_SYSTEM = "outer_system"
+REGION_GAS_GIANT = "gas_giant"
+
 # Special locations
 LOCATION_STARPORT = "starport"
 

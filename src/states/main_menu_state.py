@@ -3,6 +3,7 @@ Main menu state
 """
 import pygame
 from core.game_state import GameState
+from core.game_session import GameSession
 from core.data_loader import DataLoader
 from core.input_manager import InputManager
 from ui.menu_renderer import MenuRenderer
@@ -75,17 +76,7 @@ class MainMenuState(GameState):
         """Create a new game state with default values"""
         # Create minimal game state for now
         # Values are placeholders - will be replaced with actual defaults later
-        self.state_manager.game_state = {
-            "ship": {
-                "class": "human_survey_vessel",
-                "name": "Explorer",
-                "location": "starport"
-            },
-            "crew": [],  # Empty for now
-            "credits": 0,  # Placeholder
-            "current_system": "default_system"
-        }
-        print("New game created:", self.state_manager.game_state)
+        self.state_manager.game_session = GameSession()
 
     def update(self, dt):
         """Update menu state (nothing to update for static menu)"""
