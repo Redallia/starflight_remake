@@ -20,6 +20,7 @@ def main():
     """Main game loop"""
     # Initialize Pygame
     pygame.init()
+    pygame.key.set_repeat(500, 50)  # 500ms delay, then 50ms between repeats
 
     # Create resizable display
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
@@ -48,10 +49,7 @@ def main():
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
+                running = False                
             elif event.type == pygame.VIDEORESIZE:
                 # Handle window resize
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)

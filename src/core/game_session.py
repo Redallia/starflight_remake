@@ -40,8 +40,8 @@ class GameSession:
 
     def __init__(self):
         # Let's start us off at Starport 
-        hyperspace_ctx = NavigationContext(CONTEXT_HYPERSPACE, parent=None, coords=(125, 110))
-        local_space_ctx = NavigationContext(CONTEXT_LOCAL_SPACE, parent=hyperspace_ctx, region=REGION_INNER_SYSTEM)
+        hyperspace_ctx = NavigationContext(CONTEXT_HYPERSPACE, parent=None, ship_coords=[125, 110])
+        local_space_ctx = NavigationContext(CONTEXT_LOCAL_SPACE, parent=hyperspace_ctx, region=REGION_INNER_SYSTEM, ship_coords=[50, 50])
         orbit_context = NavigationContext(CONTEXT_ORBIT, parent=local_space_ctx, planet_index=3)
         docked_ctx = NavigationContext(CONTEXT_DOCKED, parent=orbit_context, location=LOCATION_STARPORT)
 
@@ -52,8 +52,8 @@ class GameSession:
         self.hyperspace_context = hyperspace_ctx
 
     def get_current_context(self):
-        """Return the current context type"""
-        return self.current_context.type
+        """Return the current context"""
+        return self.current_context
 
     def leave_current_context(self):
         """Move up one level in the nav hierarchy"""
@@ -63,4 +63,13 @@ class GameSession:
     def get_hyperspace_coordinates(self):
         """Return the hyperspace coordinates from the current context"""
         return self.hyperspace_context.data.get("coords")
+    
+    @property
+    def ship_position(self):
+        return self.current_context.data.get("ship_coords", [0, 0])
+    
+    @ship_position.setter
+    def ship_position(self, value):
+        self.current_context.data["ship_coords"] = value
+
         

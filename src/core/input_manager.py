@@ -18,26 +18,19 @@ class InputManager:
         # Each action maps to a list of keys that trigger it
         self.key_bindings = {
             # Menu navigation
-            "menu_up": [pygame.K_w, pygame.K_UP, pygame.K_KP8],
-            "menu_down": [pygame.K_s, pygame.K_DOWN, pygame.K_KP2],
-            "menu_left": [pygame.K_a, pygame.K_LEFT, pygame.K_KP4],
-            "menu_right": [pygame.K_d, pygame.K_RIGHT, pygame.K_KP6],
-            "confirm": [pygame.K_RETURN, pygame.K_SPACE],
-            "cancel": [pygame.K_ESCAPE, pygame.K_BACKSPACE],
-
-            # Ship navigation (will use same keys as menu in different context)
-            "nav_up": [pygame.K_w, pygame.K_UP, pygame.K_KP8],
-            "nav_down": [pygame.K_s, pygame.K_DOWN, pygame.K_KP2],
-            "nav_left": [pygame.K_a, pygame.K_LEFT, pygame.K_KP4],
-            "nav_right": [pygame.K_d, pygame.K_RIGHT, pygame.K_KP6],
+            "up": [pygame.K_w, pygame.K_UP, pygame.K_KP8],
+            "down": [pygame.K_s, pygame.K_DOWN, pygame.K_KP2],
+            "left": [pygame.K_a, pygame.K_LEFT, pygame.K_KP4],
+            "right": [pygame.K_d, pygame.K_RIGHT, pygame.K_KP6],
 
             # Diagonal navigation (single keypad keys)
-            "nav_up_left": [pygame.K_KP7],
-            "nav_up_right": [pygame.K_KP9],
-            "nav_down_left": [pygame.K_KP1],
-            "nav_down_right": [pygame.K_KP3],
+            "up_left": [pygame.K_KP7],
+            "up_right": [pygame.K_KP9],
+            "down_left": [pygame.K_KP1],
+            "down_right": [pygame.K_KP3],
 
-            "nav_toggle": [pygame.K_SPACE],  # Toggle navigation mode on/off
+            "return": [pygame.K_RETURN, pygame.K_SPACE],
+            "cancel": [pygame.K_ESCAPE, pygame.K_BACKSPACE],
 
             # TODO: Add more action mappings as needed
             # "fire_weapon": [pygame.K_SPACE],
@@ -196,25 +189,25 @@ class InputManager:
 
         # Check for diagonal keys first (numpad 1, 3, 7, 9)
         # These take priority over combined WASD/arrow keys
-        if self.is_key_pressed("nav_up_left"):
+        if self.is_key_pressed("up_left"):
             return (-1, -1)
-        elif self.is_key_pressed("nav_up_right"):
+        elif self.is_key_pressed("up_right"):
             return (1, -1)
-        elif self.is_key_pressed("nav_down_left"):
+        elif self.is_key_pressed("down_left"):
             return (-1, 1)
-        elif self.is_key_pressed("nav_down_right"):
+        elif self.is_key_pressed("down_right"):
             return (1, 1)
 
         # Check cardinal directions (WASD/arrows/numpad 2468)
         # These can be combined for diagonals
-        if self.is_key_pressed("nav_up"):
+        if self.is_key_pressed("up"):
             dy = -1
-        elif self.is_key_pressed("nav_down"):
+        elif self.is_key_pressed("down"):
             dy = 1
 
-        if self.is_key_pressed("nav_left"):
+        if self.is_key_pressed("left"):
             dx = -1
-        elif self.is_key_pressed("nav_right"):
+        elif self.is_key_pressed("right"):
             dx = 1
 
         return (dx, dy)

@@ -48,11 +48,11 @@ class MainMenuState(GameState):
         # Convert event to action using InputManager
         action = self.input_manager.get_action(event)
 
-        if action == "menu_up":
+        if action == "up":
             self.selected_menu_index = (self.selected_menu_index - 1) % len(self.option_labels)
-        elif action == "menu_down":
+        elif action == "down":
             self.selected_menu_index = (self.selected_menu_index + 1) % len(self.option_labels)
-        elif action == "confirm":
+        elif action == "return":
             if self.selected_menu_index not in self.disabled_menu_items:
                 self._handle_selection()
 
