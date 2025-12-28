@@ -1,0 +1,66 @@
+{
+  "name": "Arth",
+  "hyperspace_coords": {"x": 125, "y": 110},
+  "star": {
+    "spectral_class": "G2V",
+    "name": "Arth"
+  },
+  "inner_planets": [
+    {
+      "name": "Scorched",
+      "type": "molten",
+      "orbit_angle": 45,
+      "size": 4,
+      "landable": false
+    },
+    {
+      "name": "Homeworld",
+      "type": "terran",
+      "orbit_angle": 180,
+      "size": 8,
+      "landable": true
+    },
+    null,
+    {
+      "name": "Dustball",
+      "type": "desert",
+      "orbit_angle": 270,
+      "size": 6,
+      "landable": true
+    }
+  ],
+  "outer_planets": [
+    {
+      "name": "Colossus",
+      "type": "gas_giant",
+      "orbit_angle": 90,
+      "size": 18,
+      "landable": false,
+      "moons": [
+        {
+          "name": "Colossus I",
+          "type": "ice",
+          "orbit_angle": 0,
+          "size": 4,
+          "landable": true
+        },
+        {
+          "name": "Colossus II",
+          "type": "rocky",
+          "orbit_angle": 180,
+          "size": 5,
+          "landable": true
+        }
+      ]
+    },
+    null,
+    {
+      "name": "Frostbound",
+      "type": "ice",
+      "orbit_angle": 315,
+      "size": 7,
+      "landable": true
+    },
+    null
+  ]
+}
