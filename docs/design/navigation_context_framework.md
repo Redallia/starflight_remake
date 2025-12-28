@@ -1,7 +1,7 @@
 # Navigation Context Framework
 
 ## Overview
-The Navigation Context Framework provides a hierarchical navigation system for space exploration. Players navigate through nested contexts: Galaxy (Hyperspace) → Star System (Outer/Inner) → Orbital Zones → Orbit → Surface/Station.
+The Navigation Context Framework provides a hierarchical navigation system for space exploration. Players navigate through nested contexts: Hyperspace (Sector map) → Star System (Outer/Inner) → Orbital Zones → Orbit → Surface/Station.
 
 This framework emerged from the game's core identity as a hierarchical navigation system with economy and narrative hooks at specific locations.
 

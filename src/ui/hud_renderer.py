@@ -3,8 +3,17 @@
 """
 
 import pygame
+from ui.space_view_renderer import SpaceViewRenderer
+
 
 class HudRenderer:
+
+    def __init__(self):
+        """
+        Initialize the HUD renderer and its components
+        """
+        self.space_view_renderer = None # Created when needed
+
     def _calculate_layout(self, surface):
         """Calculate HUD panel rectangle based on surface size"""
         width = surface.get_width()
@@ -24,14 +33,25 @@ class HudRenderer:
 
         return main_view, auxiliary_view, command_view, message_log
     
-    def render(self, surface):
-        """Render the HUD with simple rectangles to show the layout"""
+    def render(self, surface, game_session):
+        """Render the HUD with content from game session
+        
+        Args:
+            surface: Pygame surface to render to
+            game_session: Current game session containing state
+        """
 
         # Calculate Layout
         main_view, auxiliary_view, command_view, message_log = self._calculate_layout(surface)
 
+        # Create space view renderer if not yet created
+        if self.space_view_renderer is None:
+            self.space_view_renderer = SpaceViewRenderer(main_view.width, main_view.height)
+
+        main_surface = surface.subsurface(main_view)
+        self.space_view_renderer.render(main_surface, game_session)
+
         # Draw the panels
-        pygame.draw.rect(surface, (0, 50, 100), main_view)
         pygame.draw.rect(surface, (50, 0, 100), auxiliary_view)
         pygame.draw.rect(surface, (0, 100, 50), command_view)
         pygame.draw.rect(surface, (100, 50, 0), message_log)

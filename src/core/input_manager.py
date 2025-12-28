@@ -29,7 +29,7 @@ class InputManager:
             "down_left": [pygame.K_KP1],
             "down_right": [pygame.K_KP3],
 
-            "return": [pygame.K_RETURN, pygame.K_SPACE],
+            "return": [pygame.K_RETURN, pygame.K_SPACE, pygame.K_KP_ENTER],
             "cancel": [pygame.K_ESCAPE, pygame.K_BACKSPACE],
 
             # TODO: Add more action mappings as needed

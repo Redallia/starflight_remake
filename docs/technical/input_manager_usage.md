@@ -34,22 +34,13 @@ class MyState(GameState):
 
 ## Available Actions
 
-### Menu Navigation
-- `menu_up` - W, Up Arrow, Numpad 8
-- `menu_down` - S, Down Arrow, Numpad 2
-- `menu_left` - A, Left Arrow, Numpad 4
-- `menu_right` - D, Right Arrow, Numpad 6
+### Navigation
+- `up` - W, Up Arrow, Numpad 8
+- `down` - S, Down Arrow, Numpad 2
+- `left` - A, Left Arrow, Numpad 4
+- `right` - D, Right Arrow, Numpad 6
 - `confirm` - Enter, Space
 - `cancel` - Escape, Backspace
-
-### Ship Navigation
-- `nav_up` - W, Up Arrow, Numpad 8
-- `nav_down` - S, Down Arrow, Numpad 2
-- `nav_left` - A, Left Arrow, Numpad 4
-- `nav_right` - D, Right Arrow, Numpad 6
-- `nav_toggle` - Space (toggle navigation mode on/off)
-
-More actions will be added as needed (weapons, shields, scanning, etc.)
 
 ## Methods
 

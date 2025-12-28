@@ -55,7 +55,7 @@ class SpaceNavigationState(GameState):
         surface.fill(SPACE_BLACK)
 
         # Render HUD
-        self.hud_renderer.render(surface)
+        self.hud_renderer.render(surface, self.state_manager.game_session)
 
         # # Title
         # title = self.font.render("SPACE NAVIGATION - PLACEHOLDER", True, TEXT_NORMAL)
@@ -93,14 +93,16 @@ class SpaceNavigationState(GameState):
 
     def _move_ship(self, dx, dy):
         """Move the ship by (dx, dy) in current context"""
+        # Movement speed multiplier
+        speed = 4 # Move 4 units per keypress instead of 1
+
         # get current position
         x,y = self.state_manager.game_session.ship_position
 
         # Update position
-        new_x = x + dx
-        new_y = y + dy
+        new_x = x + (dx * speed)
+        new_y = y + (dy * speed)
 
         # Update ship position in game session
         self.state_manager.game_session.ship_position = (new_x, new_y)
-        print(f"Ship moved to ({new_x}, {new_y})")
         pass
