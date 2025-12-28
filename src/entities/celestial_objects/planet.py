@@ -61,7 +61,7 @@ class Planet:
         
         # Polar to cartesian conversion, centered at (250, 250)
         x = CONTEXT_CENTER + orbit_radius * math.cos(angle_rad)
-        y = CONTEXT_CENTER - orbit_radius * math.sin(angle_rad)
+        y = CONTEXT_CENTER + orbit_radius * math.sin(angle_rad)
         
         return (x, y)
     

@@ -61,9 +61,10 @@ class StarportMenuState(GameState):
 
         if selected_option_id == "launch_to_space":
             # Transition to space navigation state
+            self.state_manager.game_session.leave_current_context()
+            self.state_manager.game_session.leave_current_context()
             self.state_manager.change_state("space_navigation")
-            self.state_manager.game_session.leave_current_context()
-            self.state_manager.game_session.leave_current_context()
+            
         elif selected_option_id == "exit_to_main_menu":
             # Return to main menu
             self.state_manager.change_state("main_menu")

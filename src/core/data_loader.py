@@ -18,7 +18,7 @@ class DataLoader:
         """Initialize the data loader with the data directory root"""
         # Get the src/data directory relative to this file
         # This file is in src/core, so go up one level then into data
-        self.data_root = Path(__file__).parent.parent / "data"
+        self.data_root = Path(__file__).parent.parent.parent / "data"
         self.static_root = self.data_root / "static"
 
     def load_static(self, *path_parts):

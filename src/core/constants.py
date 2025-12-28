@@ -33,17 +33,14 @@ CONTEXT_DOCKED = "docked"
 # =============================================================================
 
 # Context grid dimensions (all navigation contexts use the same grid)
-CONTEXT_GRID_SIZE = 500
-CONTEXT_CENTER = 250  # Center point (250, 250) for orbital calculations
+CONTEXT_GRID_SIZE = 5000
+CONTEXT_CENTER = 2500  # Center point (2500, 2500) for orbital calculations
 
 # Standard orbital radii (used for all system contexts)
 # Planets/moons are placed at these distances from the central object
-SYSTEM_ORBITS = [80, 120, 160, 200]  # 4 orbital slots
-
+SYSTEM_ORBITS = [800, 1200, 1600, 2000]  # 4 orbital slots
 # Central object sizes (visual radius for rendering)
-CENTRAL_OBJECT_SIZE = 30  # Size of star, inner system zone, gas giant at center
-# =============================================================================
-# 
+CENTRAL_OBJECT_SIZE = 300  # Size of star, inner system zone, gas giant at center
 # =============================================================================
 
 # Local Space Regions

@@ -4,6 +4,7 @@
 
 import pygame
 from ui.space_view_renderer import SpaceViewRenderer
+from ui.minimap_renderer import MinimapRenderer
 
 
 class HudRenderer:
@@ -13,6 +14,7 @@ class HudRenderer:
         Initialize the HUD renderer and its components
         """
         self.space_view_renderer = None # Created when needed
+        self.minimap_renderer = None # Created when needed
 
     def _calculate_layout(self, surface):
         """Calculate HUD panel rectangle based on surface size"""
@@ -47,12 +49,16 @@ class HudRenderer:
         # Create space view renderer if not yet created
         if self.space_view_renderer is None:
             self.space_view_renderer = SpaceViewRenderer(main_view.width, main_view.height)
+            self.minimap_renderer = MinimapRenderer()
 
         main_surface = surface.subsurface(main_view)
         self.space_view_renderer.render(main_surface, game_session)
 
+        # Render minimap in auxiliary view
+        auxiliary_surface = surface.subsurface(auxiliary_view)
+        self.minimap_renderer.render(auxiliary_surface, game_session)
+
         # Draw the panels
-        pygame.draw.rect(surface, (50, 0, 100), auxiliary_view)
         pygame.draw.rect(surface, (0, 100, 50), command_view)
         pygame.draw.rect(surface, (100, 50, 0), message_log)
 

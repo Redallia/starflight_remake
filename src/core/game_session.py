@@ -2,6 +2,7 @@
 Base class for game session
 """
 from entities.ship import Ship
+from entities.celestial_objects.star_system import StarSystem
 
 from .constants import (
     CONTEXT_HYPERSPACE,
@@ -44,9 +45,13 @@ class GameSession:
     def __init__(self):
         # Let's start us off at Starport 
         hyperspace_ctx = NavigationContext(CONTEXT_HYPERSPACE, parent=None, ship_coords=[125, 110])
-        local_space_ctx = NavigationContext(CONTEXT_LOCAL_SPACE, parent=hyperspace_ctx, region=REGION_INNER_SYSTEM, ship_coords=[50, 50])
+        local_space_ctx = NavigationContext(CONTEXT_LOCAL_SPACE, parent=hyperspace_ctx, region=REGION_INNER_SYSTEM, ship_coords=[500, 500])
         orbit_context = NavigationContext(CONTEXT_ORBIT, parent=local_space_ctx, planet_index=3)
         docked_ctx = NavigationContext(CONTEXT_DOCKED, parent=orbit_context, location=LOCATION_STARPORT)
+
+         # Load the home star system
+        self.home_system = StarSystem("data/systems/home_system.json")
+        self.current_system = self.home_system # Track what system we're currently in
 
         # For a new game, player is currently docked at Starport
         self.current_context = docked_ctx
@@ -56,6 +61,21 @@ class GameSession:
         
         # For getting at current hyperspace coordinates
         self.hyperspace_context = hyperspace_ctx
+
+    def get_visible_planets(self):
+        """
+        Get the list of planets visible in the current navigation context
+        """
+        if self.current_context.type == CONTEXT_LOCAL_SPACE:
+            # Get the region from context data
+            region = self.current_context.data.get("region")
+            if region == REGION_INNER_SYSTEM:
+                return self.current_system.get_planets_for_context("inner_system")
+            elif region == REGION_OUTER_SYSTEM:
+                return self.current_system.get_planets_for_context("outer_system")
+
+        # No planets visible in other contexts (hyperspace, orbit, etc.)
+        return []
 
     def get_current_context(self):
         """Return the current context"""

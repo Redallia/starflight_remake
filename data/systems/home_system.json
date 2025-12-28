@@ -10,14 +10,14 @@
       "name": "Scorched",
       "type": "molten",
       "orbit_angle": 45,
-      "size": 4,
+      "size": 40,
       "landable": false
     },
     {
       "name": "Homeworld",
       "type": "terran",
       "orbit_angle": 180,
-      "size": 8,
+      "size": 80,
       "landable": true
     },
     null,
@@ -25,7 +25,7 @@
       "name": "Dustball",
       "type": "desert",
       "orbit_angle": 270,
-      "size": 6,
+      "size": 60,
       "landable": true
     }
   ],
@@ -34,21 +34,21 @@
       "name": "Colossus",
       "type": "gas_giant",
       "orbit_angle": 90,
-      "size": 18,
+      "size": 180,
       "landable": false,
       "moons": [
         {
           "name": "Colossus I",
           "type": "ice",
           "orbit_angle": 0,
-          "size": 4,
+          "size": 40,
           "landable": true
         },
         {
           "name": "Colossus II",
           "type": "rocky",
           "orbit_angle": 180,
-          "size": 5,
+          "size": 50,
           "landable": true
         }
       ]
@@ -58,7 +58,7 @@
       "name": "Frostbound",
       "type": "ice",
       "orbit_angle": 315,
-      "size": 7,
+      "size": 70,
       "landable": true
     },
     null
