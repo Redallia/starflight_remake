@@ -5,6 +5,7 @@ Loads and manages star system data including planets and moons
 
 import json
 from entities.celestial_objects.planet import Planet
+from entities.celestial_objects.star import Star
 
 
 class StarSystem:
@@ -25,10 +26,14 @@ class StarSystem:
         with open(system_data_path, 'r') as f:
             data = json.load(f)
         
-        # Basic system info
-        self.name = data["name"]
-        self.hyperspace_coords = data["hyperspace_coords"]
-        self.star = data["star"]
+        # Create Star Object
+        star_data = data["star"]
+        self.star = Star(
+            name = star_data["name"],
+            spectral_class=star_data["spectral_class"],
+            size=star_data.get("size", 300) # Default to CENTRAL_OBJECT_SIZE
+        )
+        
         
         # Load planets (with orbital indices set)
         self.inner_planets = self._load_planets(data.get("inner_planets", []))

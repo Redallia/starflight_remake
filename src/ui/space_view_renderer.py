@@ -46,6 +46,9 @@ class SpaceViewRenderer:
         planets = game_session.get_visible_planets()
         self._render_planets(surface, planets, camera_x, camera_y)
 
+        # Render the central star
+        self._render_star(surface, game_session.current_system.star, camera_x, camera_y)
+
         # Render ship icon at center
         center_x = self.width // 2
         center_y = self.height //2
@@ -94,7 +97,7 @@ class SpaceViewRenderer:
             screen_y = self.height - screen_y_world
             
             # Viewport culling (with margin for planet size)
-            margin = 50
+            margin = planet.size + 50
             if (-margin <= screen_x <= self.width + margin and
                 -margin <= screen_y <= self.height + margin):
                 
@@ -104,4 +107,21 @@ class SpaceViewRenderer:
                 # Draw planet as filled circle
                 pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), planet.size)
 
-        # TODO: Render other ships
+    def _render_star(self, surface, star, camera_x, camera_y):
+        # Get star's world coordinates
+        world_x, world_y = star.get_coordinates()
+
+        # Translate to screen coordinates
+        screen_x = world_x - camera_x
+        screen_y_world = world_y - camera_y
+        screen_y = self.height - screen_y_world
+
+        # Viewport culling (with margin for star size)
+        margin = star.size + 100
+        if (-margin <= screen_x <= self.width + margin and
+            -margin <= screen_y <= self.height + margin):
+
+            # Draw star as filled circle (yellow)
+            pygame.draw.circle(surface, (255, 255, 0), (int(screen_x), int(screen_y)), star.size)
+
+    # TODO: Render other ships
