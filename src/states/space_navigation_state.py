@@ -41,8 +41,6 @@ class SpaceNavigationState(GameState):
             # Check for collisions after movement
             self._check_collisions()
         
-        
-
     def render(self, surface):
         """Render space navigation view with the HUD """
         # Fill background
@@ -73,32 +71,51 @@ class SpaceNavigationState(GameState):
     
     def _check_collisions(self):
         """Check for all collision types"""
-        ship_x, ship_y = self.state_manager.game_session.ship_position
+        self._check_planet_collisions()
+        self._check_boundary_collisions()
+        self._check_central_zone_collisions()
 
-        # Get current star system
+    def _check_planet_collisions(self):
+        """Check for planet collisions and handle proximity"""
+        ship_x, ship_y = self.state_manager.game_session.ship_position
         current_system = self.state_manager.game_session.current_system
         if not current_system:
             return
-        
+
         # For now, check all planets (we'll filter by context later)
         all_planets = current_system.inner_planets + current_system.outer_planets
+        planet = self.collision_manager.check_planet_collision(ship_x, ship_y, all_planets)
 
-        # Check planet collisions
-        planet_collision = self.collision_manager.check_planet_collision(
-            ship_x, ship_y, all_planets
-        )
+        if planet:
+            self._handle_planet_collision(planet)
 
-        if planet_collision:
-            self.state_manager.game_session.add_message(f"Collision detected with {planet_collision.name}!")
-            print(f"Collision detected with {planet_collision.name}!")
-        
-        # Check boundary collisions
-        boundary_hit = self.collision_manager.check_boundary_collision(ship_x, ship_y)
-        if boundary_hit:
-            self.state_manager.game_session.add_message(f"Boundary collision: {boundary_hit}")
-            print(f"BOUNDARY! Hit {boundary_hit} edge")
-        
-        # Check central zone
+    def _handle_planet_collision(self, planet):
+        """Handle collision with a planet"""
+        self.state_manager.game_session.add_message(f"Approaching {planet.name}. Press Space to orbit.")
+        # TODO: Check for Space key press, then transition to orbit state
+
+    def _check_boundary_collisions(self):
+        """Check for boundary collisions and handle context transitions"""
+        ship_x, ship_y = self.state_manager.game_session.ship_position
+        boundary = self.collision_manager.check_boundary_collision(ship_x, ship_y)
+
+        if boundary:
+            self._handle_boundary_collision(boundary)
+
+    def _handle_boundary_collision(self, boundary):
+        """Handle collision with navigation context boundary"""
+        self.state_manager.game_session.add_message(f"Exiting region via {boundary} boundary")
+        # TODO: Pop context, reposition ship at opposite edge of parent context
+
+    def _check_central_zone_collisions(self):
+        """Check for central zone collisions and handle inner/outer transitions"""
+        ship_x, ship_y = self.state_manager.game_session.ship_position
         central_zone = self.collision_manager.check_central_zone_collision(ship_x, ship_y)
+
         if central_zone:
-            self.state_manager.game_session.add_message(f"Entered central zone!")
+            self._handle_central_zone_collision()
+
+    def _handle_central_zone_collision(self):
+        """Handle entering the central zone (inner/outer system transition)"""
+        self.state_manager.game_session.add_message("Entering central zone...")
+        # TODO: Check current region and push/switch context appropriately
