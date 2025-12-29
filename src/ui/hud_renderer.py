@@ -5,6 +5,7 @@
 import pygame
 from ui.space_view_renderer import SpaceViewRenderer
 from ui.minimap_renderer import MinimapRenderer
+from ui.message_log_renderer import MessageLogRenderer
 
 
 class HudRenderer:
@@ -51,6 +52,11 @@ class HudRenderer:
             self.space_view_renderer = SpaceViewRenderer(main_view.width, main_view.height)
             self.minimap_renderer = MinimapRenderer()
 
+        # Message Log Renderer
+        message_log_renderer = MessageLogRenderer()
+        message_log_surface = surface.subsurface(message_log)
+        message_log_renderer.render(message_log_surface, game_session)
+
         main_surface = surface.subsurface(main_view)
         self.space_view_renderer.render(main_surface, game_session)
 
@@ -62,7 +68,7 @@ class HudRenderer:
 
         # Draw the panels
         pygame.draw.rect(surface, (0, 100, 50), command_view)
-        pygame.draw.rect(surface, (100, 50, 0), message_log)
+        # pygame.draw.rect(surface, (100, 50, 0), message_log)
 
         # Draw borders so we can see the edges
         pygame.draw.rect(surface, (255, 255, 255), main_view, 2)

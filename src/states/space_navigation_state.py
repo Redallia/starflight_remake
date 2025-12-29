@@ -6,6 +6,7 @@ from ui.hud_renderer import HudRenderer
 from core.game_state import GameState
 from core.colors import SPACE_BLACK, TEXT_NORMAL
 from core.input_manager import InputManager
+from core.collision_manager import CollisionManager
 
 
 class SpaceNavigationState(GameState):
@@ -17,6 +18,7 @@ class SpaceNavigationState(GameState):
         self.small_font = pygame.font.Font(None, 24)
         self.input_manager = InputManager()
         self.hud_renderer = HudRenderer()
+        self.collision_manager = CollisionManager()
 
     def on_enter(self):
         """Called when entering space navigation state"""
@@ -36,6 +38,10 @@ class SpaceNavigationState(GameState):
 
         if dx != 0 or dy != 0:
             self._move_ship(dx, -dy)
+            # Check for collisions after movement
+            self._check_collisions()
+        
+        
 
     def render(self, surface):
         """Render space navigation view with the HUD """
@@ -64,3 +70,35 @@ class SpaceNavigationState(GameState):
 
         # Update ship position in game session
         self.state_manager.game_session.ship_position = (new_x, new_y)
+    
+    def _check_collisions(self):
+        """Check for all collision types"""
+        ship_x, ship_y = self.state_manager.game_session.ship_position
+
+        # Get current star system
+        current_system = self.state_manager.game_session.current_system
+        if not current_system:
+            return
+        
+        # For now, check all planets (we'll filter by context later)
+        all_planets = current_system.inner_planets + current_system.outer_planets
+
+        # Check planet collisions
+        planet_collision = self.collision_manager.check_planet_collision(
+            ship_x, ship_y, all_planets
+        )
+
+        if planet_collision:
+            self.state_manager.game_session.add_message(f"Collision detected with {planet_collision.name}!")
+            print(f"Collision detected with {planet_collision.name}!")
+        
+        # Check boundary collisions
+        boundary_hit = self.collision_manager.check_boundary_collision(ship_x, ship_y)
+        if boundary_hit:
+            self.state_manager.game_session.add_message(f"Boundary collision: {boundary_hit}")
+            print(f"BOUNDARY! Hit {boundary_hit} edge")
+        
+        # Check central zone
+        central_zone = self.collision_manager.check_central_zone_collision(ship_x, ship_y)
+        if central_zone:
+            self.state_manager.game_session.add_message(f"Entered central zone!")
