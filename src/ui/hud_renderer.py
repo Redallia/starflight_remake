@@ -68,7 +68,6 @@ class HudRenderer:
 
         # Draw the panels
         pygame.draw.rect(surface, (0, 100, 50), command_view)
-        # pygame.draw.rect(surface, (100, 50, 0), message_log)
 
         # Draw borders so we can see the edges
         pygame.draw.rect(surface, (255, 255, 255), main_view, 2)
