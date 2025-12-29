@@ -4,8 +4,10 @@
 Orbiting a planet. Player can scan the planet, select a landing site, and descend to the surface or leave orbit back to space.
 
 **Related Documentation:**
-- See [Navigation Context Framework](../navigation_context_framework.md) for navigation stack architecture
-- See [Space Navigation State](space_navigation.md) for the state that transitions to/from orbit
+- **[Proximity and Orbit](../../technical/proximity_and_orbit.md)**: How players enter/exit orbit (proximity pause, slingshot, positioning)
+- **[Context Transitions](../../technical/context_transitions.md)**: Navigation context mechanics
+- [Navigation Context Framework](../navigation_context_framework.md): Navigation stack architecture
+- [Space Navigation State](space_navigation.md): The state that transitions to/from orbit
 - This document provides implementation specifications for the OrbitState class
 
 ## State Information
@@ -114,9 +116,24 @@ Extended analysis of scan data, more detailed breakdown.
 - **Backspace/ESC**: Back out of sub-menus or leave orbit
 
 ## State Transitions
-- **To Space Navigation**: Via Navigator → Leave Orbit
+
+### Entering Orbit
+See **[Proximity and Orbit](../../technical/proximity_and_orbit.md)** for detailed mechanics.
+
+**Summary**: When player approaches planet in space navigation, proximity pause triggers. Pressing Space during pause enters orbit:
+1. Push CONTEXT_ORBIT onto navigation stack
+2. Transition to OrbitState
+3. Planet data available via game_session
+
+### Leaving Orbit
+**Navigator → Leave Orbit**:
+1. Pop CONTEXT_ORBIT from navigation stack
+2. Transition to SpaceNavigationState
+3. Ship positioned just outside planet's proximity radius (see [Proximity and Orbit](../../technical/proximity_and_orbit.md))
+
+### Landing
 - **To Surface**: Via Captain → Land → Descend
-- **From Space Navigation**: When approaching planet and selecting orbit
+- Transitions to SurfaceState with selected landing coordinates
 
 ## Data Requirements
 - Planet data (from star_systems.json or procedural generation)

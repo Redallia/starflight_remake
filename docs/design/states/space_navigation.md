@@ -3,8 +3,14 @@
 ## Overview
 Flying through space - either in hyperspace (between star systems) or in system space (within a star system). Player can maneuver ship, encounter other vessels, and approach planets.
 
+**Prerequisites:**
+Before implementing this state, read these technical foundation documents:
+- **[Coordinate Systems](../../technical/coordinate_systems.md)**: Understand the standard Cartesian grid used for all positioning
+- **[Context Transitions](../../technical/context_transitions.md)**: How contexts are entered/exited and ship positioning
+- **[Proximity and Orbit](../../technical/proximity_and_orbit.md)**: How planet proximity and orbit entry work
+
 **Related Documentation:**
-- See [Navigation Context Framework](../navigation_context_framework.md) for the high-level architectural design and navigation system philosophy
+- [Navigation Context Framework](../navigation_context_framework.md): High-level architectural design and navigation system philosophy
 - This document provides implementation specifications for the SpaceNavigationState class
 
 ## State Information
@@ -124,16 +130,28 @@ Scrolling text log:
 - Spacebar disengages maneuver mode
 - Control Panel locked on Navigator/Maneuver while active
 
+**Coordinate System**: All movement uses standard Cartesian coordinates (see [Coordinate Systems](../../technical/coordinate_systems.md)):
+- North = +Y direction (up)
+- East = +X direction (right)
+- Grid boundaries: 0-5000 on both axes
+
 ### Proximity Detection
-- Approaching planets triggers proximity indicator
-- Option to enter orbit (transitions to OrbitState)
+
+For detailed mechanics, see **[Proximity and Orbit](../../technical/proximity_and_orbit.md)**.
+
+**Summary**:
+- Approaching planets triggers proximity pause (1 second, inputs frozen)
+- During pause: Press Space to enter orbit, or wait to slingshot past planet
 - Approaching Starport allows docking (transitions to StarportState)
 
 ### Context Transitions
-When transitioning between navigation contexts:
+
+For detailed transition mechanics and positioning algorithms, see **[Context Transitions](../../technical/context_transitions.md)**.
+
+**Summary**:
 - **Direction of approach is respected**: Ship orientation/heading determines which edge you enter from
 - **On entering a context**: Ship appears at the edge of the new context corresponding to approach direction
-- **On exiting a context**: Ship appears at the edge of the object being exited, positioned by exit direction
+- **On exiting a context**: Ship appears at edge of object, positioned by exit direction (cardinal boundary → radial angle)
 - **Flux jumps**: Special case, to be designed separately
 
 ### Fuel Consumption by Context

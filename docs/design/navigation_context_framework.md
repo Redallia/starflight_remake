@@ -6,7 +6,10 @@ The Navigation Context Framework provides a hierarchical navigation system for s
 This framework emerged from the game's core identity as a hierarchical navigation system with economy and narrative hooks at specific locations.
 
 **Related Documentation:**
-- See [Space Navigation State](states/space_navigation.md) for implementation specifications, HUD layout, input handling, and development phases
+- **[Coordinate Systems](../technical/coordinate_systems.md)**: Foundation - coordinate system conventions used throughout
+- **[Context Transitions](../technical/context_transitions.md)**: Detailed mechanics for entering/exiting contexts and ship positioning
+- **[Proximity and Orbit](../technical/proximity_and_orbit.md)**: Planet proximity detection and orbit entry mechanics
+- **[Space Navigation State](states/space_navigation.md)**: Implementation specifications, HUD layout, input handling, and development phases
 - This document provides the high-level architectural design and system philosophy
 
 ## Design Philosophy
@@ -14,6 +17,7 @@ This framework emerged from the game's core identity as a hierarchical navigatio
 - **Consistent Mechanics**: Same movement and display paradigm across all contexts
 - **Stack-based State**: FILO stack tracks navigation hierarchy
 - **Persistent Location**: Navigation state survives across game state transitions (orbit, surface, etc.)
+- **Standard Cartesian Coordinates**: All contexts use the same coordinate system (see [Coordinate Systems](../technical/coordinate_systems.md))
 
 ## Navigation Context Types
 
@@ -169,10 +173,14 @@ navigation_stack: [
 - **Exiting a context**: Pop current context off stack, return to previous context
 
 ### Positioning on Transition
+
+For detailed positioning mechanics including algorithms, coordinate transformations, and code examples, see **[Context Transitions](../technical/context_transitions.md)**.
+
+**Summary**:
 - **Direction of approach is respected**: Ship orientation/heading determines which edge you enter from
 - **On entering a context**: Ship appears at the edge of the new context corresponding to approach direction
-- **On exiting a context**: Ship appears at the edge of the object being exited, positioned by exit direction
-- **Coordinates not preserved**: Stack doesn't save position; positioning is calculated based on entry/exit direction
+- **On exiting a context**: Ship appears at the edge of the object being exited, positioned by exit direction (cardinal boundary → radial angle)
+- **Context regeneration**: Contexts are regenerated on entry; positions are calculated fresh based on approach direction
 - **Flux jumps**: Special case, to be designed separately
 
 ### State Transition Example (Entering/Leaving Orbit)
@@ -295,8 +303,12 @@ Example data structure:
 ## Collision Detection
 
 ### Proximity Detection
-- Approaching planets triggers proximity indicator
-- Option to enter orbit (transitions to OrbitState)
+
+For detailed proximity mechanics, pause behavior, and orbit entry, see **[Proximity and Orbit](../technical/proximity_and_orbit.md)**.
+
+**Summary**:
+- Approaching planets triggers proximity pause (not automatic orbit)
+- Player can press Space to enter orbit or wait to slingshot past
 - Approaching Starport allows docking (transitions to StarportState)
 
 ### Collision Behavior by Context
