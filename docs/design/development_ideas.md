@@ -46,6 +46,10 @@ A distress call from another starship could request medical assistance. A well-t
 
 ## Wishlist
 
+### The Mission Mandate
+It might be interesting to let the player start off their foray into the wider universe by letting them select a mandate for their mission. 
+Diplomatic, scientific surveys, military. Stuff along those lines. Open up different storylines, or different ways to engage with the main story. Different ways and different channels for uncovering the same mysteries.
+
 ### Expanded Skill Systems
 The original games had a list of 5 skills:
 - Science
