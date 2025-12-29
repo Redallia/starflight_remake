@@ -83,65 +83,89 @@ A localized region around a gas giant and its moons.
 Navigation contexts are tracked using a **FILO (First In, Last Out) stack** stored at the top level of `game_state`. This ensures navigation context persists across state transitions (entering orbit, landing on planets, docking at starport).
 
 ### Key Design Decisions
-1. **Hyperspace is implicit**: Not tracked in stack (stack is empty when in hyperspace)
-2. **Coordinate-based systems**: Star systems identified by galactic coordinates `{"x": int, "y": int}`, not names
-3. **Index-based bodies**: Celestial bodies (planets, moons, gas giants) identified by orbital index (0-based, numbered from innermost to outermost orbit)
-4. **System-level only**: Stack only contains system-level navigation contexts
+1. **Object-based contexts**: Stack contains NavigationContext objects (not strings) with `.type` and `.data` attributes
+2. **Encapsulated coordinates**: Each NavigationContext stores its own ship coordinates in `.data["ship_coords"]`
+3. **Hyperspace included**: Hyperspace is stored at index 0 of the stack (simplifies logic, more consistent)
+4. **Rich system objects**: `current_system` is a StarSystem object, not just coordinates
+5. **Index-based bodies**: Celestial bodies (planets, moons, gas giants) identified by orbital index (0-based, numbered from innermost to outermost orbit)
 
 ### Game State Structure
 
 ```python
-# Top-level game_state structure
-{
-    "current_system": {"x": 100, "y": 200},  # galactic coords of current star system, null when in hyperspace
-    "navigation_stack": [
-        "outer_system",
-        "planet_4_subsystem"  # gas giant at orbital position 4
-    ],
-    "location": {
-        "coordinates": {"x": 25, "y": 30},  # position within current navigation context
-        "target_body": 2  # orbital index when in orbit/on surface (e.g., moon 2 of gas giant)
-    },
-    "current_state": "space_navigation",  # or "orbit", "surface", "starport", etc.
-    "ship": {
-        "fuel": 450,
-        "max_fuel": 1000
-    }
-}
+# GameSession structure (in src/core/game_session.py)
+class NavigationContext:
+    """Represents a single navigation context"""
+    def __init__(self, context_type, **kwargs):
+        self.type = context_type  # e.g., CONTEXT_HYPERSPACE, CONTEXT_LOCAL_SPACE, CONTEXT_ORBIT
+        self.data = kwargs        # context-specific data (ship_coords, region, planet_index, etc.)
+
+class GameSession:
+    def __init__(self):
+        self.current_system = StarSystem(...)  # StarSystem object, not coordinate dict
+        self.navigation_stack = [
+            NavigationContext(CONTEXT_HYPERSPACE, ship_coords=[125, 110]),
+            NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_OUTER_SYSTEM, ship_coords=[2500, 4000]),
+            NavigationContext(CONTEXT_LOCAL_SPACE, region="planet_4_subsystem", ship_coords=[300, 300])
+        ]
+        self.player_ship = Ship(...)
+        self.messages = []  # Message log for UI feedback
+
+    @property
+    def current_context(self):
+        """Returns the top of the navigation stack"""
+        return self.navigation_stack[-1] if self.navigation_stack else None
+
+    @property
+    def ship_position(self):
+        """Gets ship coordinates from current context"""
+        return self.current_context.data.get("ship_coords", [0, 0])
 ```
 
 ### Stack Examples
 
 **Player in hyperspace:**
 ```python
-"current_system": null,
-"navigation_stack": []
+current_system: None
+navigation_stack: [
+    NavigationContext(CONTEXT_HYPERSPACE, ship_coords=[125, 110])
+]
 ```
 
-**Player in outer system (star at galactic coords 100, 200):**
+**Player in outer system (star at galactic coords 125, 110):**
 ```python
-"current_system": {"x": 100, "y": 200},
-"navigation_stack": ["outer_system"]
+current_system: StarSystem("Arth")  # StarSystem object
+navigation_stack: [
+    NavigationContext(CONTEXT_HYPERSPACE, ship_coords=[125, 110]),
+    NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_OUTER_SYSTEM, ship_coords=[2500, 4000])
+]
 ```
 
 **Player in gas giant sub-system (planet at orbital position 4):**
 ```python
-"current_system": {"x": 100, "y": 200},
-"navigation_stack": ["outer_system", "planet_4_subsystem"]
+current_system: StarSystem("Arth")
+navigation_stack: [
+    NavigationContext(CONTEXT_HYPERSPACE, ship_coords=[125, 110]),
+    NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_OUTER_SYSTEM, ship_coords=[2500, 3000]),
+    NavigationContext(CONTEXT_LOCAL_SPACE, region="planet_4_subsystem", ship_coords=[300, 300])
+]
 ```
 
 **Player in inner system (navigated from outer system):**
 ```python
-"current_system": {"x": 100, "y": 200},
-"navigation_stack": ["outer_system", "inner_system"]
+current_system: StarSystem("Arth")
+navigation_stack: [
+    NavigationContext(CONTEXT_HYPERSPACE, ship_coords=[125, 110]),
+    NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_OUTER_SYSTEM, ship_coords=[2500, 2500]),
+    NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_INNER_SYSTEM, ship_coords=[2500, 2500])
+]
 ```
 
 ## Context Transitions
 
 ### Navigation Context Transitions
-- **Entering hyperspace from system**: Clear `current_system` (set to null) and empty `navigation_stack`
-- **Entering system from hyperspace**: Set `current_system` to star's galactic coords, push "outer_system" onto stack
-- **Entering a new context within system**: Push new context identifier onto stack
+- **Entering hyperspace from system**: Set `current_system` to None and pop all contexts until only CONTEXT_HYPERSPACE remains
+- **Entering system from hyperspace**: Set `current_system` to StarSystem object, push new NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_OUTER_SYSTEM, ship_coords=[...])
+- **Entering a new context within system**: Push new NavigationContext object onto stack with appropriate type and data
 - **Exiting a context**: Pop current context off stack, return to previous context
 
 ### Positioning on Transition
@@ -154,22 +178,23 @@ Navigation contexts are tracked using a **FILO (First In, Last Out) stack** stor
 ### State Transition Example (Entering/Leaving Orbit)
 
 **Player navigates to moon 2 of gas giant at position 4:**
-- `current_system`: `{"x": 100, "y": 200}`
-- `navigation_stack`: `["outer_system", "planet_4_subsystem"]`
-- `current_state`: `"space_navigation"`
+- `current_system`: `StarSystem("Arth")`
+- `navigation_stack`: `[NavigationContext(CONTEXT_HYPERSPACE, ...), NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_OUTER_SYSTEM, ...), NavigationContext(CONTEXT_LOCAL_SPACE, region="planet_4_subsystem", ship_coords=[350, 280])]`
+- `current_context.type`: `CONTEXT_LOCAL_SPACE`
 - Collision with moon → transition to orbit
 
 **Player enters orbit around the moon:**
-- `current_system`: `{"x": 100, "y": 200}` (preserved)
-- `navigation_stack`: `["outer_system", "planet_4_subsystem"]` (preserved)
-- `location.target_body`: `2` (moon index)
-- `current_state`: `"orbit"`
+- `current_system`: `StarSystem("Arth")` (preserved)
+- `navigation_stack`: Previous stack + `NavigationContext(CONTEXT_ORBIT, planet_index=2)` (moon 2 of gas giant)
+- `current_context.type`: `CONTEXT_ORBIT`
+- Game state transitions to OrbitState
 
 **Player launches from the moon:**
-- `current_system`: `{"x": 100, "y": 200}` (preserved)
-- `navigation_stack`: `["outer_system", "planet_4_subsystem"]` (preserved)
-- `current_state`: `"space_navigation"`
+- `current_system`: `StarSystem("Arth")` (preserved)
+- `navigation_stack`: Pop CONTEXT_ORBIT, back to `[..., NavigationContext(CONTEXT_LOCAL_SPACE, region="planet_4_subsystem", ship_coords=[350, 280])]`
+- `current_context.type`: `CONTEXT_LOCAL_SPACE`
 - Ship appears near moon 2's coordinates in planet_4_subsystem context
+- Game state transitions back to SpaceNavigationState
 
 ## Movement System
 
