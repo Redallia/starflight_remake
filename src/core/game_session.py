@@ -41,15 +41,20 @@ class GameSession:
         """
         Build the context chain from top to bottom
         """
+        self.home_system = StarSystem("data/systems/home_system.json")
+        self.current_system = self.home_system
+
+        # Find Homeworld and get its coordinates
+        homeworld = self.home_system.inner_planets[1] # HW is at index 1
+        homeworld_coords = homeworld.get_coordinates()
+        homeworld_coords_list = [int(homeworld_coords[0]), int(homeworld_coords[1])]
+
         self.navigation_stack = [
             NavigationContext(CONTEXT_HYPERSPACE, ship_coords=[125, 110]),
-            NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_INNER_SYSTEM, ship_coords=[500, 500]),
-            NavigationContext(CONTEXT_ORBIT, planet_index=3),
+            NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_INNER_SYSTEM, ship_coords=homeworld_coords_list),
+            NavigationContext(CONTEXT_ORBIT, planet_index=1),
             NavigationContext(CONTEXT_DOCKED, location=LOCATION_STARPORT)
         ]
-         # Load the home star system
-        self.home_system = StarSystem("data/systems/home_system.json")
-        self.current_system = self.home_system # Track what system we're currently in
 
         # Give the player a new ship
         self.player_ship = Ship(ship_id=0)
