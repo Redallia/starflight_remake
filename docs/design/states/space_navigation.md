@@ -178,86 +178,23 @@ Encounters occur when another ship comes within interaction range:
 ## Game State Requirements
 
 ### Navigation Context Stack
-Navigation contexts are tracked using a FILO (stack) structure stored at the **top level of game_state**. This ensures the navigation context persists across state transitions (e.g., entering orbit, landing on planets, docking at starport).
+The SpaceNavigationState relies on the navigation context stack to determine which region is currently active and what objects should be visible.
 
-**Key Design Decisions:**
-- Hyperspace is the default base state and is NOT tracked in the stack (stack is empty when in hyperspace)
-- Star systems are identified by galactic coordinates `{"x": int, "y": int}`, not names
-- Celestial bodies (planets, moons, gas giants) are identified by orbital index (0-based, numbered from innermost to outermost orbit)
-- Stack only contains system-level navigation contexts
+**For detailed information on:**
+- Navigation stack architecture and structure
+- NavigationContext object design
+- Stack examples and state transitions
+- Context transition mechanics
 
-```python
-# Top-level game_state structure
-{
-    "current_system": {"x": 100, "y": 200},  # galactic coords of current star system, null when in hyperspace
-    "navigation_stack": [
-        "outer_system",
-        "planet_4_subsystem"  # gas giant at orbital position 4
-    ],
-    "location": {
-        "coordinates": {"x": 25, "y": 30},  # position within current navigation context
-        "target_body": 2  # orbital index when in orbit/on surface (e.g., moon 2 of gas giant)
-    },
-    "current_state": "space_navigation",  # or "orbit", "surface", "starport", etc.
-    "ship": {
-        "fuel": 450,
-        "max_fuel": 1000
-    }
-}
-```
+**See:** [Navigation Context Framework](../navigation_context_framework.md#navigation-stack-architecture)
 
-**Stack Examples:**
-
-Player in hyperspace:
-```python
-"current_system": null,
-"navigation_stack": []
-```
-
-Player in outer system (star at galactic coords 100, 200):
-```python
-"current_system": {"x": 100, "y": 200},
-"navigation_stack": ["outer_system"]
-```
-
-Player in gas giant sub-system (planet at orbital position 4):
-```python
-"current_system": {"x": 100, "y": 200},
-"navigation_stack": ["outer_system", "planet_4_subsystem"]
-```
-
-Player in inner system (navigated from outer system):
-```python
-"current_system": {"x": 100, "y": 200},
-"navigation_stack": ["outer_system", "inner_system"]
-```
-
-**State Transition Example (Entering/Leaving Orbit):**
-
-Player navigates to moon 2 of gas giant at position 4:
-- `current_system`: `{"x": 100, "y": 200}`
-- `navigation_stack`: `["outer_system", "planet_4_subsystem"]`
-- `current_state`: `"space_navigation"`
-- Collision with moon → transition to orbit
-
-Player enters orbit around the moon:
-- `current_system`: `{"x": 100, "y": 200}` (preserved)
-- `navigation_stack`: `["outer_system", "planet_4_subsystem"]` (preserved)
-- `location.target_body`: `2` (moon index)
-- `current_state`: `"orbit"`
-
-Player launches from the moon:
-- `current_system`: `{"x": 100, "y": 200}` (preserved)
-- `navigation_stack`: `["outer_system", "planet_4_subsystem"]` (preserved)
-- `current_state`: `"space_navigation"`
-- Ship appears near moon 2's coordinates in planet_4_subsystem context
-
-**Context Transitions:**
-- Entering hyperspace from system: Clear `current_system` (set to null) and empty `navigation_stack`
-- Entering system from hyperspace: Set `current_system` to star's galactic coords, push "outer_system" onto stack
-- Entering a new context within system: Push new context identifier onto stack
-- Exiting a context: Pop current context off stack, return to previous context
-- Ship appears at appropriate edge based on exit direction (coordinates not preserved in stack)
+### State-Specific Requirements
+The SpaceNavigationState specifically needs access to:
+- `game_session.current_context` - The active navigation context (top of stack)
+- `game_session.ship_position` - Ship coordinates within current context (property that reads from `current_context.data["ship_coords"]`)
+- `game_session.current_system` - StarSystem object for the current star system
+- `game_session.messages` - Message log for displaying collision/proximity events
+- `collision_manager` - CollisionManager instance for detecting planet, boundary, and central zone collisions
 
 ## Implementation Phases
 
