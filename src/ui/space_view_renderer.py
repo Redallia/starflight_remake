@@ -123,5 +123,3 @@ class SpaceViewRenderer:
 
             # Draw star as filled circle (yellow)
             pygame.draw.circle(surface, (255, 255, 0), (int(screen_x), int(screen_y)), star.size)
-
-    # TODO: Render other ships

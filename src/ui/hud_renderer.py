@@ -54,8 +54,10 @@ class HudRenderer:
         main_surface = surface.subsurface(main_view)
         self.space_view_renderer.render(main_surface, game_session)
 
-        # Render minimap in auxiliary view
-        auxiliary_surface = surface.subsurface(auxiliary_view)
+        # Render minimap in auxiliary view (inset for border)
+        border_width = 2
+        auxiliary_inset = auxiliary_view.inflate(-border_width * 2, -border_width * 2)
+        auxiliary_surface = surface.subsurface(auxiliary_inset)
         self.minimap_renderer.render(auxiliary_surface, game_session)
 
         # Draw the panels

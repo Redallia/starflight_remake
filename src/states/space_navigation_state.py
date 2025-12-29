@@ -28,26 +28,14 @@ class SpaceNavigationState(GameState):
         
         if action == "cancel":
             self.state_manager.change_state("starport")
-        elif action == "up":
-            self._move_ship(0, 1)
-        elif action == "down":
-            self._move_ship(0, -1)
-        elif action == "left":
-            self._move_ship(-1, 0)
-        elif action == "right":
-            self._move_ship(1, 0)
-        elif action == "up_left":
-            self._move_ship(-1, 1)
-        elif action == "down_left":
-            self._move_ship(-1, -1)
-        elif action == "up_right":
-            self._move_ship(1, 1)
-        elif action == "down_right":
-            self._move_ship(1, -1)
 
     def update(self, dt):
         """Update space navigation state"""
-        pass
+        # Check for movement input every frame
+        dx, dy = self.input_manager.get_movement_vector()
+
+        if dx != 0 or dy != 0:
+            self._move_ship(dx, -dy)
 
     def render(self, surface):
         """Render space navigation view with the HUD """
@@ -60,7 +48,7 @@ class SpaceNavigationState(GameState):
     def _move_ship(self, dx, dy):
         """Move the ship by (dx, dy) in current context"""
         # Movement speed multiplier
-        speed = 10 # Move 4 units per keypress instead of 1
+        speed = 6 # Move 4 units per keypress instead of 1
 
         # get current position
         x,y = self.state_manager.game_session.ship_position
@@ -68,6 +56,11 @@ class SpaceNavigationState(GameState):
         # Update position
         new_x = x + (dx * speed)
         new_y = y + (dy * speed)
+
+        # Clamp to context grid boundaries
+        from core.constants import CONTEXT_GRID_SIZE
+        new_x = max(0, min(CONTEXT_GRID_SIZE, new_x))
+        new_y = max(0, min(CONTEXT_GRID_SIZE, new_y))
 
         # Update ship position in game session
         self.state_manager.game_session.ship_position = (new_x, new_y)

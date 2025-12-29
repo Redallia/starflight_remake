@@ -23,7 +23,7 @@ class MinimapRenderer:
         # Get surface dimensions - use ALL of it
         width = surface.get_width()
         height = surface.get_height()
-        
+
         # Scale factors - separate X and Y to fill rectangular space
         scale_x = width / 5000.0
         scale_y = height / 5000.0
@@ -43,15 +43,16 @@ class MinimapRenderer:
         
         # Draw orbital rings (ellipses to match stretched space)
         for orbit_radius in SYSTEM_ORBITS:
-            scaled_radius_x = int(orbit_radius * scale_x)
-            scaled_radius_y = int(orbit_radius * scale_y)
-            rect = pygame.Rect(
-                center_x - scaled_radius_x,
-                center_y - scaled_radius_y,
-                scaled_radius_x * 2,
-                scaled_radius_y * 2
-            )
-            pygame.draw.ellipse(surface, (60, 60, 80), rect, 1)
+            if orbit_radius > 0:
+                scaled_radius_x = int(orbit_radius * scale_x)
+                scaled_radius_y = int(orbit_radius * scale_y)
+                rect = pygame.Rect(
+                    center_x - scaled_radius_x,
+                    center_y - scaled_radius_y,
+                    scaled_radius_x * 2,
+                    scaled_radius_y * 2
+                )
+                pygame.draw.ellipse(surface, (60, 60, 80), rect, 1)
         
         # Get and draw planets
         planets = game_session.get_visible_planets()
@@ -67,8 +68,3 @@ class MinimapRenderer:
         minimap_ship_x = int(ship_x * scale_x)
         minimap_ship_y = height - int(ship_y * scale_y)
         pygame.draw.circle(surface, (0, 255, 0), (minimap_ship_x, minimap_ship_y), 4)
-        
-        # Label at bottom
-        label = self.font.render("NAVIGATION", True, (200, 200, 200))
-        label_rect = label.get_rect(centerx=width // 2, bottom=height - 5)
-        surface.blit(label, label_rect)
