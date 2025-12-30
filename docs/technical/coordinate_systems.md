@@ -36,7 +36,9 @@ West ←---+-(2500,--+--→ East
 
 ## Grid Dimensions
 
-All navigation contexts use the same grid size:
+### Local Space Contexts
+
+All LOCAL_SPACE navigation contexts (inner system, outer system, gas giant subsystems) use the same grid size:
 - **Grid size**: 5000 × 5000 units
 - **Center point**: (2500, 2500)
 - **Boundaries**:
@@ -46,6 +48,20 @@ All navigation contexts use the same grid size:
   - West boundary: x = 0
 
 **Source**: Defined in `src/core/constants.py` as `CONTEXT_GRID_SIZE = 5000` and `CONTEXT_CENTER = 2500`
+
+**Note**: These dimensions may be adjusted in the future to create different scale/distance feelings between context types, but are currently standardized for consistency.
+
+### Hyperspace Context
+
+Hyperspace uses a **tile-based** coordinate system with different movement characteristics:
+- **Grid**: 250 × 220 tiles
+- **Tile size**: 8 × 8 units (for rendering/positioning)
+- **Total space**: 2000 × 1760 units
+- **Movement feel**: Intended to feel "weightier" than local space movement
+
+**Implementation Status**: ⚠️ Hyperspace movement mechanics still need tuning/playtesting to achieve desired feel.
+
+**Data**: Star system data stored in galaxy JSON with tile-based coordinates.
 
 ## Angular Conventions
 

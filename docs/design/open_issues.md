@@ -27,10 +27,10 @@ Issues that have been addressed through implementation:
 - ✅ Ship cargo capacity: Defined per ship class (`available_cargo_bays` in `ships.json`)
 
 **Still needed:**
-- Grid sizes for Outer System, Inner System, Planetary Systems
+- ✅ Grid sizes: 5000×5000 for all LOCAL_SPACE contexts (documented in `coordinate_systems.md`)
 - Fuel costs for launching from surface
 - Starting ship stats (fuel capacity, starting credits)
-- Fuel/power capacity and consumption units clarification
+- ⚠️ Fuel system needs dedicated documentation (see note below)
 ### Input Handling - Partially Resolved ✅
 **Resolved:**
 - ✅ Menu navigation: Keyboard-based (W/S, arrows, numpad 8/2) - implemented in InputManager
@@ -42,6 +42,31 @@ Issues that have been addressed through implementation:
 - Complete keyboard shortcuts documentation
 
 ## Critical Gaps - Still Open
+
+### Fuel System - Needs Documentation
+**Status**: ⚠️ Needs dedicated design document
+
+**What we know**:
+- Fuel is NOT the same as "power" (no power system exists)
+- Fuel is a resource that takes up cargo space on the ship
+- Cargo space is modular (can be added/removed)
+- Fuel is a mineable resource
+- Fuel consumption affects:
+  - Hyperspace travel
+  - Launching from planets into orbit
+  - Weapons and shields operation
+
+**Still needed**:
+- Fuel consumption rates (per context, per action)
+- Starting fuel capacity and amount
+- Fuel costs for specific actions (launch, hyperspace jump, combat)
+- Fuel mining mechanics
+- Fuel market pricing
+- Cargo space tradeoffs (fuel vs minerals/cargo)
+
+**Recommendation**: Create `docs/design/fuel_system.md` when ready to spec this out.
+
+---
 
 ### Procedural Generation Specifics
 procedural_generation.md describes approaches but not:

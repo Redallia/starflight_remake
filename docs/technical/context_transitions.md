@@ -353,10 +353,10 @@ NavigationContext(CONTEXT_ORBIT, planet_index=2)  # No ship_coords (handled by O
 
 ## Open Design Questions
 
-1. **Inner/outer system architecture**: Nested vs. sibling approach?
-2. **Context position caching**: Should we preserve ship position when re-entering contexts?
-3. **Binary/trinary systems**: How to handle multiple inner system contexts?
-4. **Diagonal entry directions**: Should we support NE/NW/SE/SW entry, or round to cardinal directions?
+1. **Inner/outer system architecture**: Nested vs. sibling approach? ⏸️ **Deferred** - will revisit after basic navigation is implemented
+2. **Context position caching**: Should we preserve ship position when re-entering contexts? ✅ **Decided**: No caching for MVP, regenerate based on entry direction
+3. **Binary/trinary systems**: How to handle multiple inner system contexts? ⏸️ **Deferred** - related to question #1
+4. **Diagonal entry directions**: Should we support NE/NW/SE/SW entry, or round to cardinal directions? ✅ **Current**: Round to cardinal directions (simpler for MVP)
 
 ## Future Enhancements
 
