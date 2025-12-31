@@ -7,6 +7,7 @@ from core.game_state import GameState
 from core.colors import SPACE_BLACK, TEXT_NORMAL
 from core.input_manager import InputManager
 from core.collision_manager import CollisionManager
+from core.constants import CONTEXT_CENTER, CENTRAL_OBJECT_SIZE, CONTEXT_INNER_SYSTEM
 
 
 class SpaceNavigationState(GameState):
@@ -105,7 +106,11 @@ class SpaceNavigationState(GameState):
     def _handle_boundary_collision(self, boundary):
         """Handle collision with navigation context boundary"""
         # Attempt to exit inner system
-        if self.state_manager.game_session.exit_inner_system(boundary):
+        if self.state_manager.game_session.context_manager.exit_context(
+            exit_boundary=boundary,
+            parent_object_coords=[CONTEXT_CENTER, CONTEXT_CENTER],
+            parent_object_radius=CENTRAL_OBJECT_SIZE
+        ):
             self.state_manager.game_session.add_message(f"Entering outer system from {boundary}")
             # Reset collision manager to prevent immediate re-trigger
             self.collision_manager.reset()
@@ -124,7 +129,11 @@ class SpaceNavigationState(GameState):
     def _handle_central_zone_collision(self):
         """Handle entering the central zone (inner/outer system transition)"""
         # Attempt to enter inner system
-        if self.state_manager.game_session.enter_inner_system():
+        if self.state_manager.game_session.context_manager.enter_context(
+            context_type=CONTEXT_INNER_SYSTEM,
+            target_coords=[CONTEXT_CENTER, CONTEXT_CENTER],
+            target_radius=CENTRAL_OBJECT_SIZE
+        ):
             self.state_manager.game_session.add_message("Entering inner system")
             # Reset collision manager to prevent immediate re-trigger
             self.collision_manager.reset()

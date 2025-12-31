@@ -4,6 +4,7 @@ Starport menu state
 from core.game_state import GameState
 from core.data_loader import DataLoader
 from core.input_manager import InputManager
+from core.context_manager import ContextManager
 from ui.menu_renderer import MenuRenderer
 
 
@@ -60,11 +61,28 @@ class StarportMenuState(GameState):
 
         if selected_option_id == "launch_to_space":
             # Launch from starport into space
-            if self.state_manager.game_session.launch_from_dock():
-                self.state_manager.change_state("space_navigation")
+            # Get dock data from interaction_target
+            interaction = self.state_manager.game_session.interaction_target
+            
+            if interaction and interaction.get("type") == "station":
+                # Extract coordinates and radius from interaction data
+                dock_coords = interaction.get("planet_coords")
+                dock_radius = interaction.get("planet_radius")
+                
+                # Launch using context manager
+                if self.state_manager.game_session.context_manager.launch_from_dock(
+                    dock_coords=dock_coords,
+                    dock_radius=dock_radius
+                ):
+                    # Clear the interaction - we're no longer docked
+                    self.state_manager.game_session.clear_interaction()
+                    # Transition to space navigation
+                    self.state_manager.change_state("space_navigation")
+                else:
+                    # Launch failed - this shouldn't happen, but handle gracefully
+                    print("ERROR: Failed to launch from dock")
             else:
-                # Launch failed - this shouldn't happen, but handle gracefully
-                print("ERROR: Failed to launch from dock")
+                print("ERROR: Not docked at a station")
 
         elif selected_option_id == "exit_to_main_menu":
             # Return to main menu
