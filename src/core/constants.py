@@ -21,12 +21,19 @@ GAME_MODE_MAIN_MENU = "main_menu"
 GAME_MODE_PLAYING = "playing"
 GAME_MODE_GAME_OVER = "game_over"
 
-# Spatial context types (for context stack)
+# Spatial context types (spatial zones where you can move)
 CONTEXT_HYPERSPACE = "hyperspace"
-CONTEXT_LOCAL_SPACE = "local_space"
-CONTEXT_ORBIT = "orbit"
-CONTEXT_SURFACE = "surface"
-CONTEXT_DOCKED = "docked"
+CONTEXT_OUTER_SYSTEM = "outer_system"
+CONTEXT_INNER_SYSTEM = "inner_system"
+CONTEXT_PLANETARY_SYSTEM = "planetary_system" # Any planet with moons
+CONTEXT_SURFACE = "surface" # Any surface that the ship can land on
+CONTEXT_ENCOUNTER = "encounter" # Future: Alien encounters
+
+# Interaction Target Types (objects you can interact with)
+INTERACTION_PLANET = "planet"
+INTERACTION_MOON = "moon"
+INTERACTION_ASTEROID = "asteroid"
+INTERACTION_STATION = "station"
 
 # =============================================================================
 # Orbital System Constants
@@ -43,7 +50,7 @@ SYSTEM_ORBITS = [800, 1200, 1600, 2000]  # 4 orbital slots
 CENTRAL_OBJECT_SIZE = 300  # Size of star, inner system zone, gas giant at center
 # =============================================================================
 
-# Local Space Regions
+# Local Space Regions (Kept for repurposing reason)
 REGION_INNER_SYSTEM = "inner_system"
 REGION_OUTER_SYSTEM = "outer_system"
 REGION_GAS_GIANT = "gas_giant"

@@ -1,19 +1,22 @@
 """
 Base class for game session
 """
+from operator import index
 from entities.ship import Ship
 from entities.celestial_objects.star_system import StarSystem
 
 from .constants import (
     CONTEXT_HYPERSPACE,
-    CONTEXT_LOCAL_SPACE,
-    CONTEXT_ORBIT,
-    CONTEXT_DOCKED,
-    REGION_INNER_SYSTEM,
-    REGION_OUTER_SYSTEM,
-    REGION_GAS_GIANT,
+    CONTEXT_OUTER_SYSTEM,
+    CONTEXT_INNER_SYSTEM,
+    CONTEXT_PLANETARY_SYSTEM,
+    CONTEXT_SURFACE,
+    CONTEXT_ENCOUNTER,
+    INTERACTION_PLANET,
+    INTERACTION_MOON,
+    INTERACTION_ASTEROID,
+    INTERACTION_STATION,
     LOCATION_STARPORT
-
 )
 
 
@@ -58,12 +61,22 @@ class GameSession:
         homeworld_coords = homeworld.get_coordinates()
         homeworld_coords_list = [int(homeworld_coords[0]), int(homeworld_coords[1])]
 
+        # Player starts docked at Starport
         self.navigation_stack = [
             NavigationContext(CONTEXT_HYPERSPACE, ship_coords=[125, 110]),
-            NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_INNER_SYSTEM, ship_coords=homeworld_coords_list),
-            NavigationContext(CONTEXT_ORBIT, planet_coords=homeworld_coords_list, planet_radius=homeworld.size),
-            NavigationContext(CONTEXT_DOCKED, location=LOCATION_STARPORT)
+            NavigationContext(CONTEXT_INNER_SYSTEM, ship_coords=homeworld_coords_list)
         ]
+        # Current interaction (None when freely navigation)
+        # self.interaction_target = None
+
+        # Player starts at starport (docked)
+        self.interaction_target = {
+            "type": INTERACTION_STATION,
+            "station_id": LOCATION_STARPORT,
+            "planet_index": 1, # Homeworld is index 1
+            "planet_coords": homeworld_coords_list,
+            "planet_radius": homeworld.size
+        }
 
         # Give the player a new ship
         self.player_ship = Ship(ship_id=0)
@@ -75,20 +88,23 @@ class GameSession:
         # For getting at current hyperspace coordinates
         self.hyperspace_context = self.navigation_stack[0]
 
+
+
     def get_visible_planets(self):
         """
         Get the list of planets visible in the current navigation context
         """
-        if self.current_context.type == CONTEXT_LOCAL_SPACE:
-            # Get the region from context data
-            region = self.current_context.data.get("region")
-            if region == REGION_INNER_SYSTEM:
-                return self.current_system.get_planets_for_context("inner_system")
-            elif region == REGION_OUTER_SYSTEM:
-                return self.current_system.get_planets_for_context("outer_system")
-
-        # No planets visible in other contexts (hyperspace, orbit, etc.)
-        return []
+        # Check specific context types
+        if self.current_context.type == CONTEXT_INNER_SYSTEM:
+            return self.current_system.get_planets_for_context("inner_system")
+        elif self.current_context.type == CONTEXT_OUTER_SYSTEM:
+            return self.current_system.get_planets_for_context("outer_system")
+        elif self.current_context.type == CONTEXT_PLANETARY_SYSTEM:
+            # Get Moons of the gas giant
+            planet_index = self.current_context.data.get("planet_index")
+            if planet_index is not None:
+                # TODO: Return moons for this planet
+                return []
 
     def get_current_context(self):
         """Return the current context"""
@@ -104,8 +120,8 @@ class GameSession:
         """
         Launch from docked state (e.g., Starbase) into space.
 
-        Pops both DOCKED and ORBIT contexts, positioning the ship just outside
-        the planet/station in the parent LOCAL_SPACE context.
+        Uses interaction_target data to calcuate launch position
+        then clears the interaction to return to free navigation
 
         Returns:
             bool: True if launch successful, False if not in docked state
@@ -116,41 +132,32 @@ class GameSession:
         BOUNDARY_CLEARANCE = 10
 
         # Safety check: are we docked?
-        if len(self.navigation_stack) < 2:
+        if self.interaction_target is None:
             return False
 
-        current = self.current_context
-        if current.type != CONTEXT_DOCKED:
+        if self.interaction_target.get("type") != INTERACTION_STATION:
             return False
-
-        # Pop DOCKED context (no positioning needed)
-        self.navigation_stack.pop()
-
-        # Now we should be in ORBIT - get the planet info
-        orbit_context = self.current_context
-        if orbit_context.type != CONTEXT_ORBIT:
-            # Something went wrong
-            return False
-
-        planet_coords = orbit_context.data.get("planet_coords")
-        planet_radius = orbit_context.data.get("planet_radius")
+        
+        # Get planet info from interaction target
+        planet_coords = self.interaction_target.get("planet_coords")
+        planet_radius = self.interaction_target.get("planet_radius")
 
         if planet_coords is None or planet_radius is None:
             return False
-
+    
         # Calculate launch position - ship appears to the east of planet
-        launch_angle = 0  # 0 degrees = east
+        launch_angle = 0 # 0 degrees - east
         distance = planet_radius + BOUNDARY_CLEARANCE
 
         ship_x = int(planet_coords[0] + math.cos(math.radians(launch_angle)) * distance)
         ship_y = int(planet_coords[1] + math.sin(math.radians(launch_angle)) * distance)
 
-        # Pop ORBIT context
-        self.navigation_stack.pop()
-
         # Update ship position in parent LOCAL_SPACE context
         self.ship_position = [ship_x, ship_y]
 
+        # Clear interaction - move back to free navigation
+        self.clear_interaction()
+        
         return True
 
     def exit_inner_system(self, exit_boundary):
@@ -173,11 +180,7 @@ class GameSession:
         BOUNDARY_CLEARANCE = 10
 
         # Safety check: are we in inner system?
-        if not self.current_context or self.current_context.type != CONTEXT_LOCAL_SPACE:
-            return False
-
-        region = self.current_context.data.get("region")
-        if region != REGION_INNER_SYSTEM:
+        if not self.current_context or self.current_context.type != CONTEXT_INNER_SYSTEM:
             return False
 
         # Map boundary to angle (from coordinate_systems.md)
@@ -203,14 +206,13 @@ class GameSession:
         self.navigation_stack.pop()
 
         # Check if outer system context exists (it might not on first exit)
-        if self.current_context.type == CONTEXT_LOCAL_SPACE and \
-           self.current_context.data.get("region") == REGION_OUTER_SYSTEM:
+        if self.current_context.type == CONTEXT_OUTER_SYSTEM:
             # Outer system already exists, just update ship position
             self.ship_position = [ship_x, ship_y]
         else:
             # Need to create outer system context
             self.navigation_stack.append(
-                NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_OUTER_SYSTEM, ship_coords=[ship_x, ship_y])
+                NavigationContext(CONTEXT_OUTER_SYSTEM, ship_coords=[ship_x, ship_y])
             )
 
         return True
@@ -228,11 +230,7 @@ class GameSession:
         from core.constants import CONTEXT_CENTER, CONTEXT_GRID_SIZE
 
         # Safety check: are we in outer system?
-        if not self.current_context or self.current_context.type != CONTEXT_LOCAL_SPACE:
-            return False
-
-        region = self.current_context.data.get("region")
-        if region != REGION_OUTER_SYSTEM:
+        if not self.current_context or self.current_context.type != CONTEXT_OUTER_SYSTEM:
             return False
 
         # Get current ship position to determine approach direction
@@ -260,7 +258,7 @@ class GameSession:
 
         # Push new inner system context
         self.navigation_stack.append(
-            NavigationContext(CONTEXT_LOCAL_SPACE, region=REGION_INNER_SYSTEM, ship_coords=list(new_ship_coords))
+            NavigationContext(CONTEXT_INNER_SYSTEM, ship_coords=list(new_ship_coords))
         )
 
         return True
@@ -281,6 +279,20 @@ class GameSession:
         # Keep only the most recent messages
         if len(self.messages) > self.max_messages:
             self.messages.pop(0) # Remove oldest message
+
+    def set_interaction(self, target_type, **kwargs):
+        """
+        Set the current interaction target.
+
+        Args:
+            target_type (str): The type of interaction target.
+            **kwargs: Additional data for the interaction.
+        """
+        self.interaction_target = {"type": target_type, **kwargs}
+
+    def clear_interaction(self):
+        """Clear interaction (return to navigation)"""
+        self.interaction_target = None
 
     @property
     def ship_position(self):

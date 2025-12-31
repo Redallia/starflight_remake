@@ -4,7 +4,6 @@ Starport menu state
 from core.game_state import GameState
 from core.data_loader import DataLoader
 from core.input_manager import InputManager
-from core.constants import CONTEXT_LOCAL_SPACE
 from ui.menu_renderer import MenuRenderer
 
 
