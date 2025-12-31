@@ -60,11 +60,13 @@ class StarportMenuState(GameState):
         selected_option_id = self.menu_options[self.selected_menu_index]["id"]
 
         if selected_option_id == "launch_to_space":
-            # Transition to space navigation state
-            self.state_manager.game_session.leave_current_context()
-            self.state_manager.game_session.leave_current_context()
-            self.state_manager.change_state("space_navigation")
-            
+            # Launch from starport into space
+            if self.state_manager.game_session.launch_from_dock():
+                self.state_manager.change_state("space_navigation")
+            else:
+                # Launch failed - this shouldn't happen, but handle gracefully
+                print("ERROR: Failed to launch from dock")
+
         elif selected_option_id == "exit_to_main_menu":
             # Return to main menu
             self.state_manager.change_state("main_menu")

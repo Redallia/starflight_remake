@@ -62,13 +62,14 @@ class StarSystem:
                     orbit_angle=planet_data["orbit_angle"],
                     size=planet_data["size"],
                     landable=planet_data.get("landable", True),
-                    orbital_index=index
+                    orbital_index=index,
+                    stations=planet_data.get("stations", [])
                 )
-                
+
                 # Load moons if present
                 if "moons" in planet_data:
                     planet.moons = self._load_moons(planet_data["moons"])
-                
+
                 planets.append(planet)
         
         return planets

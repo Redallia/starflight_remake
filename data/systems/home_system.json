@@ -18,7 +18,13 @@
       "type": "terran",
       "orbit_angle": 180,
       "size": 80,
-      "landable": true
+      "landable": true,
+      "stations": [
+        {
+          "name": "Starbase",
+          "type": "starport"
+        }
+      ]
     },
     null,
     {

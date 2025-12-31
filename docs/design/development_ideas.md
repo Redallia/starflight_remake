@@ -209,3 +209,13 @@ The player reports back about the gas giant and the unique life. A science missi
 Having these installed, the player is allowed to "land" on a gas giant. Instead of the terrain vehicle, the players ship is the navigable object, and fuel costs come out of the player's ship's fuel supply (so long missions are discouraged).
 
 The terrain behaves identically, and specialty life forms are allowed to be captured. The rewards for returning with these life forms should be enough to offset the cost of fuel plus profit. Science faction standing is also increased to some set maximum.
+
+### The Exfiltration
+
+The player is tasked with a stealth mission to recover an artifact from an alien civilization.
+
+They are outfitted with a ship that's from the target civilization. But they need to have an Engineer officer who's familiar with the tech to fly it, a communication's officer who's familiar with the culture enough to not draw attention, and other crew skills that would allow them to bypass different obstacles.
+
+They need to infiltrate a facility and retrieve the artifact in question, and leave again without causing any suspicion.
+
+Failure will result in ship-to-ship engagement, and a major loss of faction status (possible prolongued hostility towards the player).

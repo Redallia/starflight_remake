@@ -104,8 +104,14 @@ class SpaceNavigationState(GameState):
 
     def _handle_boundary_collision(self, boundary):
         """Handle collision with navigation context boundary"""
-        self.state_manager.game_session.add_message(f"Exiting region via {boundary} boundary")
-        # TODO: Pop context, reposition ship at opposite edge of parent context
+        # Attempt to exit inner system
+        if self.state_manager.game_session.exit_inner_system(boundary):
+            self.state_manager.game_session.add_message(f"Entering outer system from {boundary}")
+            # Reset collision manager to prevent immediate re-trigger
+            self.collision_manager.reset()
+        else:
+            # Handle other types of boundary exits later
+            self.state_manager.game_session.add_message(f"Boundary collision at {boundary} (not implemented yet)")
 
     def _check_central_zone_collisions(self):
         """Check for central zone collisions and handle inner/outer transitions"""
@@ -117,5 +123,11 @@ class SpaceNavigationState(GameState):
 
     def _handle_central_zone_collision(self):
         """Handle entering the central zone (inner/outer system transition)"""
-        self.state_manager.game_session.add_message("Entering central zone...")
-        # TODO: Check current region and push/switch context appropriately
+        # Attempt to enter inner system
+        if self.state_manager.game_session.enter_inner_system():
+            self.state_manager.game_session.add_message("Entering inner system")
+            # Reset collision manager to prevent immediate re-trigger
+            self.collision_manager.reset()
+        else:
+            # Handle other types of central zone collisions later
+            self.state_manager.game_session.add_message("Central zone collision (not implemented yet)")

@@ -16,11 +16,11 @@ class Planet:
     determines position on that orbit (0-360 degrees).
     """
     
-    def __init__(self, name, planet_type, orbit_angle, size, landable=True, 
-                 orbital_index=None, moons=None):
+    def __init__(self, name, planet_type, orbit_angle, size, landable=True,
+                 orbital_index=None, moons=None, stations=None):
         """
         Initialize a planet.
-        
+
         Args:
             name (str): Planet name
             planet_type (str): Type of planet (rocky, gas_giant, terran, etc.)
@@ -29,40 +29,51 @@ class Planet:
             landable (bool): Whether the planet can be landed on
             orbital_index (int): Which orbital slot (0-3), set by parent system
             moons (list): List of Planet objects representing moons
+            stations (list): List of station dicts (name, type) orbiting this planet
         """
         self.name = name # Useful, but not strictly necessary
-        self.type = planet_type 
+        self.type = planet_type
         self.orbit_angle = orbit_angle
         self.size = size
         self.landable = landable
         self.orbital_index = orbital_index
         self.moons = moons or []
+        self.stations = stations or []
     
+    def has_starport(self):
+        """
+        Check if this planet has a starport station in orbit.
+
+        Returns:
+            bool: True if planet has a starport, False otherwise
+        """
+        return any(station.get("type") == "starport" for station in self.stations)
+
     def get_coordinates(self):
         """
         Calculate the planet's x,y coordinates based on its orbital position.
-        
+
         Uses polar-to-cartesian conversion:
         - Radius comes from SYSTEM_ORBITS[orbital_index]
         - Angle comes from self.orbit_angle
         - Center is at (CONTEXT_CENTER, CONTEXT_CENTER)
-        
+
         Returns:
             tuple: (x, y) coordinates in context grid
         """
         if self.orbital_index is None:
             raise ValueError(f"Planet {self.name} has no orbital_index set")
-        
+
         # Get orbital radius from constants
         orbit_radius = SYSTEM_ORBITS[self.orbital_index]
-        
+
         # Convert angle to radians
         angle_rad = math.radians(self.orbit_angle)
-        
+
         # Polar to cartesian conversion, centered at (250, 250)
         x = CONTEXT_CENTER + orbit_radius * math.cos(angle_rad)
         y = CONTEXT_CENTER + orbit_radius * math.sin(angle_rad)
-        
+
         return (x, y)
     
     def __repr__(self):
