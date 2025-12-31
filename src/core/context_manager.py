@@ -140,6 +140,10 @@ class ContextManager:
         Returns:
             bool: True if entry successful, False otherwise
         """
+        # Check if we're already in this context type
+        if self.current_context and self.current_context.type == context_type:
+            return False  # Already in this context, don't push duplicate
+    
         # Calculate approach direction based on current ship position
         entry_direction = self._calculate_entry_direction(
             self.ship_position,
