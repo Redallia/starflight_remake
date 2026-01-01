@@ -7,7 +7,13 @@ from core.game_state import GameState
 from core.colors import SPACE_BLACK, TEXT_NORMAL
 from core.input_manager import InputManager
 from core.collision_manager import CollisionManager
-from core.constants import CONTEXT_CENTER, CENTRAL_OBJECT_SIZE, CONTEXT_INNER_SYSTEM
+from core.constants import (
+    CONTEXT_CENTER, 
+    CENTRAL_OBJECT_SIZE, 
+    CONTEXT_INNER_SYSTEM,
+    CONTEXT_OUTER_SYSTEM,
+    CONTEXT_PLANETARY_SYSTEM
+)
 
 
 class SpaceNavigationState(GameState):
@@ -84,8 +90,20 @@ class SpaceNavigationState(GameState):
             return
 
         # For now, check all planets (we'll filter by context later)
-        all_planets = current_system.inner_planets + current_system.outer_planets
-        planet = self.collision_manager.check_planet_collision(ship_x, ship_y, all_planets)
+        context = self.state_manager.game_session.current_context
+        planets = []
+        if context.type == CONTEXT_INNER_SYSTEM:
+            # Filter planets for inner system context
+            planets = current_system.get_planets_for_context(CONTEXT_INNER_SYSTEM)
+        elif context.type == CONTEXT_OUTER_SYSTEM:
+            # Filter planets for outer system context
+            planets = current_system.get_planets_for_context(CONTEXT_OUTER_SYSTEM)
+        # elif context.type == CONTEXT_PLANETARY_SYSTEM:
+        #     # Filter planets for planetary system context (moons)
+        #     TODO: Return moons for this planet
+        #     pass
+
+        planet = self.collision_manager.check_planet_collision(ship_x, ship_y, planets)
 
         if planet:
             self._handle_planet_collision(planet)
