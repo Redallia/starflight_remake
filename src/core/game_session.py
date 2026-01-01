@@ -70,22 +70,6 @@ class GameSession:
         # Message log for player feedback
         self.messages = [] # list of message strings
         self.max_messages = 20 # Keep the last 20 messages
-        
-    def get_visible_planets(self):
-        """
-        Get the list of planets visible in the current navigation context
-        """
-        # Check specific context types
-        if self.current_context.type == CONTEXT_INNER_SYSTEM:
-            return self.current_system.get_planets_for_context("inner_system")
-        elif self.current_context.type == CONTEXT_OUTER_SYSTEM:
-            return self.current_system.get_planets_for_context("outer_system")
-        elif self.current_context.type == CONTEXT_PLANETARY_SYSTEM:
-            # Get Moons of the gas giant
-            planet_index = self.current_context.data.get("planet_index")
-            if planet_index is not None:
-                # TODO: Return moons for this planet
-                return []
 
     def get_current_context(self):
         """Return the current context"""

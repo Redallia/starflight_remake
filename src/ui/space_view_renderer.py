@@ -43,7 +43,7 @@ class SpaceViewRenderer:
         self.starfield.render(surface, ship_x, ship_y)
 
         # Get visible planets and render them
-        planets = game_session.get_visible_planets()
+        planets = game_session.current_system.get_planets_for_context(game_session.current_context.type)
         self._render_planets(surface, planets, camera_x, camera_y)
 
         # Render the central star

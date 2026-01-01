@@ -6,7 +6,11 @@ Loads and manages star system data including planets and moons
 import json
 from entities.celestial_objects.planet import Planet
 from entities.celestial_objects.star import Star
-
+from core.constants import (
+    CONTEXT_OUTER_SYSTEM,
+    CONTEXT_INNER_SYSTEM,
+    CONTEXT_PLANETARY_SYSTEM
+)
 
 class StarSystem:
     """
@@ -103,16 +107,20 @@ class StarSystem:
         Get the list of planets visible in a given navigation context.
         
         Args:
-            context_type (str): "inner_system", "outer_system", or "gas_giant_system"
+            context_type (str): CONTEXT_INNER_SYSTEM, CONTEXT_OUTER_SYSTEM, or CONTEXT_PLANETARY_SYSTEM
         
         Returns:
             list: List of Planet objects (filters out None/empty orbits)
         """
-        if context_type == "inner_system":
+        if context_type == CONTEXT_INNER_SYSTEM:
             return [p for p in self.inner_planets if p is not None]
-        elif context_type == "outer_system":
+        elif context_type == CONTEXT_OUTER_SYSTEM:
             return [p for p in self.outer_planets if p is not None]
-        # For gas giant system, caller would pass specific planet's moons
+        # elif context_type == CONTEXT_PLANETARY_SYSTEM:
+        #     # For a planetary system, caller would pass specific planet's moons
+        #     moons = self._load_moons(moon_list=None)
+        #     return [p for p in moons if p is not None]
+        
         return []
     
     def __repr__(self):

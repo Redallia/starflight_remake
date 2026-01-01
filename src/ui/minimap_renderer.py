@@ -4,7 +4,6 @@ Mini-map renderer for navigation contexts
 import pygame
 from core.constants import SYSTEM_ORBITS
 
-
 class MinimapRenderer:
     """Renders a mini-map showing the current navigation context"""
     
@@ -55,7 +54,7 @@ class MinimapRenderer:
                 pygame.draw.ellipse(surface, (60, 60, 80), rect, 1)
         
         # Get and draw planets
-        planets = game_session.get_visible_planets()
+        planets = game_session.current_system.get_planets_for_context(game_session.current_context.type)
         for planet in planets:
             px, py = planet.get_coordinates()
             # Scale to mini-map coordinates (with Y-flip and separate X/Y scaling)
