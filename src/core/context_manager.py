@@ -14,6 +14,7 @@ from core.constants import(
     CONTEXT_HYPERSPACE,
     CONTEXT_GRID_SIZE,
     CENTRAL_OBJECT_SIZE,
+    BOUNDARY_INSET,
     INTERACTION_STATION,
     INTERACTION_PLANET,
     INTERACTION_ASTEROID,
@@ -140,7 +141,7 @@ class ContextManager:
         Returns:
             bool: True if entry successful, False otherwise
         """
-        # Check if we're already in this context type
+        # Check if we're already in this context type; no duplicate inner systems
         if self.current_context and self.current_context.type == context_type:
             return False  # Already in this context, don't push duplicate
     
@@ -155,7 +156,13 @@ class ContextManager:
         
         # Push new context onto stack
         self.navigation_stack.append(
-            NavigationContext(context_type, ship_coords=list(entry_position), **context_data)
+            NavigationContext(
+                context_type, 
+                ship_coords=list(entry_position),
+                parent_object_coords=target_coords,
+                parent_object_radius=target_radius,
+                **context_data
+            )
         )
         
         return True
@@ -175,8 +182,8 @@ class ContextManager:
         Returns:
             bool: True if exit successful, False if already at base context
         """
-        # Safety check: don't pop the base context
-        if len(self.navigation_stack) <= 1:
+        # Safety check: don't pop the base context/ hyperspace
+        if len(self.navigation_stack) <= 2:
             return False
         
         # Calculate where ship should appear in parent context
@@ -230,10 +237,10 @@ class ContextManager:
             tuple: (ship_x, ship_y) - the new context position
         """
         entry_positions = {
-            "north": (CONTEXT_CENTER, CONTEXT_GRID_SIZE), # Top edge, centered
-            "south": (CONTEXT_CENTER, 0),                 # Bottom edge, centered
-            "east": (CONTEXT_GRID_SIZE, CONTEXT_CENTER),  # Right edge, centered
-            "west": (0, CONTEXT_CENTER)                   # Left edge, centered
+            "north": (CONTEXT_CENTER, CONTEXT_GRID_SIZE - BOUNDARY_INSET), # Top edge, centered
+            "south": (CONTEXT_CENTER, BOUNDARY_INSET),                      # Bottom edge, centered
+            "east": (CONTEXT_GRID_SIZE - BOUNDARY_INSET, CONTEXT_CENTER),   # Right edge, centered
+            "west": (BOUNDARY_INSET, CONTEXT_CENTER)                        # Left edge, centered
         }
         return entry_positions[entry_direction]
     

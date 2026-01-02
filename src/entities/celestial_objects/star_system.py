@@ -9,7 +9,8 @@ from entities.celestial_objects.star import Star
 from core.constants import (
     CONTEXT_OUTER_SYSTEM,
     CONTEXT_INNER_SYSTEM,
-    CONTEXT_PLANETARY_SYSTEM
+    CONTEXT_PLANETARY_SYSTEM,
+    CENTRAL_OBJECT_SIZE
 )
 
 class StarSystem:
@@ -35,7 +36,7 @@ class StarSystem:
         self.star = Star(
             name = star_data["name"],
             spectral_class=star_data["spectral_class"],
-            size=star_data.get("size", 300) # Default to CENTRAL_OBJECT_SIZE
+            size=star_data.get("size", CENTRAL_OBJECT_SIZE) # Default to scaled constant
         )
         
         
@@ -73,6 +74,7 @@ class StarSystem:
                 # Load moons if present
                 if "moons" in planet_data:
                     planet.moons = self._load_moons(planet_data["moons"])
+                    planet.planetary_system = True
 
                 planets.append(planet)
         
@@ -102,25 +104,50 @@ class StarSystem:
         
         return moons
     
-    def get_planets_for_context(self, context_type):
+    def get_planets_for_context(self, context_type, context_data=None):
         """
         Get the list of planets visible in a given navigation context.
-        
+
         Args:
-            context_type (str): CONTEXT_INNER_SYSTEM, CONTEXT_OUTER_SYSTEM, or CONTEXT_PLANETARY_SYSTEM
-        
+            context_type: CONTEXT_INNER_SYSTEM, CONTEXT_OUTER_SYSTEM, or CONTEXT_PLANETARY_SYSTEM
+            context_data: Optional dict with 'parent_region' and 'planet_index' for planetary systems
+
         Returns:
-            list: List of Planet objects (filters out None/empty orbits)
+            list: List of Planet objects visible in this context
         """
         if context_type == CONTEXT_INNER_SYSTEM:
             return [p for p in self.inner_planets if p is not None]
+
         elif context_type == CONTEXT_OUTER_SYSTEM:
             return [p for p in self.outer_planets if p is not None]
-        # elif context_type == CONTEXT_PLANETARY_SYSTEM:
-        #     # For a planetary system, caller would pass specific planet's moons
-        #     moons = self._load_moons(moon_list=None)
-        #     return [p for p in moons if p is not None]
-        
+
+        elif context_type == CONTEXT_PLANETARY_SYSTEM:
+            # Need to know which planet's moons to return
+            if not context_data:
+                return []
+
+            parent_region = context_data.get("parent_region")
+            planet_index = context_data.get("planet_index")
+
+            if parent_region is None or planet_index is None:
+                return []
+
+            # Select the correct planet array based on parent region
+            if parent_region == CONTEXT_INNER_SYSTEM:
+                planet_list = self.inner_planets
+            elif parent_region == CONTEXT_OUTER_SYSTEM:
+                planet_list = self.outer_planets
+            else:
+                return []
+
+            # Get the planet at that index
+            if 0 <= planet_index < len(planet_list) and planet_list[planet_index]:
+                planet = planet_list[planet_index]
+                if hasattr(planet, 'moons') and planet.moons:
+                    return planet.moons
+
+            return []
+
         return []
     
     def __repr__(self):

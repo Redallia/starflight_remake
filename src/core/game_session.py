@@ -75,12 +75,6 @@ class GameSession:
         """Return the current context"""
         return self.current_context
 
-    def leave_current_context(self):
-        """Move up one level in the nav hierarchy"""
-        if len(self.context_manager.navigation_stack) > 1:
-            return self.context_manager.navigation_stack.pop()
-        return None
-
     def get_hyperspace_coordinates(self):
         """Return the hyperspace coordinates from the current context"""
         return self.context_manager.navigation_stack[0].data.get("ship_coords")

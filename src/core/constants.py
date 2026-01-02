@@ -40,14 +40,21 @@ INTERACTION_STATION = "station"
 # =============================================================================
 
 # Context grid dimensions (all navigation contexts use the same grid)
-CONTEXT_GRID_SIZE = 5000
-CONTEXT_CENTER = 2500  # Center point (2500, 2500) for orbital calculations
+CONTEXT_GRID_SIZE = 100.0  # 100 units across (scaled down from 5000)
+CONTEXT_CENTER = 50.0  # Center point (50, 50) for orbital calculations
 
 # Standard orbital radii (used for all system contexts)
 # Planets/moons are placed at these distances from the central object
-SYSTEM_ORBITS = [800, 1200, 1600, 2000]  # 4 orbital slots
+SYSTEM_ORBITS = [16.0, 24.0, 32.0, 40.0]  # 4 orbital slots
 # Central object sizes (visual radius for rendering)
-CENTRAL_OBJECT_SIZE = 300  # Size of star, inner system zone, gas giant at center
+CENTRAL_OBJECT_SIZE = 6.0  # Size of star, inner system zone, gas giant at center
+
+# Movement and spacing
+BOUNDARY_INSET = 1.0  # Distance from boundary to prevent immediate re-trigger
+MOVEMENT_SPEED = 0.25  # Units per keypress (~8 presses to cross 1 unit)
+
+# Rendering scale (separates game logic from visual presentation)
+RENDER_SCALE = 100.0  # How many pixels per game unit (1 unit = 8 pixels)
 # =============================================================================
 
 # Local Space Regions (Kept for repurposing reason)

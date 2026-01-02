@@ -58,11 +58,11 @@ class StarfieldRenderer:
         camera_x = ship_x - self.width // 2
         camera_y = - ship_y - self.height // 2
 
-        # Calculate which grid cells are visible
-        start_cell_x = camera_x // self.cell_size
-        start_cell_y = camera_y // self.cell_size
-        end_cell_x = (camera_x + self.width) // self.cell_size + 1
-        end_cell_y = (camera_y + self.height) // self.cell_size + 1
+        # Calculate which grid cells are visible (convert floats to ints)
+        start_cell_x = int(camera_x // self.cell_size)
+        start_cell_y = int(camera_y // self.cell_size)
+        end_cell_x = int((camera_x + self.width) // self.cell_size) + 1
+        end_cell_y = int((camera_y + self.height) // self.cell_size) + 1
 
         # Generate and draw stars
         for cell_x in range(start_cell_x, end_cell_x + 1):
@@ -88,10 +88,10 @@ class StarfieldRenderer:
             # Random position within the cell (0 to cell_size)
             local_x = random.randint(0, self.cell_size - 1)
             local_y = random.randint(0, self.cell_size - 1)
-            
-            # Convert to screen coordinates
-            screen_x = (cell_x * self.cell_size) + local_x - camera_x
-            screen_y = (cell_y * self.cell_size) + local_y - camera_y
+
+            # Convert to screen coordinates (handle floats from camera)
+            screen_x = int((cell_x * self.cell_size) + local_x - camera_x)
+            screen_y = int((cell_y * self.cell_size) + local_y - camera_y)
 
             # Only draw if on screen
             if 0 <= screen_x < self.width and 0 <= screen_y < self.height:

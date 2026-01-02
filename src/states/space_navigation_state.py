@@ -8,11 +8,13 @@ from core.colors import SPACE_BLACK, TEXT_NORMAL
 from core.input_manager import InputManager
 from core.collision_manager import CollisionManager
 from core.constants import (
-    CONTEXT_CENTER, 
-    CENTRAL_OBJECT_SIZE, 
-    CONTEXT_INNER_SYSTEM,
+    CONTEXT_CENTER,
+    CENTRAL_OBJECT_SIZE,
     CONTEXT_OUTER_SYSTEM,
-    CONTEXT_PLANETARY_SYSTEM
+    CONTEXT_INNER_SYSTEM,
+    CONTEXT_PLANETARY_SYSTEM,
+    MOVEMENT_SPEED,
+    CONTEXT_GRID_SIZE
 )
 
 
@@ -58,18 +60,14 @@ class SpaceNavigationState(GameState):
         
     def _move_ship(self, dx, dy):
         """Move the ship by (dx, dy) in current context"""
-        # Movement speed multiplier
-        speed = 6 # Move 4 units per keypress instead of 1
-
         # get current position
-        x,y = self.state_manager.game_session.ship_position
+        x, y = self.state_manager.game_session.ship_position
 
-        # Update position
-        new_x = x + (dx * speed)
-        new_y = y + (dy * speed)
+        # Update position with scaled movement speed
+        new_x = x + (dx * MOVEMENT_SPEED)
+        new_y = y + (dy * MOVEMENT_SPEED)
 
         # Clamp to context grid boundaries
-        from core.constants import CONTEXT_GRID_SIZE
         new_x = max(0, min(CONTEXT_GRID_SIZE, new_x))
         new_y = max(0, min(CONTEXT_GRID_SIZE, new_y))
 
@@ -89,19 +87,9 @@ class SpaceNavigationState(GameState):
         if not current_system:
             return
 
-        # For now, check all planets (we'll filter by context later)
+        # Get planets visible in current context
         context = self.state_manager.game_session.current_context
-        planets = []
-        if context.type == CONTEXT_INNER_SYSTEM:
-            # Filter planets for inner system context
-            planets = current_system.get_planets_for_context(CONTEXT_INNER_SYSTEM)
-        elif context.type == CONTEXT_OUTER_SYSTEM:
-            # Filter planets for outer system context
-            planets = current_system.get_planets_for_context(CONTEXT_OUTER_SYSTEM)
-        # elif context.type == CONTEXT_PLANETARY_SYSTEM:
-        #     # Filter planets for planetary system context (moons)
-        #     TODO: Return moons for this planet
-        #     pass
+        planets = current_system.get_planets_for_context(context.type, context.data)
 
         planet = self.collision_manager.check_planet_collision(ship_x, ship_y, planets)
 
@@ -110,8 +98,23 @@ class SpaceNavigationState(GameState):
 
     def _handle_planet_collision(self, planet):
         """Handle collision with a planet"""
-        self.state_manager.game_session.add_message(f"Approaching {planet.name}. Press Space to orbit.")
-        # TODO: Check for Space key press, then transition to orbit state
+        # Check if it's a gas giant with moons
+        if hasattr(planet, 'planetary_system') and planet.planetary_system:
+            # Enter the planetary system context
+            current_context = self.state_manager.game_session.current_context
+            
+            if self.state_manager.game_session.context_manager.enter_context(
+                context_type="planetary_system",
+                target_coords=planet.get_coordinates(),
+                target_radius=planet.size,
+                parent_region=current_context.type,
+                planet_index=planet.orbital_index
+            ):
+                self.state_manager.game_session.add_message(f"Entering {planet.name} moon system")
+                self.collision_manager.reset()
+        else:
+            # Regular planet - show orbit message
+            self.state_manager.game_session.add_message(f"Approaching {planet.name}. Press Space to orbit.")
 
     def _check_boundary_collisions(self):
         """Check for boundary collisions and handle context transitions"""
@@ -123,11 +126,17 @@ class SpaceNavigationState(GameState):
 
     def _handle_boundary_collision(self, boundary):
         """Handle collision with navigation context boundary"""
+        current_context = self.state_manager.game_session.current_context
+
+        # Get the parent object coords/radius from current context
+        parent_coords = current_context.data.get("parent_object_coords", [CONTEXT_CENTER, CONTEXT_CENTER])
+        parent_radius = current_context.data.get("parent_object_radius", CENTRAL_OBJECT_SIZE)
+
         # Attempt to exit inner system
         if self.state_manager.game_session.context_manager.exit_context(
             exit_boundary=boundary,
-            parent_object_coords=[CONTEXT_CENTER, CONTEXT_CENTER],
-            parent_object_radius=CENTRAL_OBJECT_SIZE
+            parent_object_coords=parent_coords,
+            parent_object_radius=parent_radius
         ):
             self.state_manager.game_session.add_message(f"Entering outer system from {boundary}")
             # Reset collision manager to prevent immediate re-trigger
@@ -138,6 +147,11 @@ class SpaceNavigationState(GameState):
 
     def _check_central_zone_collisions(self):
         """Check for central zone collisions and handle inner/outer transitions"""
+        current_context = self.state_manager.game_session.current_context
+
+        if current_context.type != CONTEXT_OUTER_SYSTEM:
+            return # Central zone only relevent in outer system
+        
         ship_x, ship_y = self.state_manager.game_session.ship_position
         central_zone = self.collision_manager.check_central_zone_collision(ship_x, ship_y)
 

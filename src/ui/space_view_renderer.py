@@ -3,6 +3,7 @@ Renders space navigation view (starfield, ship, planets, other ships)
 """
 import pygame
 from ui.starfield_renderer import StarfieldRenderer
+from core.constants import RENDER_SCALE
 
 
 class SpaceViewRenderer:
@@ -32,18 +33,22 @@ class SpaceViewRenderer:
             surface: Surface to render to
             game_session: Current game session
         """
-        # Get ship position
+        # Get ship position (in game units)
         ship_x, ship_y = game_session.ship_position
 
         # Calculate camera offset (viewport centered on ship)
-        camera_x = ship_x - self.width // 2
-        camera_y = ship_y - self.height // 2
+        # Convert screen pixels to game units for camera position
+        camera_x = ship_x - (self.width / RENDER_SCALE) / 2
+        camera_y = ship_y - (self.height / RENDER_SCALE) / 2
         
         # Render starfield
         self.starfield.render(surface, ship_x, ship_y)
 
         # Get visible planets and render them
-        planets = game_session.current_system.get_planets_for_context(game_session.current_context.type)
+        planets = game_session.current_system.get_planets_for_context(
+            game_session.current_context.type,
+            game_session.current_context.data
+        )
         self._render_planets(surface, planets, camera_x, camera_y)
 
         # Render the central star
@@ -88,38 +93,44 @@ class SpaceViewRenderer:
         }
         
         for planet in planets:
-            # Get planet's world coordinates
+            # Get planet's world coordinates (in game units)
             world_x, world_y = planet.get_coordinates()
-            
-            # Translate to screen coordinates
-            screen_x = world_x - camera_x
-            screen_y_world = world_y - camera_y #
+
+            # Translate to screen coordinates (convert game units to pixels)
+            screen_x = (world_x - camera_x) * RENDER_SCALE
+            screen_y_world = (world_y - camera_y) * RENDER_SCALE
             screen_y = self.height - screen_y_world
-            
+
+            # Scale planet size for rendering
+            render_size = int(planet.size * RENDER_SCALE)
+
             # Viewport culling (with margin for planet size)
-            margin = planet.size + 50
+            margin = render_size + 50
             if (-margin <= screen_x <= self.width + margin and
                 -margin <= screen_y <= self.height + margin):
-                
+
                 # Get color based on type
                 color = planet_colors.get(planet.type, (255, 255, 255))
-                
+
                 # Draw planet as filled circle
-                pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), planet.size)
+                pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), render_size)
 
     def _render_star(self, surface, star, camera_x, camera_y):
-        # Get star's world coordinates
+        # Get star's world coordinates (in game units)
         world_x, world_y = star.get_coordinates()
 
-        # Translate to screen coordinates
-        screen_x = world_x - camera_x
-        screen_y_world = world_y - camera_y
+        # Translate to screen coordinates (convert game units to pixels)
+        screen_x = (world_x - camera_x) * RENDER_SCALE
+        screen_y_world = (world_y - camera_y) * RENDER_SCALE
         screen_y = self.height - screen_y_world
 
+        # Scale star size for rendering
+        render_size = int(star.size * RENDER_SCALE)
+
         # Viewport culling (with margin for star size)
-        margin = star.size + 100
+        margin = render_size + 100
         if (-margin <= screen_x <= self.width + margin and
             -margin <= screen_y <= self.height + margin):
 
             # Draw star as filled circle (yellow)
-            pygame.draw.circle(surface, (255, 255, 0), (int(screen_x), int(screen_y)), star.size)
+            pygame.draw.circle(surface, (255, 255, 0), (int(screen_x), int(screen_y)), render_size)
