@@ -4,7 +4,6 @@ Starport menu state
 from core.game_state import GameState
 from core.data_loader import DataLoader
 from core.input_manager import InputManager
-from core.context_manager import ContextManager
 from ui.menu_renderer import MenuRenderer
 
 
@@ -62,25 +61,14 @@ class StarportMenuState(GameState):
         if selected_option_id == "launch_to_space":
             # Launch from starport into space
             # Get dock data from interaction_target
-            interaction = self.state_manager.game_session.interaction_target
-            
-            if interaction and interaction.get("type") == "station":
-                # Extract coordinates and radius from interaction data
-                dock_coords = interaction.get("planet_coords")
-                dock_radius = interaction.get("planet_radius")
-                
-                # Launch using context manager
-                if self.state_manager.game_session.context_manager.launch_from_dock(
-                    dock_coords=dock_coords,
-                    dock_radius=dock_radius
-                ):
-                    # Clear the interaction - we're no longer docked
-                    self.state_manager.game_session.clear_interaction()
-                    # Transition to space navigation
-                    self.state_manager.change_state("space_navigation")
-                else:
-                    # Launch failed - this shouldn't happen, but handle gracefully
-                    print("ERROR: Failed to launch from dock")
+            interaction_data = self.state_manager.game_session.interaction_target
+            success, position = self.context_manager.calculate_launch_position(interaction_data)
+            if success:
+                self.state_manager.game_session.ship_position = position
+                # Clear the interaction - we're no longer docked
+                self.state_manager.game_session.clear_interaction()
+                # Transition to space navigation
+                self.state_manager.change_state("space_navigation")
             else:
                 print("ERROR: Not docked at a station")
 
@@ -101,3 +89,8 @@ class StarportMenuState(GameState):
             self.selected_menu_index,
             self.disabled_menu_items
         )
+
+    @property
+    def context_manager(self):
+        """Convenience property for accessing the game session's context manager"""
+        return self.state_manager.game_session.context_manager

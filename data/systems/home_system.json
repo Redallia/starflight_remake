@@ -40,7 +40,7 @@
       "name": "Colossus",
       "type": "gas_giant",
       "orbit_angle": 90,
-      "size": 3,
+      "size": 2,
       "landable": false,
       "moons": [
         {

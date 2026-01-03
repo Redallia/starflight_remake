@@ -6,19 +6,13 @@ ship/player position during transitions between contexts
 """
 
 import math
+import utils.position_calculator as pos_calc
+
 from core.constants import(
     CONTEXT_CENTER,
-    CONTEXT_INNER_SYSTEM,
-    CONTEXT_OUTER_SYSTEM,
-    CONTEXT_PLANETARY_SYSTEM,
-    CONTEXT_HYPERSPACE,
     CONTEXT_GRID_SIZE,
-    CENTRAL_OBJECT_SIZE,
     BOUNDARY_INSET,
     INTERACTION_STATION,
-    INTERACTION_PLANET,
-    INTERACTION_ASTEROID,
-    INTERACTION_MOON,
     RENDER_SCALE,
     BOUNDARY_CLEARANCE
 )
@@ -73,56 +67,48 @@ class ContextManager:
         Returns:
             bool: True if launch successful
         """
-        # Calculate launch position - ship appears to the east of object
-        launch_angle = 0  # 0 degrees = east
-        distance = dock_radius + BOUNDARY_CLEARANCE
-        
-        ship_x = int(dock_coords[0] + math.cos(math.radians(launch_angle)) * distance)
-        ship_y = int(dock_coords[1] + math.sin(math.radians(launch_angle)) * distance)
+        launch_pos = pos_calc.calculate_launch_position(
+            dock_coords, dock_radius, BOUNDARY_CLEARANCE, 0)
         
         # Update ship position in current navigation context
-        self.ship_position = [ship_x, ship_y]
-        
+        self.ship_position = [launch_pos[0], launch_pos[1]]
+
         return True
 
-    def launch_from_interaction(self):
+    def calculate_launch_position(self, interaction_data):
         """
-        Launch from current interaction (station/orbit) into space.
-
-        Uses interaction_target data to calculate launch position,
-        then clears the interaction to return to free navigation.
-
+        Calculate launch position from interaction data.
+        
+        Args:
+            interaction_data: Dictionary with keys: type, planet_coords, planet_radius
+        
         Returns:
-            bool: True if launch was successful, False if not in interaction
+            tuple: (success: bool, position: [x, y] or None)
         """
-        # Safety check: are we in an interaction?
-        if self.game_session.interaction_target is None:
-            return False
+        # Validation
+        if interaction_data is None:
+            return (False, None)
         
-        if self.game_session.interaction_target.get("type") != INTERACTION_STATION:
-            return False
+        if interaction_data.get("type") != INTERACTION_STATION:
+            return (False, None)
         
-        # Get planet info from interaction target
-        planet_coords = self.game_session.interaction_target.get("planet_coords")
-        planet_radius = self.game_session.interaction_target.get("planet_radius")
+        # Extract data
+        planet_coords = interaction_data.get("planet_coords")
+        planet_radius = interaction_data.get("planet_radius")
 
         if planet_coords is None or planet_radius is None:
-            return False
+            return (False, None)
         
-        # Calculate launch position - ship appears to the east of planet
-        launch_angle = 0 # 0 degrees = east
-        distance = planet_radius + BOUNDARY_CLEARANCE
+        # Calculate launch position using utility
+        launch_post = pos_calc.calculate_launch_position(
+            planet_coords, 
+            planet_radius,
+            BOUNDARY_CLEARANCE,
+            0 #east
+        )
 
-        ship_x = int(planet_coords[0] + math.cos(math.radians(launch_angle)) * distance)
-        ship_y = int(planet_coords[1] + math.sin(math.radians(launch_angle)) * distance)
-        
-        # Update ship position in current navigation context
-        self.game_session.ship_position = [ship_x, ship_y]
-        
-        # Clear interaction - we're back to free navigation
-        self.game_session.clear_interaction()
-        
-        return True 
+        # Return the calculated position - DON'T modify state
+        return (True, [int(launch_post[0]), int(launch_post[1])])
 
     def enter_context(self, context_type, target_coords, target_radius, **context_data):
         """
@@ -201,27 +187,7 @@ class ContextManager:
         return True
 
     def _calculate_entry_direction(self, ship_coords, object_coords):
-        """
-        Calculate which direction ship is approaching an object from
-
-        Determines the dominant cardinal direction (north, south, east, west)
-        based on ship position relative to object
-
-        Args:
-            ship_coords: [x, y] of ship
-            object_coords: [x, y] of object being approached
-
-        Returns:
-            str: "north", "south", "east", or "west"
-        """
-        dx = ship_coords[0] - object_coords[0]
-        dy = ship_coords[1] - object_coords[1]
-
-        # Determine dominant direction (cardinal, not diagonal)
-        if abs(dx) > abs(dy):
-            return "east" if dx > 0 else "west"
-        else:
-            return "north" if dy > 0 else "south"
+        return pos_calc.get_cardinal_direction(ship_coords, object_coords)
         
     def _calculate_entry_position(self, entry_direction):
         """
@@ -272,10 +238,12 @@ class ContextManager:
         # Position ship at angle
         ship_radius = 11 / RENDER_SCALE  # Ship radius in game units
         distance = object_radius + BOUNDARY_CLEARANCE + ship_radius
-        ship_x = int(object_coords[0] + math.cos(angle_radians) * distance)
-        ship_y = int(object_coords[1] + math.sin(angle_radians) * distance)
-
-        return (ship_x, ship_y)
+        return pos_calc.polar_to_cartesian(
+            object_coords[0], 
+            object_coords[1],
+            angle_degrees,
+            distance
+        )
     
     @property
     def current_context(self):
