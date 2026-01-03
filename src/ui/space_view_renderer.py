@@ -42,7 +42,7 @@ class SpaceViewRenderer:
         camera_y = ship_y - (self.height / RENDER_SCALE) / 2
         
         # Render starfield
-        self.starfield.render(surface, ship_x, ship_y)
+        self.starfield.render(surface, ship_x * (RENDER_SCALE/4), ship_y * (RENDER_SCALE/4))
 
         # Get visible planets and render them
         planets = game_session.current_system.get_planets_for_context(

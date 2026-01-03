@@ -51,6 +51,7 @@ CENTRAL_OBJECT_SIZE = 6.0  # Size of star, inner system zone, gas giant at cente
 
 # Movement and spacing
 BOUNDARY_INSET = 1.0  # Distance from boundary to prevent immediate re-trigger
+BOUNDARY_CLEARANCE = 0.11  # Distance to place ship outside boundary on exit
 MOVEMENT_SPEED = 0.25  # Units per keypress (~8 presses to cross 1 unit)
 
 # Rendering scale (separates game logic from visual presentation)

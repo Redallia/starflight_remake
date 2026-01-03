@@ -2,11 +2,13 @@
 Placeholder space navigation state for testing state transitions
 """
 import pygame
+from core import interactable
 from ui.hud_renderer import HudRenderer
 from core.game_state import GameState
 from core.colors import SPACE_BLACK, TEXT_NORMAL
 from core.input_manager import InputManager
 from core.collision_manager import CollisionManager
+from core.interactable import Interactable
 from core.constants import (
     CONTEXT_CENTER,
     CENTRAL_OBJECT_SIZE,
@@ -14,7 +16,8 @@ from core.constants import (
     CONTEXT_INNER_SYSTEM,
     CONTEXT_PLANETARY_SYSTEM,
     MOVEMENT_SPEED,
-    CONTEXT_GRID_SIZE
+    CONTEXT_GRID_SIZE,
+    INTERACTION_PLANET
 )
 
 
@@ -73,28 +76,70 @@ class SpaceNavigationState(GameState):
 
         # Update ship position in game session
         self.state_manager.game_session.ship_position = (new_x, new_y)
-    
-    def _check_collisions(self):
-        """Check for all collision types"""
-        self._check_planet_collisions()
-        self._check_boundary_collisions()
-        self._check_central_zone_collisions()
 
-    def _check_planet_collisions(self):
-        """Check for planet collisions and handle proximity"""
-        ship_x, ship_y = self.state_manager.game_session.ship_position
+    def _check_collisions(self):
+        self._check_interactables()
+        self._check_boundary_collisions()
+        """Check for all collision types"""
+        # self._check_planet_collisions()
+        # self._check_central_zone_collisions()
+
+    def _get_current_interactables(self):
+        """Get interactables for current context"""
+        interactables = []
         current_system = self.state_manager.game_session.current_system
+        context = self.state_manager.game_session.current_context
+
         if not current_system:
+            return interactables
+        
+        # Get planets and wrap them as Interactable.circle()
+        planets = current_system.get_planets_for_context(context.type, context.data)
+        for planet in planets:
+            if planet is None:
+                continue
+
+            planet_x, planet_y = planet.get_coordinates()
+            interactables.append(Interactable.circle(
+                planet_x,
+                planet_y,
+                planet.size,
+                INTERACTION_PLANET,
+                data=planet
+            ))
+        
+        # Add central zone if in outer system
+        if context.type == CONTEXT_OUTER_SYSTEM:
+            interactables.append(Interactable.circle(
+                CONTEXT_CENTER,
+                CONTEXT_CENTER,
+                CENTRAL_OBJECT_SIZE,
+                CONTEXT_INNER_SYSTEM, None
+            ))
+
+        return interactables
+    
+    def _check_interactables(self):
+        """Check for interactable collisions and handle proximity"""
+        ship_x, ship_y = self.state_manager.game_session.ship_position
+        interactables = self._get_current_interactables()
+
+        # Check for no interactables in this context
+        if not interactables:
             return
 
-        # Get planets visible in current context
-        context = self.state_manager.game_session.current_context
-        planets = current_system.get_planets_for_context(context.type, context.data)
+        collision = self.collision_manager.check_interactable_collision(ship_x, ship_y, interactables)
 
-        planet = self.collision_manager.check_planet_collision(ship_x, ship_y, planets)
+        if collision:
+            self._handle_interactable_collision(collision)
 
-        if planet:
-            self._handle_planet_collision(planet)
+    def _handle_interactable_collision(self, interactable):
+        """Handle collision with an interactable"""
+        if interactable.type == INTERACTION_PLANET:
+            self._handle_planet_collision(interactable.data)
+        elif interactable.type == CONTEXT_INNER_SYSTEM:
+            # Handle entering inner system from central zone
+            self._handle_central_zone_collision()
 
     def _handle_planet_collision(self, planet):
         """Handle collision with a planet"""
@@ -144,19 +189,6 @@ class SpaceNavigationState(GameState):
         else:
             # Handle other types of boundary exits later
             self.state_manager.game_session.add_message(f"Boundary collision at {boundary} (not implemented yet)")
-
-    def _check_central_zone_collisions(self):
-        """Check for central zone collisions and handle inner/outer transitions"""
-        current_context = self.state_manager.game_session.current_context
-
-        if current_context.type != CONTEXT_OUTER_SYSTEM:
-            return # Central zone only relevent in outer system
-        
-        ship_x, ship_y = self.state_manager.game_session.ship_position
-        central_zone = self.collision_manager.check_central_zone_collision(ship_x, ship_y)
-
-        if central_zone:
-            self._handle_central_zone_collision()
 
     def _handle_central_zone_collision(self):
         """Handle entering the central zone (inner/outer system transition)"""

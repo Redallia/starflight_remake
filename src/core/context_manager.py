@@ -18,7 +18,9 @@ from core.constants import(
     INTERACTION_STATION,
     INTERACTION_PLANET,
     INTERACTION_ASTEROID,
-    INTERACTION_MOON
+    INTERACTION_MOON,
+    RENDER_SCALE,
+    BOUNDARY_CLEARANCE
 )
 
 class NavigationContext:
@@ -46,10 +48,7 @@ class ContextManager:
     - Handle context transitions (push/pop to the navigation stack)
     - Calculate ship/player positions during transitions
     - Validate transitions are legal from current context
-    """
-
-    # Boundary clearance distance for positioning
-    BOUNDARY_CLEARANCE = 10
+    """    
 
     def __init__(self, navigation_stack=None):
         """
@@ -76,7 +75,7 @@ class ContextManager:
         """
         # Calculate launch position - ship appears to the east of object
         launch_angle = 0  # 0 degrees = east
-        distance = dock_radius + self.BOUNDARY_CLEARANCE
+        distance = dock_radius + BOUNDARY_CLEARANCE
         
         ship_x = int(dock_coords[0] + math.cos(math.radians(launch_angle)) * distance)
         ship_y = int(dock_coords[1] + math.sin(math.radians(launch_angle)) * distance)
@@ -112,7 +111,7 @@ class ContextManager:
         
         # Calculate launch position - ship appears to the east of planet
         launch_angle = 0 # 0 degrees = east
-        distance = planet_radius + self.BOUNDARY_CLEARANCE
+        distance = planet_radius + BOUNDARY_CLEARANCE
 
         ship_x = int(planet_coords[0] + math.cos(math.radians(launch_angle)) * distance)
         ship_y = int(planet_coords[1] + math.sin(math.radians(launch_angle)) * distance)
@@ -271,7 +270,8 @@ class ContextManager:
         angle_radians = math.radians(angle_degrees)
 
         # Position ship at angle
-        distance = object_radius + self.BOUNDARY_CLEARANCE
+        ship_radius = 11 / RENDER_SCALE  # Ship radius in game units
+        distance = object_radius + BOUNDARY_CLEARANCE + ship_radius
         ship_x = int(object_coords[0] + math.cos(angle_radians) * distance)
         ship_y = int(object_coords[1] + math.sin(angle_radians) * distance)
 

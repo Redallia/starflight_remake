@@ -49,12 +49,12 @@ The game uses different coordinate grids depending on the navigation context. Al
 ### Local Space Contexts
 
 All LOCAL_SPACE navigation contexts (outer system, inner system, gas giant subsystems) use the same grid size:
-- **Grid size**: 5000 × 5000 units
-- **Center point**: (2500, 2500)
+- **Grid size**: 100 × 100 units
+- **Center point**: (50, 50)
 - **Boundaries**:
-  - North boundary: y = 5000
+  - North boundary: y = 100
   - South boundary: y = 0
-  - East boundary: x = 5000
+  - East boundary: x = 100
   - West boundary: x = 0
 
 **Source**: Defined in `src/core/constants.py` as `CONTEXT_GRID_SIZE = 5000` and `CONTEXT_CENTER = 2500`
@@ -283,10 +283,10 @@ All coordinate-related constants are defined in `src/core/constants.py`:
 
 ```python
 # Local Space (System) Contexts
-CONTEXT_GRID_SIZE = 5000              # Grid dimensions for system space (5000 × 5000)
-CONTEXT_CENTER = 2500                  # Center point for system grids
-SYSTEM_ORBITS = [800, 1200, 1600, 2000]  # Orbital radii from center
-CENTRAL_OBJECT_SIZE = 300              # Visual radius of central objects
+CONTEXT_GRID_SIZE = 100               # Grid dimensions for system space (100 × 100)
+CONTEXT_CENTER = 50                   # Center point for system grids
+SYSTEM_ORBITS = [16, 24, 32, 40]      # Orbital radii from center
+CENTRAL_OBJECT_SIZE = 6               # Visual radius of central objects
 
 # Hyperspace Context
 HYPERSPACE_GRID_TILES = (250, 220)     # Hyperspace grid in tiles
