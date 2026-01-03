@@ -53,8 +53,6 @@ class CollisionManager:
             self.last_planet_collision = None
             return None
         
-        
-    
     def check_boundary_collision(self, ship_x, ship_y, grid_size=None):
         """
         Check if ship has reached the edge of current navigation context.

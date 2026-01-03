@@ -36,9 +36,19 @@ West ←---+-(2500,--+--→ East
 
 ## Grid Dimensions
 
+The game uses different coordinate grids depending on the navigation context. All follow the same Cartesian conventions (Y-up, origin at bottom-left), but vary in size and scale.
+
+### Summary Table
+
+| Context Type | Grid Dimensions | Center Point | Notes |
+|-------------|-----------------|--------------|-------|
+| Local Space (System) | 5000 × 5000 units | (2500, 2500) | Outer system, inner system, gas giant subsystems |
+| Hyperspace | 2000 × 1760 units | (1000, 880) | 250×220 tiles @ 8×8 units/tile |
+| Planetary Surface | 5000 × 2000 units | (2500, 1000) | 500×200 tiles @ 10×10 units/tile |
+
 ### Local Space Contexts
 
-All LOCAL_SPACE navigation contexts (inner system, outer system, gas giant subsystems) use the same grid size:
+All LOCAL_SPACE navigation contexts (outer system, inner system, gas giant subsystems) use the same grid size:
 - **Grid size**: 5000 × 5000 units
 - **Center point**: (2500, 2500)
 - **Boundaries**:
@@ -49,7 +59,7 @@ All LOCAL_SPACE navigation contexts (inner system, outer system, gas giant subsy
 
 **Source**: Defined in `src/core/constants.py` as `CONTEXT_GRID_SIZE = 5000` and `CONTEXT_CENTER = 2500`
 
-**Note**: These dimensions may be adjusted in the future to create different scale/distance feelings between context types, but are currently standardized for consistency.
+**Design Note**: These dimensions were standardized at 5000×5000 for consistency after initial testing with variable sizes. This provides a good balance between exploration time and navigation feel. Early design docs mention "TBD" grid sizes - that exploration phase is complete, and 5000×5000 is the current standard.
 
 ### Hyperspace Context
 
@@ -57,11 +67,82 @@ Hyperspace uses a **tile-based** coordinate system with different movement chara
 - **Grid**: 250 × 220 tiles
 - **Tile size**: 8 × 8 units (for rendering/positioning)
 - **Total space**: 2000 × 1760 units
+- **Center point**: (1000, 880)
 - **Movement feel**: Intended to feel "weightier" than local space movement
+
+**Coordinate Example**:
+```json
+{
+    "name": "Sol",
+    "tile_position": {"x": 125, "y": 110},
+    "unit_position": {"x": 1000, "y": 880}  // Tile * 8
+}
+```
 
 **Implementation Status**: ⚠️ Hyperspace movement mechanics still need tuning/playtesting to achieve desired feel.
 
 **Data**: Star system data stored in galaxy JSON with tile-based coordinates.
+
+### Planetary Surface Context
+
+Planetary surfaces use a **rectangular grid** with unique display conventions:
+- **Grid**: 500 × 200 tiles
+- **Tile size**: 10 × 10 units (for terrain rendering)
+- **Total space**: 5000 × 2000 units
+- **Center point**: (2500, 1000)
+- **Wrapping**: X-axis wraps (cylindrical planet surface)
+
+**Why different dimensions?**
+- **5000 width**: Matches system space for familiar scale
+- **2000 height**: Rectangular to represent planet surface (not full sphere)
+- **500×200 tiles**: Manageable data size for procedural terrain storage
+- **10×10 tile size**: Balance between detail and performance
+
+**Coordinate Display Format**:
+Surface positions are displayed using **directional notation** rather than raw Cartesian coordinates:
+- **Format**: `[distance][direction]` for each axis
+- **Example**: `127W, 43N` means 127 units west of center, 43 units north of center
+- **Center displayed as**: `0, 0` (not 2500, 1000)
+
+**Why directional notation?**
+More intuitive for players exploring planet surfaces - "100 units west" is clearer than "x=2400". Matches real-world navigation conventions.
+
+**Conversion**:
+```python
+# Cartesian to directional display
+def to_surface_display(x, y):
+    center_x, center_y = 2500, 1000
+
+    # Calculate offset from center
+    offset_x = x - center_x
+    offset_y = y - center_y
+
+    # Convert to directional notation
+    x_dir = "E" if offset_x >= 0 else "W"
+    y_dir = "N" if offset_y >= 0 else "S"
+
+    return f"{abs(offset_x)}{x_dir}, {abs(offset_y)}{y_dir}"
+
+# Example: (2627, 1043) → "127E, 43N"
+# Example: (2373, 957) → "127W, 43S"
+```
+
+**Terrain Grid**:
+Each 10×10 unit tile contains terrain type data for procedural generation. See `docs/design/procedural_generation.md` for terrain system details.
+
+**Implementation Status**: ⚠️ Planetary surface navigation not yet implemented.
+
+### Context-Specific Design Rationale
+
+Each coordinate system is sized intentionally based on gameplay needs:
+
+| Context | Why This Size? |
+|---------|---------------|
+| **System Space (5000×5000)** | Square grid provides uniform exploration in all directions. Size chosen to balance travel time between planets with sense of scale. |
+| **Hyperspace (2000×1760)** | Smaller than system space to create denser galaxy feel. Tile-based storage (250×220 tiles) keeps galaxy data manageable. Aspect ratio accommodates rectangular screen display. |
+| **Surface (5000×2000)** | Width matches system space for familiar scale. Height is shorter (planet surface, not full sphere). Rectangular fits natural terrain exploration patterns. |
+
+**Common Thread**: All use standard Cartesian (Y-up) coordinates internally, only varying in dimensions and display conventions. This consistency simplifies code - same collision detection, movement, and rendering patterns work across all contexts.
 
 ## Angular Conventions
 
@@ -201,11 +282,26 @@ All JSON data files storing coordinates use this same system:
 All coordinate-related constants are defined in `src/core/constants.py`:
 
 ```python
-CONTEXT_GRID_SIZE = 5000    # Grid dimensions (5000 × 5000)
-CONTEXT_CENTER = 2500        # Center point for all grids
+# Local Space (System) Contexts
+CONTEXT_GRID_SIZE = 5000              # Grid dimensions for system space (5000 × 5000)
+CONTEXT_CENTER = 2500                  # Center point for system grids
 SYSTEM_ORBITS = [800, 1200, 1600, 2000]  # Orbital radii from center
-CENTRAL_OBJECT_SIZE = 300    # Visual radius of central objects
+CENTRAL_OBJECT_SIZE = 300              # Visual radius of central objects
+
+# Hyperspace Context
+HYPERSPACE_GRID_TILES = (250, 220)     # Hyperspace grid in tiles
+HYPERSPACE_TILE_SIZE = 8               # Units per tile (8×8)
+HYPERSPACE_GRID_SIZE = (2000, 1760)    # Total units (250*8, 220*8)
+HYPERSPACE_CENTER = (1000, 880)        # Center point for hyperspace
+
+# Planetary Surface Context
+SURFACE_GRID_TILES = (500, 200)        # Surface grid in tiles
+SURFACE_TILE_SIZE = 10                 # Units per tile (10×10)
+SURFACE_GRID_SIZE = (5000, 2000)       # Total units (500*10, 200*10)
+SURFACE_CENTER = (2500, 1000)          # Center point for surface
 ```
+
+**Note**: Not all constants may exist in `constants.py` yet - this represents the complete set that should be defined as each context is implemented.
 
 ## Related Documentation
 
@@ -223,3 +319,12 @@ CENTRAL_OBJECT_SIZE = 300    # Visual radius of central objects
 ## Migration Notes
 
 If you encounter code or docs that use inverted Y coordinates (y=0 at top), they need to be updated to follow this standard. Mark with TODO and reference this document.
+
+### Recent Updates
+
+**January 2026 - Grid Size Standardization**
+- Clarified that all system space contexts use standardized 5000×5000 grid
+- Added comprehensive coverage of Hyperspace (2000×1760) and Planetary Surface (5000×2000) coordinate systems
+- Documented surface coordinate directional notation (127W, 43N format)
+- Added design rationale for why each context uses different dimensions
+- **Note for other docs**: Some design documents (e.g., `navigation_specification.md`) mention "TBD" for grid sizes. This exploration phase is complete - refer to this document for current grid dimensions.
