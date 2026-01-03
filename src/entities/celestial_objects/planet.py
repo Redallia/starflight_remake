@@ -4,6 +4,7 @@ Represents celestial bodies (planets and moons) in star systems
 """
 
 import math
+import utils.position_calculator as pos_calc
 from core.constants import SYSTEM_ORBITS, CONTEXT_CENTER
 
 
@@ -53,11 +54,6 @@ class Planet:
         """
         Calculate the planet's x,y coordinates based on its orbital position.
 
-        Uses polar-to-cartesian conversion:
-        - Radius comes from SYSTEM_ORBITS[orbital_index]
-        - Angle comes from self.orbit_angle
-        - Center is at (CONTEXT_CENTER, CONTEXT_CENTER)
-
         Returns:
             tuple: (x, y) coordinates in context grid
         """
@@ -66,15 +62,12 @@ class Planet:
 
         # Get orbital radius from constants
         orbit_radius = SYSTEM_ORBITS[self.orbital_index]
-
-        # Convert angle to radians
-        angle_rad = math.radians(self.orbit_angle)
-
-        # Polar to cartesian conversion, centered at (250, 250)
-        x = CONTEXT_CENTER + orbit_radius * math.cos(angle_rad)
-        y = CONTEXT_CENTER + orbit_radius * math.sin(angle_rad)
-
-        return (x, y)
+        return pos_calc.polar_to_cartesian(
+            CONTEXT_CENTER,
+            CONTEXT_CENTER,
+            self.orbit_angle,
+            orbit_radius
+        )
     
     def __repr__(self):
         """String representation for debugging"""

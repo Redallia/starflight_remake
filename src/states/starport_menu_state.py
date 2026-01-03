@@ -64,9 +64,9 @@ class StarportMenuState(GameState):
             interaction_data = self.state_manager.game_session.interaction_target
             success, position = self.context_manager.calculate_launch_position(interaction_data)
             if success:
-                self.state_manager.game_session.ship_position = position
+                self.game_session.ship_position = position
                 # Clear the interaction - we're no longer docked
-                self.state_manager.game_session.clear_interaction()
+                self.game_session.clear_interaction()
                 # Transition to space navigation
                 self.state_manager.change_state("space_navigation")
             else:
@@ -94,3 +94,8 @@ class StarportMenuState(GameState):
     def context_manager(self):
         """Convenience property for accessing the game session's context manager"""
         return self.state_manager.game_session.context_manager
+    
+    @property
+    def game_session(self):
+        """Convenience property for accessing the game session"""
+        return self.state_manager.game_session

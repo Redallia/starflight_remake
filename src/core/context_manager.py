@@ -233,7 +233,6 @@ class ContextManager:
             "south": 270            
         }
         angle_degrees = boundary_to_angle[exit_boundary]
-        angle_radians = math.radians(angle_degrees)
 
         # Position ship at angle
         ship_radius = 11 / RENDER_SCALE  # Ship radius in game units

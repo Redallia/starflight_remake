@@ -59,12 +59,12 @@ class SpaceNavigationState(GameState):
         surface.fill(SPACE_BLACK)
 
         # Render HUD
-        self.hud_renderer.render(surface, self.state_manager.game_session)    
+        self.hud_renderer.render(surface, self.game_session)    
         
     def _move_ship(self, dx, dy):
         """Move the ship by (dx, dy) in current context"""
         # get current position
-        x, y = self.state_manager.game_session.ship_position
+        x, y = self.game_session.ship_position
 
         # Update position with scaled movement speed
         new_x = x + (dx * MOVEMENT_SPEED)
@@ -75,7 +75,7 @@ class SpaceNavigationState(GameState):
         new_y = max(0, min(CONTEXT_GRID_SIZE, new_y))
 
         # Update ship position in game session
-        self.state_manager.game_session.ship_position = (new_x, new_y)
+        self.game_session.ship_position = (new_x, new_y)
 
     def _check_collisions(self):
         self._check_interactables()
@@ -87,8 +87,8 @@ class SpaceNavigationState(GameState):
     def _get_current_interactables(self):
         """Get interactables for current context"""
         interactables = []
-        current_system = self.state_manager.game_session.current_system
-        context = self.state_manager.game_session.current_context
+        current_system = self.game_session.current_system
+        context = self.game_session.current_context
 
         if not current_system:
             return interactables
@@ -121,7 +121,7 @@ class SpaceNavigationState(GameState):
     
     def _check_interactables(self):
         """Check for interactable collisions and handle proximity"""
-        ship_x, ship_y = self.state_manager.game_session.ship_position
+        ship_x, ship_y = self.game_session.ship_position
         interactables = self._get_current_interactables()
 
         # Check for no interactables in this context
@@ -146,24 +146,24 @@ class SpaceNavigationState(GameState):
         # Check if it's a gas giant with moons
         if hasattr(planet, 'planetary_system') and planet.planetary_system:
             # Enter the planetary system context
-            current_context = self.state_manager.game_session.current_context
+            current_context = self.game_session.current_context
             
-            if self.state_manager.game_session.context_manager.enter_context(
+            if self.context_manager.enter_context(
                 context_type="planetary_system",
                 target_coords=planet.get_coordinates(),
                 target_radius=planet.size,
                 parent_region=current_context.type,
                 planet_index=planet.orbital_index
             ):
-                self.state_manager.game_session.add_message(f"Entering {planet.name} moon system")
+                self.game_session.add_message(f"Entering {planet.name} moon system")
                 self.collision_manager.reset()
         else:
             # Regular planet - show orbit message
-            self.state_manager.game_session.add_message(f"Approaching {planet.name}. Press Space to orbit.")
+            self.game_session.add_message(f"Approaching {planet.name}. Press Space to orbit.")
 
     def _check_boundary_collisions(self):
         """Check for boundary collisions and handle context transitions"""
-        ship_x, ship_y = self.state_manager.game_session.ship_position
+        ship_x, ship_y = self.game_session.ship_position
         boundary = self.collision_manager.check_boundary_collision(ship_x, ship_y)
 
         if boundary:
@@ -171,36 +171,46 @@ class SpaceNavigationState(GameState):
 
     def _handle_boundary_collision(self, boundary):
         """Handle collision with navigation context boundary"""
-        current_context = self.state_manager.game_session.current_context
+        current_context = self.game_session.current_context
 
         # Get the parent object coords/radius from current context
         parent_coords = current_context.data.get("parent_object_coords", [CONTEXT_CENTER, CONTEXT_CENTER])
         parent_radius = current_context.data.get("parent_object_radius", CENTRAL_OBJECT_SIZE)
 
         # Attempt to exit inner system
-        if self.state_manager.game_session.context_manager.exit_context(
+        if self.context_manager.exit_context(
             exit_boundary=boundary,
             parent_object_coords=parent_coords,
             parent_object_radius=parent_radius
         ):
-            self.state_manager.game_session.add_message(f"Entering outer system from {boundary}")
+            self.game_session.add_message(f"Entering outer system from {boundary}")
             # Reset collision manager to prevent immediate re-trigger
             self.collision_manager.reset()
         else:
             # Handle other types of boundary exits later
-            self.state_manager.game_session.add_message(f"Boundary collision at {boundary} (not implemented yet)")
+            self.game_session.add_message(f"Boundary collision at {boundary} (not implemented yet)")
 
     def _handle_central_zone_collision(self):
         """Handle entering the central zone (inner/outer system transition)"""
         # Attempt to enter inner system
-        if self.state_manager.game_session.context_manager.enter_context(
+        if self.context_manager.enter_context(
             context_type=CONTEXT_INNER_SYSTEM,
             target_coords=[CONTEXT_CENTER, CONTEXT_CENTER],
             target_radius=CENTRAL_OBJECT_SIZE
         ):
-            self.state_manager.game_session.add_message("Entering inner system")
+            self.game_session.add_message("Entering inner system")
             # Reset collision manager to prevent immediate re-trigger
             self.collision_manager.reset()
         else:
             # Handle other types of central zone collisions later
-            self.state_manager.game_session.add_message("Central zone collision (not implemented yet)")
+            self.game_session.add_message("Central zone collision (not implemented yet)")
+
+    @property
+    def game_session(self):
+        """Convenience property for accessing the game session"""
+        return self.state_manager.game_session
+    
+    @property
+    def context_manager(self):
+        """Convenience property for accessing the game session's context manager"""
+        return self.state_manager.game_session.context_manager
