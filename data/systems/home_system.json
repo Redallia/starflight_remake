@@ -3,7 +3,8 @@
   "hyperspace_coords": {"x": 125, "y": 110},
   "star": {
     "spectral_class": "G2V",
-    "name": "Arth"
+    "name": "Arth",
+    "size": 6
   },
   "inner_planets": [
     {

@@ -10,7 +10,8 @@ from core.constants import (
     CONTEXT_OUTER_SYSTEM,
     CONTEXT_INNER_SYSTEM,
     CONTEXT_PLANETARY_SYSTEM,
-    CENTRAL_OBJECT_SIZE
+    CENTRAL_OBJECT_SIZE,
+    INNER_ZONE_MULTIPLIER
 )
 
 class StarSystem:
@@ -38,7 +39,6 @@ class StarSystem:
             spectral_class=star_data["spectral_class"],
             size=star_data.get("size", CENTRAL_OBJECT_SIZE) # Default to scaled constant
         )
-        
         
         # Load planets (with orbital indices set)
         self.inner_planets = self._load_planets(data.get("inner_planets", []))
@@ -149,6 +149,11 @@ class StarSystem:
             return []
 
         return []
+    
+    @property
+    def inner_zone_radius(self):
+        """Collision radius for inner system transition zone"""
+        return self.star.size * INNER_ZONE_MULTIPLIER
     
     def __repr__(self):
         """String representation for debugging"""

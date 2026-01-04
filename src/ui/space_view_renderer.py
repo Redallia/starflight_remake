@@ -3,7 +3,7 @@ Renders space navigation view (starfield, ship, planets, other ships)
 """
 import pygame
 from ui.starfield_renderer import StarfieldRenderer
-from core.constants import RENDER_SCALE
+from core.constants import CONTEXT_OUTER_SYSTEM, CONTEXT_INNER_SYSTEM, INNER_ZONE_MULTIPLIER, RENDER_SCALE
 
 
 class SpaceViewRenderer:
@@ -51,13 +51,16 @@ class SpaceViewRenderer:
         )
         self._render_planets(surface, planets, camera_x, camera_y)
 
-        # Render the central star
-        self._render_star(surface, game_session.current_system.star, camera_x, camera_y)
+        # Render the center
+        if game_session.current_context.type == CONTEXT_OUTER_SYSTEM:
+            self._render_star(surface, game_session.current_system.star, camera_x, camera_y, INNER_ZONE_MULTIPLIER)
+        elif game_session.current_context.type == CONTEXT_INNER_SYSTEM:    
+            self._render_star(surface, game_session.current_system.star, camera_x, camera_y, 1)
 
         # Render ship icon at center
         center_x = self.width // 2
         center_y = self.height //2
-        ship_size = 22
+        ship_size = 12
 
         # Triangle points (pointing up)
         points = [
@@ -115,7 +118,7 @@ class SpaceViewRenderer:
                 # Draw planet as filled circle
                 pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), render_size)
 
-    def _render_star(self, surface, star, camera_x, camera_y):
+    def _render_star(self, surface, star, camera_x, camera_y, size_multiplier):
         # Get star's world coordinates (in game units)
         world_x, world_y = star.get_coordinates()
 
@@ -125,7 +128,7 @@ class SpaceViewRenderer:
         screen_y = self.height - screen_y_world
 
         # Scale star size for rendering
-        render_size = int(star.size * RENDER_SCALE)
+        render_size = int(star.size * RENDER_SCALE * size_multiplier)
 
         # Viewport culling (with margin for star size)
         margin = render_size + 100

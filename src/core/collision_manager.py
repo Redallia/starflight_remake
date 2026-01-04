@@ -1,5 +1,8 @@
 from utils.collision import point_in_circle
-from core.constants import CONTEXT_GRID_SIZE, CONTEXT_CENTER, CENTRAL_OBJECT_SIZE, RENDER_SCALE
+from core.constants import (
+    CONTEXT_GRID_SIZE, 
+    RENDER_SCALE
+)
 
 class CollisionManager:
     """

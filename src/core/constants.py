@@ -48,11 +48,12 @@ CONTEXT_CENTER = 50.0  # Center point (50, 50) for orbital calculations
 SYSTEM_ORBITS = [16.0, 24.0, 32.0, 40.0]  # 4 orbital slots
 # Central object sizes (visual radius for rendering)
 CENTRAL_OBJECT_SIZE = 6.0  # Size of star, inner system zone, gas giant at center
+INNER_ZONE_MULTIPLIER = 0.1 # Inner system zone is 1/3 the size of the star
 
 # Movement and spacing
 BOUNDARY_INSET = 1.0  # Distance from boundary to prevent immediate re-trigger
 BOUNDARY_CLEARANCE = 0.11  # Distance to place ship outside boundary on exit
-MOVEMENT_SPEED = 0.25  # Units per keypress (~8 presses to cross 1 unit)
+MOVEMENT_SPEED = 0.08  # Units per keypress (~8 presses to cross 1 unit)
 
 # Rendering scale (separates game logic from visual presentation)
 RENDER_SCALE = 100.0  # How many pixels per game unit (1 unit = 8 pixels)

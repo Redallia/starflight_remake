@@ -11,7 +11,6 @@ from core.collision_manager import CollisionManager
 from core.interactable import Interactable
 from core.constants import (
     CONTEXT_CENTER,
-    CENTRAL_OBJECT_SIZE,
     CONTEXT_OUTER_SYSTEM,
     CONTEXT_INNER_SYSTEM,
     CONTEXT_PLANETARY_SYSTEM,
@@ -80,9 +79,6 @@ class SpaceNavigationState(GameState):
     def _check_collisions(self):
         self._check_interactables()
         self._check_boundary_collisions()
-        """Check for all collision types"""
-        # self._check_planet_collisions()
-        # self._check_central_zone_collisions()
 
     def _get_current_interactables(self):
         """Get interactables for current context"""
@@ -113,7 +109,7 @@ class SpaceNavigationState(GameState):
             interactables.append(Interactable.circle(
                 CONTEXT_CENTER,
                 CONTEXT_CENTER,
-                CENTRAL_OBJECT_SIZE,
+                current_system.inner_zone_radius, # Use star-based size
                 CONTEXT_INNER_SYSTEM, None
             ))
 
@@ -175,7 +171,7 @@ class SpaceNavigationState(GameState):
 
         # Get the parent object coords/radius from current context
         parent_coords = current_context.data.get("parent_object_coords", [CONTEXT_CENTER, CONTEXT_CENTER])
-        parent_radius = current_context.data.get("parent_object_radius", CENTRAL_OBJECT_SIZE)
+        parent_radius = current_context.data.get("parent_object_radius", self.game_session.current_system.star.size)
 
         # Attempt to exit inner system
         if self.context_manager.exit_context(
@@ -196,7 +192,7 @@ class SpaceNavigationState(GameState):
         if self.context_manager.enter_context(
             context_type=CONTEXT_INNER_SYSTEM,
             target_coords=[CONTEXT_CENTER, CONTEXT_CENTER],
-            target_radius=CENTRAL_OBJECT_SIZE
+            target_radius=self.game_session.current_system.star.size
         ):
             self.game_session.add_message("Entering inner system")
             # Reset collision manager to prevent immediate re-trigger
